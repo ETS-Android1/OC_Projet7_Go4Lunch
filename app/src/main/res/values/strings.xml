@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Go4Lunch</string>
+
+    <!-- Bottom navigation bar -->
+    <string name="icon_map_view">Map View</string>
+    <string name="icon_list_view">List View</string>
+    <string name="icon_workmates">Workmates</string>
+
+    <!-- MainActivity menu -->
+    <string name="icon_search">Search</string>
+
+    <!-- Navigation Drawer -->s
+    <string name="icon_your_lunch">YOUR LUNCH</string>
+    <string name="icon_settings">SETTINGS</string>
+    <string name="icon_logout">LOGOUT</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+</resources>
