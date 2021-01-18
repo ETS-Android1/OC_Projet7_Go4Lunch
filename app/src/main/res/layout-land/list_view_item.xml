@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:orientation="horizontal"
+    android:gravity="center">
+
+    <GridLayout
+        android:layout_width="450dp"
+        android:layout_height="wrap_content"
+        android:rowCount="3"
+        android:columnCount="1"
+        android:layout_marginEnd="35dp">
+        <com.google.android.material.textview.MaterialTextView
+            android:text="Le Zinc"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_marginBottom="5dp"/>
+        <com.google.android.material.textview.MaterialTextView
+            android:text="French - 12 rue du Faubourg Poissonnière "
+            android:textSize="22sp"
+            android:maxLines="1"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_row="1"
+            android:layout_column="0"
+            android:layout_marginBottom="5dp"/>
+        <com.google.android.material.textview.MaterialTextView
+            android:text="Open until 7pm"
+            android:textSize="22sp"
+            android:textStyle="italic"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_row="2"
+            android:layout_column="0"/>
+    </GridLayout>
+
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:rowCount="3"
+        android:columnCount="1"
+        android:layout_marginEnd="35dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:text="170m"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_marginBottom="5dp"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:src="@drawable/ic_baseline_perm_identity_24dp_black"
+            android:text="(1)"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="5dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            app:drawableLeftCompat="@drawable/ic_baseline_perm_identity_40dp_black" />
+
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:rowCount="1"
+            android:columnCount="3">
+            <ImageView
+                android:id="@+id/note_star_3"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_column="0"
+                android:layout_row="0"
+                android:src="@drawable/ic_baseline_star_35dp_yellow"/>
+            <ImageView
+                android:id="@+id/note_star_2"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_column="1"
+                android:layout_row="0"
+                android:src="@drawable/ic_baseline_star_35dp_yellow"/>
+            <ImageView
+                android:id="@+id/note_star_1"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_column="2"
+                android:layout_row="0"
+                android:src="@drawable/ic_baseline_star_35dp_yellow"/>
+        </GridLayout>
+    </GridLayout>
+
+    <ImageView
+        android:id="@+id/icon_restaurant"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="@color/black"/>
+</LinearLayout>
