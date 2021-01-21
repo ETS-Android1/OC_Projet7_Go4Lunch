@@ -6,8 +6,14 @@
     <string name="icon_list_view">List View</string>
     <string name="icon_workmates">Workmates</string>
 
+    <!-- SignInActivity -->
+    <string name="snack_bar_auth_cancelled">Authentication cancelled</string>
+    <string name="snack_bar_error_no_network">Authentication failed - No network</string>
+    <string name="snack_bar_error_unknown">Authentication failed - Unknown error</string>
+
     <!-- MainActivity menu -->
     <string name="icon_search">Search</string>
+    <string name="snack_bar_logout">Logout</string>
 
     <!-- Navigation Drawer -->s
     <string name="icon_your_lunch">YOUR LUNCH</string>
@@ -15,4 +21,8 @@
     <string name="icon_logout">LOGOUT</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="facebook_application_id">723552471635167</string>
+    <string name="fb_login_protocol_scheme">fb723552471635167</string>
+
 </resources>

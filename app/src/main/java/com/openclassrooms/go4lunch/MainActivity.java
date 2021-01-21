@@ -3,24 +3,30 @@ package com.openclassrooms.go4lunch;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-
+import android.widget.ImageView;
+import android.widget.TextView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
-import com.jgabrielfreitas.core.BlurImageView;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     private ActivityMainBinding binding;
+    private FirebaseUser user;
+    private static final int SIGN_OUT = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeToolbar();
         initializeDrawerLayout();
         initializeNavigationView();
+        loadUserInfoInNavigationView();
     }
 
     private void initializeToolbar() {
@@ -46,10 +53,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initializeNavigationView() {
         binding.navigationView.setNavigationItemSelectedListener(this);
-        //View viewHeader = binding.navigationView.getHeaderView(0);
-        //BlurImageView blurImageView = (BlurImageView) viewHeader.findViewById(R.id.nav_header_bkg_image);
-        //blurImageView.setBlur(25);
     }
+
+    /**
+     * This methods updates the Navigation View header with user information
+     */
+    private void loadUserInfoInNavigationView() {
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        View header = binding.navigationView.getHeaderView(0);
+
+        TextView userName = header.findViewById(R.id.user_name);
+        userName.setText(user.getDisplayName());
+
+        TextView userEmail = header.findViewById(R.id.user_email);
+        userEmail.setText(user.getEmail());
+
+        ImageView userAvatar = header.findViewById(R.id.user_avatar);
+        Glide.with(this).load(user.getPhotoUrl())
+                .apply(RequestOptions.circleCropTransform())
+                .into(userAvatar);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_activity_menu, menu);
@@ -58,21 +82,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.d("CLICK_MENU", "Yop");
         if (item.getItemId() == R.id.search) {
             Log.d("CLICK_MENU", "Search");
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
+        Log.d("NAVIGATION", "Yop");
         switch (item.getItemId()) {
             case R.id.your_lunch_option :
+                Log.d("NAVIGATION", "Click R.id.your_lunch_option");
                 break;
             case R.id.settings_options :
+                Log.d("NAVIGATION", "Click R.id.settings_options");
                 break;
             case R.id.logout_options :
+                Log.d("NAVIGATION", "Click R.id.logout_options");
+                AuthUI.getInstance().delete(this)
+                        .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));
                 break;
         }
 
@@ -85,5 +116,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
             binding.drawerLayout.closeDrawer(GravityCompat.START);
         else super.onBackPressed();
+    }
+
+    private OnSuccessListener<Void> updateUIAfterRequestCompleted(final int request) {
+        return aVoid -> {
+            if (request == SIGN_OUT) {
+                Snackbar.make(binding.drawerLayout, R.string.snack_bar_logout, Snackbar.LENGTH_SHORT).show();
+                finish();
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
+        };
     }
 }

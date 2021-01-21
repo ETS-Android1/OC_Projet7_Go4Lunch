@@ -20,4 +20,15 @@
     <style name="DrawerIconStyle" parent="@style/Widget.AppCompat.DrawerArrowToggle">
         <item name="color">@color/white</item>
     </style>
+
+
+    <!-- STYLE SIGN-IN ACTIVITY -->
+    <style name="LoginTheme" parent="Theme.Go4Lunch">
+        <item name="android:windowBackground">@drawable/auth_ui_background</item>
+        <item name="colorPrimaryVariant">#00000000</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@null</item> <!-- Disable animations when entering/exiting activity -->
+    </style>
 </resources>
