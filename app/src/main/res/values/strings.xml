@@ -25,4 +25,9 @@
     <string name="facebook_application_id">723552471635167</string>
     <string name="fb_login_protocol_scheme">fb723552471635167</string>
 
+    <!-- LogoutDialog -->
+    <string name="title_logout_dialog">Logout</string>
+    <string name="message_logout_dialog">Do you want to logout ?</string>
+    <string name="positive_btn_logout_dialog">Yes</string>
+    <string name="negative_btn_logout_dialog">Cancel</string>
 </resources>

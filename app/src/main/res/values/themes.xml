@@ -31,4 +31,9 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowAnimationStyle">@null</item> <!-- Disable animations when entering/exiting activity -->
     </style>
+
+
+    <style name="Dialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorOnPrimary">@color/orange</item>
+    </style>
 </resources>

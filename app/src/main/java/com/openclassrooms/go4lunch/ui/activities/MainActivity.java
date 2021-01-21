@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch;
+package com.openclassrooms.go4lunch.ui.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -20,9 +20,11 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
+import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainActivityCallback{
 
     private ActivityMainBinding binding;
     private FirebaseUser user;
@@ -82,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.d("CLICK_MENU", "Yop");
         if (item.getItemId() == R.id.search) {
             Log.d("CLICK_MENU", "Search");
         }
@@ -92,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Log.d("NAVIGATION", "Yop");
         switch (item.getItemId()) {
             case R.id.your_lunch_option :
                 Log.d("NAVIGATION", "Click R.id.your_lunch_option");
@@ -101,9 +101,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d("NAVIGATION", "Click R.id.settings_options");
                 break;
             case R.id.logout_options :
-                Log.d("NAVIGATION", "Click R.id.logout_options");
-                AuthUI.getInstance().delete(this)
-                        .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));
+                LogoutDialog dialog = new LogoutDialog(this);
+                dialog.show(getSupportFragmentManager(), LogoutDialog.TAG);
                 break;
         }
 
@@ -126,5 +125,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
         };
+    }
+
+    /**
+     * MainActivityCallback interface implementation
+     */
+    @Override
+    public void logoutUser() {
+        AuthUI.getInstance().delete(this)
+                .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));
     }
 }
