@@ -1,10 +1,19 @@
 package com.openclassrooms.go4lunch.ui.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -15,6 +24,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -23,12 +33,20 @@ import com.google.firebase.auth.FirebaseUser;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
+import com.openclassrooms.go4lunch.ui.fragments.ListViewFragment;
+import com.openclassrooms.go4lunch.ui.fragments.MapViewFragment;
+import com.openclassrooms.go4lunch.ui.fragments.WorkmatesFragment;
+import com.openclassrooms.go4lunch.ui.receivers.NetworkBroadcastReceiver;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainActivityCallback{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainActivityCallback {
 
     private ActivityMainBinding binding;
     private FirebaseUser user;
+
     private static final int SIGN_OUT = 10;
+    private static final int LOCATION_PERMISSION_CODE = 100;
+
+    private NetworkBroadcastReceiver networkBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,11 +58,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeDrawerLayout();
         initializeNavigationView();
         loadUserInfoInNavigationView();
+        handleBottomNavigationItemsListeners();
+
+        networkBroadcastReceiver = new NetworkBroadcastReceiver(binding.barConnectivityInfo);
     }
 
-    private void initializeToolbar() {
-        setSupportActionBar(binding.toolbar);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(networkBroadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(networkBroadcastReceiver);
+    }
+
+    private void initializeToolbar() { setSupportActionBar(binding.toolbar); }
 
     private void initializeDrawerLayout() {
         ActionBarDrawerToggle toogle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar,
@@ -53,9 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toogle.syncState();
     }
 
-    private void initializeNavigationView() {
-        binding.navigationView.setNavigationItemSelectedListener(this);
-    }
+    private void initializeNavigationView() { binding.navigationView.setNavigationItemSelectedListener(this); }
 
     /**
      * This methods updates the Navigation View header with user information
@@ -110,11 +139,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
+    private void handleBottomNavigationItemsListeners() {
+        binding.bottomNavigationBar.setOnNavigationItemSelectedListener((@NonNull MenuItem item) -> {
+                item.setChecked(true);
+                switch (item.getItemId()) {
+                    case R.id.map : // Map View Fragment
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container_view, MapViewFragment.newInstance(), MapViewFragment.TAG)
+                                .commit();
+                        break;
+                    case R.id.list : // List View Fragment
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container_view, ListViewFragment.newInstance(), ListViewFragment.TAG)
+                                .commit();
+                        break;
+                    case R.id.workmates : // Workmates Fragment
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container_view, WorkmatesFragment.newInstance(), WorkmatesFragment.TAG)
+                                .commit();
+                        break;
+                }
+                return false;
+            }
+        );
+    }
     @Override
     public void onBackPressed() {
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
-            binding.drawerLayout.closeDrawer(GravityCompat.START);
-        else super.onBackPressed();
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) binding.drawerLayout.closeDrawer(GravityCompat.START);
+        else finishAffinity();
     }
 
     private OnSuccessListener<Void> updateUIAfterRequestCompleted(final int request) {
@@ -124,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 finish();
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
+
         };
     }
 
@@ -133,6 +187,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void logoutUser() {
         AuthUI.getInstance().delete(this)
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) { finish(); }
+                })
                 .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));
     }
 }

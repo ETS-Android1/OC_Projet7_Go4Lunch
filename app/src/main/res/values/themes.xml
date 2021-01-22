@@ -36,4 +36,12 @@
     <style name="Dialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorOnPrimary">@color/orange</item>
     </style>
+
+    <!-- FloatingActionButton style -->
+    <style name="FloatingActionButtonStyle" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="android:layout_margin">20dp</item>
+        <item name="android:src">@drawable/ic_baseline_gps_fixed_24dp_dark_grey</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="tint">#494949</item>
+    </style>
 </resources>
