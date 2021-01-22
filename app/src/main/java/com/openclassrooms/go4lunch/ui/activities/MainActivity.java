@@ -1,24 +1,18 @@
 package com.openclassrooms.go4lunch.ui.activities;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
@@ -59,8 +53,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeNavigationView();
         loadUserInfoInNavigationView();
         handleBottomNavigationItemsListeners();
-
-        networkBroadcastReceiver = new NetworkBroadcastReceiver(binding.barConnectivityInfo);
+        networkBroadcastReceiver = new NetworkBroadcastReceiver(this);
     }
 
     @Override
@@ -164,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         );
     }
+
     @Override
     public void onBackPressed() {
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) binding.drawerLayout.closeDrawer(GravityCompat.START);
@@ -182,7 +176,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
-     * MainActivityCallback interface implementation
+     * MainActivityCallback interface implementation :
+     * This method is called when user wants to logout by clicking on R.id.logout_options item in
+     * Navigation View menu
      */
     @Override
     public void logoutUser() {
@@ -192,5 +188,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onFailure(@NonNull Exception exception) { finish(); }
                 })
                 .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));
+    }
+
+    /**
+     * This method is used to update the "Network status" bar display.
+     * @param status : status of the network
+     */
+    @Override
+    public void updateNetworkInfoBarDisplay(boolean status) {
+        if (status) { // Wifi network of Mobile Data network activated
+            ViewPropertyAnimator fadeOutAnim = binding.barConnectivityInfo.animate().alpha(0.0f).setDuration(200);
+            fadeOutAnim.withEndAction(() -> binding.barConnectivityInfo.setVisibility(View.GONE));
+        }
+        else { // No network activated
+            binding.barConnectivityInfo.setVisibility(View.VISIBLE);
+            ViewPropertyAnimator fadeInAnim = binding.barConnectivityInfo.animate().alpha(1.0f).setDuration(200);
+            fadeInAnim.start();
+        }
     }
 }
