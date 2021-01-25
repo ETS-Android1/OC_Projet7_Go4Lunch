@@ -31,4 +31,19 @@
     <string name="positive_btn_logout_dialog">Yes</string>
     <string name="negative_btn_logout_dialog">Cancel</string>
 
+    <!-- GPSActivationDialog -->
+    <string name="title_gps_activation_dialog">GPS Activation</string>
+    <string name="message_gps_activation_dialog">This application needs to activate GPS device.</string>
+    <string name="positive_gps_activation_dialog">Enable</string>
+    <string name="negative_gps_activation_dialog">Cancel</string>
+
+    <!-- fragment_location_permission -->
+    <string name="title_location">Enable location</string>
+    <string name="text_location">Go4Lunch needs to access the location settings of your device.</string>
+    <string name="button_location_activation">Enable location</string>
+
+    <!-- fragment_access_settings_app -->
+    <string name="title_access_settings_app">Oups</string>
+    <string name="text_access_settings_app">To be able to use Go4Lunch, you need to authorize location access.\n\nClick on app Settings > Authorizations</string>
+    <string name="button_access_settings_app">Open Settings</string>
 </resources>

@@ -11,13 +11,10 @@ public class WorkmatesFragment extends Fragment {
 
     public final static String TAG = "TAG_WORKMATES_FRAGMENT";
 
-    public WorkmatesFragment() {
-        // Required empty public constructor
-    }
+    public WorkmatesFragment() { /* Empty constructor */ }
 
     public static WorkmatesFragment newInstance() {
-        WorkmatesFragment fragment = new WorkmatesFragment();
-        return fragment;
+        return new WorkmatesFragment();
     }
 
     @Override

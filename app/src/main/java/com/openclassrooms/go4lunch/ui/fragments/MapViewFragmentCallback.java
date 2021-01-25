@@ -5,4 +5,5 @@ package com.openclassrooms.go4lunch.ui.fragments;
  */
 public interface MapViewFragmentCallback {
     void updateFloatingButtonIconDisplay(boolean status);
+    void activateGPS();
 }

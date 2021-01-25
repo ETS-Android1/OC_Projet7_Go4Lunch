@@ -3,9 +3,13 @@ package com.openclassrooms.go4lunch.ui.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+import androidx.fragment.app.Fragment;
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +32,7 @@ import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
 import com.openclassrooms.go4lunch.ui.fragments.ListViewFragment;
+import com.openclassrooms.go4lunch.ui.fragments.LocationPermissionFragment;
 import com.openclassrooms.go4lunch.ui.fragments.MapViewFragment;
 import com.openclassrooms.go4lunch.ui.fragments.WorkmatesFragment;
 import com.openclassrooms.go4lunch.ui.receivers.NetworkBroadcastReceiver;
@@ -38,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FirebaseUser user;
 
     private static final int SIGN_OUT = 10;
-    private static final int LOCATION_PERMISSION_CODE = 100;
 
     private NetworkBroadcastReceiver networkBroadcastReceiver;
 
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
+        checkIfLocationPermissionIsGranted();
         registerReceiver(networkBroadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
@@ -128,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
 
+
         binding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -196,14 +202,55 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @Override
     public void updateNetworkInfoBarDisplay(boolean status) {
-        if (status) { // Wifi network of Mobile Data network activated
-            ViewPropertyAnimator fadeOutAnim = binding.barConnectivityInfo.animate().alpha(0.0f).setDuration(200);
-            fadeOutAnim.withEndAction(() -> binding.barConnectivityInfo.setVisibility(View.GONE));
+        if (checkIfBottomBarFragmentsAreDisplayed()) {
+            if (status) { // Wifi network of Mobile Data network activated
+                ViewPropertyAnimator fadeOutAnim = binding.barConnectivityInfo.animate().alpha(0.0f).setDuration(200);
+                fadeOutAnim.withEndAction(() -> binding.barConnectivityInfo.setVisibility(View.GONE));
+            }
+            else { // No network activated
+                binding.barConnectivityInfo.setVisibility(View.VISIBLE);
+                ViewPropertyAnimator fadeInAnim = binding.barConnectivityInfo.animate().alpha(1.0f).setDuration(200);
+                fadeInAnim.start();
+            }
         }
-        else { // No network activated
-            binding.barConnectivityInfo.setVisibility(View.VISIBLE);
-            ViewPropertyAnimator fadeInAnim = binding.barConnectivityInfo.animate().alpha(1.0f).setDuration(200);
-            fadeInAnim.start();
+    }
+
+    /**
+     * This methods updates all MainActivity UI visibility according to the permission status
+     * @param visibility : Visibility value to apply to UIs.
+     */
+    public void updateToolbarBottomBarAndNetworkBarVisibility(int visibility) {
+        binding.barConnectivityInfo.setVisibility(visibility);
+        binding.toolbar.setVisibility(visibility);
+        binding.bottomNavigationBar.setVisibility(visibility);
+    }
+
+    /**
+     * This method is used to check if location permission is granted.
+     * If yes : MapViewFragment fragment is displayed and all UIs (toolbar, bottom bar)
+     * If not : The LocationPermissionFragment fragment is displayed to allow user to
+     * authorize location permission.
+     */
+    public void checkIfLocationPermissionIsGranted() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            updateToolbarBottomBarAndNetworkBarVisibility(View.GONE);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container_view, LocationPermissionFragment.newInstance(), LocationPermissionFragment.TAG)
+                    .commit();
         }
+        else {
+            updateToolbarBottomBarAndNetworkBarVisibility(View.VISIBLE);
+            if (!checkIfBottomBarFragmentsAreDisplayed()) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container_view, MapViewFragment.newInstance(), MapViewFragment.TAG)
+                        .commit();
+            }
+        }
+    }
+
+    public boolean checkIfBottomBarFragmentsAreDisplayed() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(MapViewFragment.TAG);
+        return (fragment instanceof MapViewFragment);
     }
 }

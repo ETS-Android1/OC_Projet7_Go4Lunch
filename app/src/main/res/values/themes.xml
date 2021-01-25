@@ -33,7 +33,8 @@
     </style>
 
 
-    <style name="Dialog" parent="Theme.AppCompat.Light.Dialog">
+    <!-- Dialogs style -->
+    <style name="DialogStyle" parent="Theme.AppCompat.Light.Dialog">
         <item name="colorOnPrimary">@color/orange</item>
     </style>
 

@@ -11,14 +11,10 @@ public class ListViewFragment extends Fragment {
 
     public final static String TAG = "TAG_LIST_VIEW_FRAGMENT";
 
-    public ListViewFragment() {
-        // Required empty public constructor
-    }
+    public ListViewFragment() { /* Empty public constructor */ }
 
-    // TODO: Rename and change types and number of parameters
     public static ListViewFragment newInstance() {
-        ListViewFragment fragment = new ListViewFragment();
-        return fragment;
+        return new ListViewFragment();
     }
 
     @Override
