@@ -37,6 +37,8 @@ import com.openclassrooms.go4lunch.ui.fragments.MapViewFragment;
 import com.openclassrooms.go4lunch.ui.fragments.WorkmatesFragment;
 import com.openclassrooms.go4lunch.ui.receivers.NetworkBroadcastReceiver;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainActivityCallback {
 
     private ActivityMainBinding binding;
@@ -76,10 +78,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initializeToolbar() { setSupportActionBar(binding.toolbar); }
 
     private void initializeDrawerLayout() {
-        ActionBarDrawerToggle toogle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar,
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        binding.drawerLayout.addDrawerListener(toogle);
-        toogle.syncState();
+        binding.drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
     }
 
     private void initializeNavigationView() { binding.navigationView.setNavigationItemSelectedListener(this); }
@@ -132,8 +134,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 dialog.show(getSupportFragmentManager(), LogoutDialog.TAG);
                 break;
         }
-
-
         binding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -144,24 +144,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 item.setChecked(true);
                 switch (item.getItemId()) {
                     case R.id.map : // Map View Fragment
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container_view, MapViewFragment.newInstance(), MapViewFragment.TAG)
-                                .commit();
+                        if (getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG) != null) {
+                            if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG)).isVisible()) {
+                                removeFragment(ListViewFragment.TAG);
+                            }
+                        }
+                        if (getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG) != null) {
+                            if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG)).isVisible()) {
+                                removeFragment(WorkmatesFragment.TAG);
+                            }
+                        }
                         break;
                     case R.id.list : // List View Fragment
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container_view, ListViewFragment.newInstance(), ListViewFragment.TAG)
-                                .commit();
+                        if (getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG) != null) {
+                            if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG)).isVisible()) {
+                                removeFragment(WorkmatesFragment.TAG);
+                            }
+                        }
+                        if (getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG) == null) {
+                            addFragment(ListViewFragment.TAG, ListViewFragment.newInstance());
+                        }
                         break;
                     case R.id.workmates : // Workmates Fragment
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container_view, WorkmatesFragment.newInstance(), WorkmatesFragment.TAG)
-                                .commit();
+                        if (getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG) != null) {
+                            if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG)).isVisible()) {
+                                removeFragment(ListViewFragment.TAG);
+                            }
+                        }
+                        if (getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG) == null) {
+                            addFragment(WorkmatesFragment.TAG, WorkmatesFragment.newInstance());
+                        }
                         break;
                 }
                 return false;
             }
         );
+    }
+
+    public void removeFragment(String TAG) {
+        getSupportFragmentManager().beginTransaction()
+                .remove(Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(TAG)))
+                .commit();
+    }
+
+    public void addFragment(String TAG, Fragment instance) {
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container_view, instance, TAG)
+                .commit();
     }
 
     @Override
