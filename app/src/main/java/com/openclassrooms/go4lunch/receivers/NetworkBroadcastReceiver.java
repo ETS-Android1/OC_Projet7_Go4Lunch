@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.ui.receivers;
+package com.openclassrooms.go4lunch.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

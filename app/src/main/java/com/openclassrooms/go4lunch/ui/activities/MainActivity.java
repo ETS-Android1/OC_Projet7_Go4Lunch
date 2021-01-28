@@ -1,6 +1,7 @@
 package com.openclassrooms.go4lunch.ui.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -8,6 +9,7 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -24,6 +26,10 @@ import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,8 +41,9 @@ import com.openclassrooms.go4lunch.ui.fragments.ListViewFragment;
 import com.openclassrooms.go4lunch.ui.fragments.LocationPermissionFragment;
 import com.openclassrooms.go4lunch.ui.fragments.MapViewFragment;
 import com.openclassrooms.go4lunch.ui.fragments.WorkmatesFragment;
-import com.openclassrooms.go4lunch.ui.receivers.NetworkBroadcastReceiver;
-
+import com.openclassrooms.go4lunch.receivers.NetworkBroadcastReceiver;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainActivityCallback {
@@ -45,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FirebaseUser user;
 
     private static final int SIGN_OUT = 10;
-
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 102;
     private NetworkBroadcastReceiver networkBroadcastReceiver;
 
     @Override
@@ -114,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.search) {
-            Log.d("CLICK_MENU", "Search");
+            onSearchCalled();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -281,5 +288,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean checkIfBottomBarFragmentsAreDisplayed() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(MapViewFragment.TAG);
         return (fragment instanceof MapViewFragment);
+    }
+
+    public void onSearchCalled() {
+        // Set the fields to specify which types of place data to return
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
+        // Start the autocomplete intent
+        Intent intent = new Autocomplete.IntentBuilder(
+                AutocompleteActivityMode.OVERLAY, fields).setCountry("FR")
+                .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                .build(this);
+
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

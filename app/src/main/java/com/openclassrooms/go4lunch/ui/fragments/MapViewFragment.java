@@ -30,10 +30,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
+import com.openclassrooms.go4lunch.controller.PlacesController;
 import com.openclassrooms.go4lunch.databinding.FragmentMapViewBinding;
 import com.openclassrooms.go4lunch.ui.dialogs.GPSActivationDialog;
-import com.openclassrooms.go4lunch.ui.receivers.GPSBroadcastReceiver;
+import com.openclassrooms.go4lunch.receivers.GPSBroadcastReceiver;
 
 /**
  * This fragment is used to allow user to interact with a Google Map, search for a restaurant
@@ -43,12 +47,25 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
 
     public final static String TAG = "TAG_MAP_VIEW_FRAGMENT";
     private FragmentMapViewBinding binding;
-    private GPSBroadcastReceiver gpsBroadcastReceiver; // To catch GPS status changed event
+
+    // To catch GPS status changed event
+    private GPSBroadcastReceiver gpsBroadcastReceiver;
+
+    // To display a Google map in fragment
     private GoogleMap map;
+
+    // To access Location service methods
     private LocationManager locationManager;
-    private FusedLocationProviderClient client; // To get current user position
+
+    // To get current user position
+    private FusedLocationProviderClient client;
+
+    // Location refresh parameters for GPS provider
     private final static long LOCATION_REFRESH_TIME = 60000;
     private final static float LOCATION_REFRESH_DISTANCE = 150;
+
+    // Google Places
+    private PlacesClient placesClient; // To access Places API methods
 
     public MapViewFragment() { /* Empty constructor */ }
 
@@ -78,6 +95,13 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         mapFragment.getMapAsync(this);
 
         client = LocationServices.getFusedLocationProviderClient(requireContext()); // Initialize Location provider
+
+        if (!Places.isInitialized()) {
+            Places.initialize(requireActivity().getApplicationContext(), BuildConfig.API_KEY);
+        }
+
+        // Initialize client to access Place API
+        placesClient = Places.createClient(requireContext());
     }
 
     @Override
@@ -113,14 +137,14 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                 == PackageManager.PERMISSION_GRANTED) {
             if (map != null) {
                 binding.fabLocation.setOnClickListener((View v) -> {
-                            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { // GPS Activated
-                                getCurrentLocation(true);
-                            }
-                            else { // GPS deactivated
-                                GPSActivationDialog dialog = new GPSActivationDialog(this);
-                                dialog.show(getParentFragmentManager(), GPSActivationDialog.TAG);
-                            }
+                        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { // GPS Activated
+                            centerCursorInCurrentLocation(true);
                         }
+                        else { // GPS deactivated
+                            GPSActivationDialog dialog = new GPSActivationDialog(this);
+                            dialog.show(getParentFragmentManager(), GPSActivationDialog.TAG);
+                        }
+                    }
                 );
             }
         }
@@ -134,7 +158,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      * @param update : Type of camera update
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    public void getCurrentLocation(boolean update) {
+    public void centerCursorInCurrentLocation(boolean update) {
         client.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener((Location location) -> {
                     CameraUpdate cameraUpdate = CameraUpdateFactory
@@ -146,7 +170,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                     }
                 );
     }
-
 
     // -------------- MapViewFragmentCallback interface implementation --------------
     /**
@@ -170,17 +193,30 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @Override
     public void activateGPS() { startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)); }
 
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    @Override
+    public void searchPlacesInCurrentLocation() {
+        PlacesController.searchPlacesInCurrentLocation(placesClient);
+    }
+
     // -------------- OnMapReadyCallback interface implementation --------------
     @Override
     public void onMapReady(GoogleMap googleMap) {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            // Initialize map
             map = googleMap;
             map.setMyLocationEnabled(true);
             map.getUiSettings().setMyLocationButtonEnabled(false);
             map.getUiSettings().setCompassEnabled(true);
 
-            getCurrentLocation(false); // Initialize current position
+            // Initialize current position
+            centerCursorInCurrentLocation(false);
+
+            // Handle floating action button icon update
             handleFloatingActionButtonListener();
+
+            // Initialize places
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) searchPlacesInCurrentLocation();
         }
     }
 
