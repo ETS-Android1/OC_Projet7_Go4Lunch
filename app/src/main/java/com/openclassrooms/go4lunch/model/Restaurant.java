@@ -18,6 +18,7 @@ public class Restaurant {
     private String phoneNumber;
     private Uri websiteUri;
     private Bitmap photo;
+    private Double rating;
 
     public Restaurant(String id, String name, String address, LatLng latLng) {
         this.id = id;
@@ -43,6 +44,8 @@ public class Restaurant {
 
     public Bitmap getPhoto() { return photo; }
 
+    public Double getRating() { return rating; }
+
     // Setter methods
     public void setOpeningHours(OpeningHours openingHours) { this.openingHours = openingHours; }
 
@@ -51,4 +54,6 @@ public class Restaurant {
     public void setWebsiteUri(Uri websiteUri) { this.websiteUri = websiteUri; }
 
     public void setPhoto(Bitmap photo) { this.photo = photo; }
+
+    public void setRating(Double rating) { this.rating = rating; }
 }

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
@@ -24,7 +25,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.TypeFilter;
@@ -49,24 +51,24 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainActivityCallback {
 
     private ActivityMainBinding binding;
-    private FirebaseUser user;
 
     private static final int SIGN_OUT = 10;
     private static final int AUTOCOMPLETE_REQUEST_CODE = 102;
-    private NetworkBroadcastReceiver networkBroadcastReceiver;
+    private NetworkBroadcastReceiver networkBroadcastReceiver; // To catch Network status changed event
+    private FusedLocationProviderClient client; // To get current user position
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         initializeToolbar();
         initializeDrawerLayout();
         initializeNavigationView();
         loadUserInfoInNavigationView();
         handleBottomNavigationItemsListeners();
         networkBroadcastReceiver = new NetworkBroadcastReceiver(this);
+        client = LocationServices.getFusedLocationProviderClient(getApplicationContext()); // Initialize Location provider
     }
 
     @Override
@@ -82,7 +84,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         unregisterReceiver(networkBroadcastReceiver);
     }
 
-    private void initializeToolbar() { setSupportActionBar(binding.toolbar); }
+    private void initializeToolbar() {
+        setSupportActionBar(binding.toolbar);
+    }
 
     private void initializeDrawerLayout() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar,
@@ -91,13 +95,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
     }
 
-    private void initializeNavigationView() { binding.navigationView.setNavigationItemSelectedListener(this); }
+    private void initializeNavigationView() {
+        binding.navigationView.setNavigationItemSelectedListener(this);
+    }
 
     /**
      * This methods updates the Navigation View header with user information
      */
     private void loadUserInfoInNavigationView() {
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         View header = binding.navigationView.getHeaderView(0);
 
         TextView userName = header.findViewById(R.id.user_name);
@@ -130,13 +136,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.your_lunch_option :
+            case R.id.your_lunch_option:
                 Log.d("NAVIGATION", "Click R.id.your_lunch_option");
                 break;
-            case R.id.settings_options :
+            case R.id.settings_options:
                 Log.d("NAVIGATION", "Click R.id.settings_options");
                 break;
-            case R.id.logout_options :
+            case R.id.logout_options:
                 LogoutDialog dialog = new LogoutDialog(this);
                 dialog.show(getSupportFragmentManager(), LogoutDialog.TAG);
                 break;
@@ -148,43 +154,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressLint("NonConstantResourceId")
     private void handleBottomNavigationItemsListeners() {
         binding.bottomNavigationBar.setOnNavigationItemSelectedListener((@NonNull MenuItem item) -> {
-                item.setChecked(true);
-                switch (item.getItemId()) {
-                    case R.id.map : // Map View Fragment
-                        if (getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG) != null) {
-                            if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG)).isVisible()) {
-                                removeFragment(ListViewFragment.TAG);
+                    item.setChecked(true);
+                    switch (item.getItemId()) {
+                        case R.id.map: // Map View Fragment
+                            if (getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG) != null) {
+                                if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG)).isVisible()) {
+                                    removeFragment(ListViewFragment.TAG);
+                                }
                             }
-                        }
-                        if (getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG) != null) {
-                            if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG)).isVisible()) {
-                                removeFragment(WorkmatesFragment.TAG);
+                            if (getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG) != null) {
+                                if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG)).isVisible()) {
+                                    removeFragment(WorkmatesFragment.TAG);
+                                }
                             }
-                        }
-                        break;
-                    case R.id.list : // List View Fragment
-                        if (getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG) != null) {
-                            if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG)).isVisible()) {
-                                removeFragment(WorkmatesFragment.TAG);
+                            break;
+                        case R.id.list: // List View Fragment
+                            if (getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG) != null) {
+                                if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG)).isVisible()) {
+                                    removeFragment(WorkmatesFragment.TAG);
+                                }
                             }
-                        }
-                        if (getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG) == null) {
-                            addFragment(ListViewFragment.TAG, ListViewFragment.newInstance());
-                        }
-                        break;
-                    case R.id.workmates : // Workmates Fragment
-                        if (getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG) != null) {
-                            if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG)).isVisible()) {
-                                removeFragment(ListViewFragment.TAG);
+                            if (getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG) == null) {
+                                addFragment(ListViewFragment.TAG, ListViewFragment.newInstance());
                             }
-                        }
-                        if (getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG) == null) {
-                            addFragment(WorkmatesFragment.TAG, WorkmatesFragment.newInstance());
-                        }
-                        break;
+                            break;
+                        case R.id.workmates: // Workmates Fragment
+                            if (getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG) != null) {
+                                if (Objects.requireNonNull(getSupportFragmentManager().findFragmentByTag(ListViewFragment.TAG)).isVisible()) {
+                                    removeFragment(ListViewFragment.TAG);
+                                }
+                            }
+                            if (getSupportFragmentManager().findFragmentByTag(WorkmatesFragment.TAG) == null) {
+                                addFragment(WorkmatesFragment.TAG, WorkmatesFragment.newInstance());
+                            }
+                            break;
+                    }
+                    return false;
                 }
-                return false;
-            }
         );
     }
 
@@ -202,7 +208,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) binding.drawerLayout.closeDrawer(GravityCompat.START);
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
+            binding.drawerLayout.closeDrawer(GravityCompat.START);
         else finishAffinity();
     }
 
@@ -225,10 +232,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void logoutUser() {
         AuthUI.getInstance().delete(this)
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) { finish(); }
-                })
+                .addOnFailureListener(this, exception -> finish())
                 .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));
     }
 
@@ -238,12 +242,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @Override
     public void updateNetworkInfoBarDisplay(boolean status) {
-        if (checkIfBottomBarFragmentsAreDisplayed()) {
+        if (checkIfMapViewFragmentIsDisplayed()) {
             if (status) { // Wifi network of Mobile Data network activated
                 ViewPropertyAnimator fadeOutAnim = binding.barConnectivityInfo.animate().alpha(0.0f).setDuration(200);
                 fadeOutAnim.withEndAction(() -> binding.barConnectivityInfo.setVisibility(View.GONE));
-            }
-            else { // No network activated
+            } else { // No network activated
                 binding.barConnectivityInfo.setVisibility(View.VISIBLE);
                 ViewPropertyAnimator fadeInAnim = binding.barConnectivityInfo.animate().alpha(1.0f).setDuration(200);
                 fadeInAnim.start();
@@ -274,10 +277,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container_view, LocationPermissionFragment.newInstance(), LocationPermissionFragment.TAG)
                     .commit();
-        }
-        else {
+        } else {
             updateToolbarBottomBarAndNetworkBarVisibility(View.VISIBLE);
-            if (!checkIfBottomBarFragmentsAreDisplayed()) {
+            if (!checkIfMapViewFragmentIsDisplayed()) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container_view, MapViewFragment.newInstance(), MapViewFragment.TAG)
                         .commit();
@@ -285,11 +287,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public boolean checkIfBottomBarFragmentsAreDisplayed() {
+    public boolean checkIfMapViewFragmentIsDisplayed() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(MapViewFragment.TAG);
         return (fragment instanceof MapViewFragment);
     }
 
+    /**
+     * This method is used to configure and display the Autocomplete search bar.
+     */
     public void onSearchCalled() {
         // Set the fields to specify which types of place data to return
         List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
@@ -307,4 +312,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+    @Override
+    public void searchCurrentLocationInMapViewFragment() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(MapViewFragment.TAG);
+        if (fragment != null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                ((MapViewFragment) fragment).searchPlacesInCurrentLocation();
+            }
+        }
+    }
+
+    public FusedLocationProviderClient getClient() { return this.client; }
 }
