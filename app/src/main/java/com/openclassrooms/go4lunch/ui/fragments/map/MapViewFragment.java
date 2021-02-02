@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.ui.fragments;
+package com.openclassrooms.go4lunch.ui.fragments.map;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -29,11 +29,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.net.PlacesClient;
-import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
-import com.openclassrooms.go4lunch.controller.PlacesController;
 import com.openclassrooms.go4lunch.databinding.FragmentMapViewBinding;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.ui.dialogs.GPSActivationDialog;
@@ -61,9 +57,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     private final static long LOCATION_REFRESH_TIME = 60000;
     private final static float LOCATION_REFRESH_DISTANCE = 150;
 
-    // Google Places
-    private PlacesClient placesClient; // To access Places API methods
-
     public MapViewFragment() { /* Empty constructor */ }
 
     public static MapViewFragment newInstance() {
@@ -88,15 +81,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         gpsBroadcastReceiver = new GPSBroadcastReceiver(this);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
-                                         .findFragmentById(R.id.google_map);
+                .findFragmentById(R.id.google_map);
         mapFragment.getMapAsync(this);
-
-        if (!Places.isInitialized()) {
-            Places.initialize(requireActivity().getApplicationContext(), BuildConfig.API_KEY);
-        }
-
-        // Initialize client to access Place API
-        placesClient = Places.createClient(requireContext());
     }
 
     @Override
@@ -108,7 +94,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
-                                                   LOCATION_REFRESH_DISTANCE, this);
+                    LOCATION_REFRESH_DISTANCE, this);
         }
     }
 
@@ -132,14 +118,13 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                 == PackageManager.PERMISSION_GRANTED) {
             if (map != null) {
                 binding.fabLocation.setOnClickListener((View v) -> {
-                        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { // GPS Activated
-                            centerCursorInCurrentLocation(true);
+                            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { // GPS Activated
+                                centerCursorInCurrentLocation(true);
+                            } else { // GPS deactivated
+                                GPSActivationDialog dialog = new GPSActivationDialog(this);
+                                dialog.show(getParentFragmentManager(), GPSActivationDialog.TAG);
+                            }
                         }
-                        else { // GPS deactivated
-                            GPSActivationDialog dialog = new GPSActivationDialog(this);
-                            dialog.show(getParentFragmentManager(), GPSActivationDialog.TAG);
-                        }
-                    }
                 );
             }
         }
@@ -156,13 +141,13 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     public void centerCursorInCurrentLocation(boolean update) {
         ((MainActivity) getActivity()).getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener((Location location) -> {
-                    CameraUpdate cameraUpdate = CameraUpdateFactory
-                            .newLatLngZoom(new LatLng(location.getLatitude(),
-                                            location.getLongitude()),
-                                         18.0f);
-                        if (update) map.animateCamera(cameraUpdate);
-                        else map.moveCamera(cameraUpdate);
-                    }
+                            CameraUpdate cameraUpdate = CameraUpdateFactory
+                                    .newLatLngZoom(new LatLng(location.getLatitude(),
+                                                    location.getLongitude()),
+                                            18.0f);
+                            if (update) map.animateCamera(cameraUpdate);
+                            else map.moveCamera(cameraUpdate);
+                        }
                 );
     }
 
@@ -178,26 +163,30 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         if (status) {
             binding.fabLocation.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_gps_fixed_24dp_dark_grey));
             binding.fabLocation.setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.dark_grey)));
-        }
-        else {
+        } else {
             binding.fabLocation.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_gps_off_24dp_red));
             binding.fabLocation.setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.red)));
         }
     }
 
     @Override
-    public void activateGPS() { startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)); }
+    public void activateGPS() {
+        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+    }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     @Override
     public void searchPlacesInCurrentLocation() {
-        PlacesController.searchPlacesInCurrentLocation(placesClient, getContext());
+        ((MainActivity) getActivity()).getPlacesViewModel().searchPlacesInCurrentLocation(
+                ((MainActivity) requireActivity()).getPlacesClient(), getContext());
+
     }
 
     // -------------- OnMapReadyCallback interface implementation --------------
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
             // Initialize map
             map = googleMap;
             map.setMyLocationEnabled(true);
@@ -209,19 +198,33 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
 
             // Handle floating action button icon update
             handleFloatingActionButtonListener();
+
+            searchPlacesInCurrentLocation();
         }
     }
 
     // -------------- LocationListener interface implementation --------------
     @Override
-    public void onLocationChanged(@NonNull Location location) { }
+    public void onLocationChanged(@NonNull Location location) {
+        Log.i("LOCATIONLISTENER", "onLocationChanged");
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            searchPlacesInCurrentLocation();
+        }
+    }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) { }
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        Log.i("LOCATIONLISTENER", "onStatusChanged");
+    }
 
     @Override
-    public void onProviderEnabled(@NonNull String provider) { }
+    public void onProviderEnabled(@NonNull String provider) {
+        Log.i("LOCATIONLISTENER", "onProviderEnabled");
+    }
 
     @Override
-    public void onProviderDisabled(@NonNull String provider) { }
+    public void onProviderDisabled(@NonNull String provider) {
+        Log.i("LOCATIONLISTENER", "onProviderDisabled");
+    }
 }

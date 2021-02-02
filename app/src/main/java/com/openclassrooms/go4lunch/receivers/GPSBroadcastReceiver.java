@@ -9,10 +9,11 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.util.Log;
 import androidx.core.content.ContextCompat;
-import com.openclassrooms.go4lunch.ui.fragments.MapViewFragmentCallback;
+import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
 
 /**
- * This class is used to detect any "GPS status change" event and send to information to a {@link MapViewFragmentCallback} callback
+ * This class is used to detect any "GPS status change" event and send to information
+ * to a {@link MapViewFragmentCallback} callback
  */
 public class GPSBroadcastReceiver extends BroadcastReceiver {
 
@@ -30,11 +31,11 @@ public class GPSBroadcastReceiver extends BroadcastReceiver {
 
         if (connectivityManager.getActiveNetworkInfo() != null) {
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                        PackageManager.PERMISSION_GRANTED) {
                     callback.searchPlacesInCurrentLocation();
                 }
             }
         }
     }
-
 }

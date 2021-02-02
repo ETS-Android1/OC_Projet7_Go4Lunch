@@ -4,19 +4,23 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.OpeningHours;
+import com.google.android.libraries.places.api.model.PhotoMetadata;
+
+import java.util.List;
 
 /**
  * Model class which define a restaurant, and containing all data retrieve from Place API
  */
 public class Restaurant {
 
-    private String id;
-    private String name;
-    private String address;
-    private LatLng latLng;
+    private final String id;
+    private final String name;
+    private final String address;
+    private final LatLng latLng;
     private OpeningHours openingHours;
     private String phoneNumber;
     private Uri websiteUri;
+    private List<PhotoMetadata> photoMetadataList;
     private Bitmap photo;
     private Double rating;
 
@@ -46,6 +50,8 @@ public class Restaurant {
 
     public Double getRating() { return rating; }
 
+    public List<PhotoMetadata> getPhotoMetadataList() { return this.photoMetadataList; }
+
     // Setter methods
     public void setOpeningHours(OpeningHours openingHours) { this.openingHours = openingHours; }
 
@@ -56,4 +62,6 @@ public class Restaurant {
     public void setPhoto(Bitmap photo) { this.photo = photo; }
 
     public void setRating(Double rating) { this.rating = rating; }
+
+    public void setPhotoMetadataList(List<PhotoMetadata> photoMetadataList) { this.photoMetadataList = photoMetadataList; }
 }

@@ -1,7 +1,6 @@
 package com.openclassrooms.go4lunch.ui.fragments;
 
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -15,11 +14,15 @@ import com.openclassrooms.go4lunch.adapters.ListViewAdapter;
 import com.openclassrooms.go4lunch.databinding.FragmentListViewBinding;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 
+/**
+ * Fragment used to display the list of restaurant in a RecyclerView, using a
+ * @{@link ListViewAdapter} adapter
+ */
 public class ListViewFragment extends Fragment {
 
     public final static String TAG = "TAG_LIST_VIEW_FRAGMENT";
-    public FragmentListViewBinding binding;
-    public ListViewAdapter adapter;
+    private FragmentListViewBinding binding;
+    private ListViewAdapter adapter;
 
     public ListViewFragment() { /* Empty public constructor */ }
 
@@ -50,13 +53,13 @@ public class ListViewFragment extends Fragment {
         binding.recyclerViewList.setLayoutManager(layoutManager);
 
         // Initialize Adapter
-        adapter = new ListViewAdapter( ((MainActivity) getActivity()).getClient(), getContext());
+        adapter = new ListViewAdapter( ((MainActivity) getActivity()).getClient(), getContext(),
+                ((MainActivity) requireActivity()).getPlacesViewModel(),
+                ((MainActivity) requireActivity()).getPlacesClient());
         binding.recyclerViewList.setAdapter(adapter);
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        adapter.updateList();
+        // Add observer to placesViewModel
+        ((MainActivity) getActivity()).getPlacesViewModel().getListRestaurants()
+                .observe(getViewLifecycleOwner(), newList -> adapter.updateList(newList));
     }
 }

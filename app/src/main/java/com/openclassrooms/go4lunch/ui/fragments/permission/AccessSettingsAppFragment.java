@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.ui.fragments;
+package com.openclassrooms.go4lunch.ui.fragments.permission;
 
 import android.content.Intent;
 import android.net.Uri;

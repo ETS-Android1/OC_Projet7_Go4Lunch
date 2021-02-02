@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.ui.fragments;
+package com.openclassrooms.go4lunch.ui.fragments.permission;
 
 import android.Manifest;
 import android.content.Context;
@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentLocationPermissionBinding;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
+import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragment;
 
 /**
  * This fragment is used to display the UI interface with with the user can authorize the
@@ -63,7 +64,8 @@ public class LocationPermissionFragment extends Fragment {
     }
 
     private void initializeNbPermissionRequests() {
-        SharedPreferences nbPermissionRequestSaved = getContext().getSharedPreferences("nb_permission_requests", Context.MODE_PRIVATE);
+        SharedPreferences nbPermissionRequestSaved = getContext()
+                .getSharedPreferences("nb_permission_requests", Context.MODE_PRIVATE);
         editor = nbPermissionRequestSaved.edit();
         nbRequests = nbPermissionRequestSaved.getInt("nb_permission_requests", 0);
     }
@@ -76,16 +78,21 @@ public class LocationPermissionFragment extends Fragment {
                     editor.apply();
 
                     if (nbRequests <= 1) { // First request permission
-                        ActivityCompat.requestPermissions(requireActivity(), new String[] { Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_CODE);
+                        ActivityCompat.requestPermissions(requireActivity(), new String[] {
+                                Manifest.permission.ACCESS_FINE_LOCATION},
+                                LOCATION_PERMISSION_CODE);
                     }
                     else { // If user checked Checkbox "Don't ask again"
                         if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) { // If "Do not ask again" checkbox has been checked
                             requireActivity().getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.fragment_container_view, AccessSettingsAppFragment.newInstance(), AccessSettingsAppFragment.TAG)
+                                    .replace(R.id.fragment_container_view, AccessSettingsAppFragment.newInstance(),
+                                            AccessSettingsAppFragment.TAG)
                                     .commit();
                         }
                         else { // Others request permission
-                            ActivityCompat.requestPermissions(requireActivity(), new String[] { Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_CODE);
+                            ActivityCompat.requestPermissions(requireActivity(), new String[] {
+                                    Manifest.permission.ACCESS_FINE_LOCATION},
+                                    LOCATION_PERMISSION_CODE);
                         }
                     }
                 }
@@ -97,7 +104,8 @@ public class LocationPermissionFragment extends Fragment {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == LOCATION_PERMISSION_CODE) {
-            if (permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) && grantResults[0]
+                    == PackageManager.PERMISSION_GRANTED) {
                 // Reset number of requests
                 editor.putInt("nb_permission_requests", 0);
                 editor.apply();

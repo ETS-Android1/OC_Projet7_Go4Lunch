@@ -59,7 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:tag="TAG_MAP_VIEW_FRAGMENT"
-                android:name="com.openclassrooms.go4lunch.ui.fragments.MapViewFragment"/>
+                android:name="com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragment"/>
         </FrameLayout>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView

@@ -8,6 +8,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -28,22 +29,26 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
 import com.openclassrooms.go4lunch.ui.fragments.ListViewFragment;
-import com.openclassrooms.go4lunch.ui.fragments.LocationPermissionFragment;
-import com.openclassrooms.go4lunch.ui.fragments.MapViewFragment;
+import com.openclassrooms.go4lunch.ui.fragments.permission.LocationPermissionFragment;
+import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragment;
 import com.openclassrooms.go4lunch.ui.fragments.WorkmatesFragment;
 import com.openclassrooms.go4lunch.receivers.NetworkBroadcastReceiver;
+import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -51,11 +56,12 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainActivityCallback {
 
     private ActivityMainBinding binding;
-
     private static final int SIGN_OUT = 10;
     private static final int AUTOCOMPLETE_REQUEST_CODE = 102;
     private NetworkBroadcastReceiver networkBroadcastReceiver; // To catch Network status changed event
     private FusedLocationProviderClient client; // To get current user position
+    private PlacesViewModel placesViewModel; // View model to store list of restaurants
+    private PlacesClient placesClient; // To access Places API methods
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +75,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         handleBottomNavigationItemsListeners();
         networkBroadcastReceiver = new NetworkBroadcastReceiver(this);
         client = LocationServices.getFusedLocationProviderClient(getApplicationContext()); // Initialize Location provider
+        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class); // Initialize View Model
+
+        // Initialize client to access Place API
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), BuildConfig.API_KEY);
+        }
+        placesClient = Places.createClient(this);
     }
 
     @Override
@@ -84,9 +97,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         unregisterReceiver(networkBroadcastReceiver);
     }
 
-    private void initializeToolbar() {
-        setSupportActionBar(binding.toolbar);
-    }
+    private void initializeToolbar() { setSupportActionBar(binding.toolbar); }
 
     private void initializeDrawerLayout() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar,
@@ -95,9 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
     }
 
-    private void initializeNavigationView() {
-        binding.navigationView.setNavigationItemSelectedListener(this);
-    }
+    private void initializeNavigationView() { binding.navigationView.setNavigationItemSelectedListener(this); }
 
     /**
      * This methods updates the Navigation View header with user information
@@ -323,5 +332,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    // Getter methods
     public FusedLocationProviderClient getClient() { return this.client; }
+
+    public PlacesViewModel getPlacesViewModel() {
+        return placesViewModel;
+    }
+
+    public PlacesClient getPlacesClient() { return placesClient; }
 }

@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import com.openclassrooms.go4lunch.R;
-import com.openclassrooms.go4lunch.ui.fragments.MapViewFragmentCallback;
+import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
 
 /**
  * This class is used to create a dialog with which the user can interact to

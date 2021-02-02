@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import java.util.Calendar;
 import java.util.Locale;
 import android.location.Location;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,22 +18,31 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.model.Restaurant;
-import com.openclassrooms.go4lunch.service.ListRestaurantsService;
+import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHolderListView> {
+/**
+ * Adapter class to display all restaurants from list in ListViewFragment RecyclerView,
+ * using a @{@link androidx.recyclerview.widget.RecyclerView.ViewHolder} class
+ */
+public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHolderListView> implements ListViewAdapterCallback{
 
-    private ArrayList<Restaurant> list = new ArrayList<>();
-    private FusedLocationProviderClient client;
-    private Context context;
+    private final ArrayList<Restaurant> list = new ArrayList<>();
+    private final FusedLocationProviderClient client;
+    private final Context context;
+    private final PlacesViewModel placesViewModel;
+    private final PlacesClient placesClient;
 
-    public ListViewAdapter(FusedLocationProviderClient client, Context context) {
+    public ListViewAdapter(FusedLocationProviderClient client, Context context, PlacesViewModel placesViewModel, PlacesClient placesClient) {
         this.client = client;
         this.context = context;
+        this.placesViewModel = placesViewModel;
+        this.placesClient = placesClient;
     }
 
     @NonNull
@@ -44,23 +54,12 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolderListView holder, int position) {
-        // Name
-        holder.name.setText(list.get(position).getName());
-
-        // Address
-        holder.address.setText(list.get(position).getAddress());
-
-        // Distance between restaurant location and user location
-        displayDistanceBetweenRestaurantAndUserLocation(holder, position);
-
-        // Image
-        holder.photo.setImageBitmap(list.get(position).getPhoto());
-
-        // Rating
-        displayRestaurantRating(holder, position);
-
-        // Open hours
-        displayOpenHours(holder, position);
+        holder.name.setText(list.get(position).getName());  // Name
+        holder.address.setText(list.get(position).getAddress()); // Address
+        displayDistanceBetweenRestaurantAndUserLocation(holder, position); // Distance between restaurant location and user location
+        placesViewModel.getPlacePhoto(placesClient, position, holder, this); // Image
+        displayRestaurantRating(holder, position); // Rating
+        displayOpenHours(holder, position); // Open hours
     }
 
     @Override
@@ -72,9 +71,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
      * This method is used to update the list of restaurant each time a new restaurant is detected around
      * user location.
      */
-    public void updateList() {
+    public void updateList(List<Restaurant> newList) {
         list.clear();
-        list.addAll(ListRestaurantsService.getListRestaurants());
+        list.addAll(newList);
         notifyDataSetChanged();
     }
 
@@ -88,11 +87,11 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             client.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                     .addOnSuccessListener(location -> {
-                        Double userLatitude = location.getLatitude();
-                        Double userLongitude = location.getLongitude();
-                        Double restaurantLatitude = list.get(position).getLatLng().latitude;
-                        Double restaurantLongitude = list.get(position).getLatLng().longitude;
-                        float result[] = new float[1];
+                        double userLatitude = location.getLatitude();
+                        double userLongitude = location.getLongitude();
+                        double restaurantLatitude = list.get(position).getLatLng().latitude;
+                        double restaurantLongitude = list.get(position).getLatLng().longitude;
+                        float[] result = new float[1];
                         Location.distanceBetween(userLatitude, userLongitude, restaurantLatitude, restaurantLongitude, result);
 
                         String distance = ((int) result[0]) + " m";
@@ -180,33 +179,33 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
         int currentDay = calendar.get(Calendar.DAY_OF_WEEK);
         // Find closing hours for a restaurant, according to the current day
         switch (currentDay) {
-            case 0 : // MONDAY
-                closingHour = list.get(position).getOpeningHours().getPeriods().get(1).getOpen().getTime().getHours();
-                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(1).getOpen().getTime().getMinutes();
+            case 2 : // MONDAY
+                closingHour = list.get(position).getOpeningHours().getPeriods().get(1).getClose().getTime().getHours();
+                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(1).getClose().getTime().getMinutes();
                 break;
-            case 1 : // TUESDAY
-                closingHour = list.get(position).getOpeningHours().getPeriods().get(2).getOpen().getTime().getHours();
-                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(2).getOpen().getTime().getMinutes();
+            case 3 : // TUESDAY
+                closingHour = list.get(position).getOpeningHours().getPeriods().get(2).getClose().getTime().getHours();
+                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(2).getClose().getTime().getMinutes();
                 break;
-            case 2 : // WEDNESDAY
-                closingHour = list.get(position).getOpeningHours().getPeriods().get(3).getOpen().getTime().getHours();
-                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(3).getOpen().getTime().getMinutes();
+            case 4 : // WEDNESDAY
+                closingHour = list.get(position).getOpeningHours().getPeriods().get(3).getClose().getTime().getHours();
+                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(3).getClose().getTime().getMinutes();
                 break;
-            case 3 : // THURSDAY
-                closingHour = list.get(position).getOpeningHours().getPeriods().get(4).getOpen().getTime().getHours();
-                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(4).getOpen().getTime().getMinutes();
+            case 5 : // THURSDAY
+                closingHour = list.get(position).getOpeningHours().getPeriods().get(4).getClose().getTime().getHours();
+                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(4).getClose().getTime().getMinutes();
                 break;
-            case 4 : // FRIDAY
-                closingHour = list.get(position).getOpeningHours().getPeriods().get(5).getOpen().getTime().getHours();
-                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(5).getOpen().getTime().getMinutes();
+            case 6 : // FRIDAY
+                closingHour = list.get(position).getOpeningHours().getPeriods().get(5).getClose().getTime().getHours();
+                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(5).getClose().getTime().getMinutes();
                 break;
-            case 5 : // SATURDAY
-                closingHour = list.get(position).getOpeningHours().getPeriods().get(6).getOpen().getTime().getHours();
-                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(6).getOpen().getTime().getMinutes();
+            case 7 : // SATURDAY
+                closingHour = list.get(position).getOpeningHours().getPeriods().get(6).getClose().getTime().getHours();
+                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(6).getClose().getTime().getMinutes();
                 break;
-            case 6 : // SUNDAY
-                closingHour = list.get(position).getOpeningHours().getPeriods().get(0).getOpen().getTime().getHours();
-                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(0).getOpen().getTime().getMinutes();
+            case 1 : // SUNDAY
+                closingHour = list.get(position).getOpeningHours().getPeriods().get(0).getClose().getTime().getHours();
+                closingMinutes = list.get(position).getOpeningHours().getPeriods().get(0).getClose().getTime().getMinutes();
                 break;
         }
 
@@ -219,20 +218,23 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
             holder.hour.setText(R.string.closed);
         }
         else { // Still open
+            String closingMinutesStr = closingMinutes < 10 ? closingMinutes + "0" : String.valueOf(closingMinutes);
             if (Locale.getDefault().getDisplayLanguage().equals("français")) { // FR
-                String textFormatH24 = R.string.open_until + " " + closingHour + ":" + closingMinutes;
+                String textFormatH24 = context.getResources().getString(R.string.open_until) + " " + closingHour + ":" + closingMinutesStr;
                 holder.hour.setText(textFormatH24);
             }
             else { // ENG
                 String textFormatAMPM;
-                if (closingHour > 12) textFormatAMPM = R.string.open_until + " " + (closingHour-12) + "PM";
-                else textFormatAMPM = R.string.open_until + " " + closingHour + "AM";
+                if (closingHour > 12) textFormatAMPM = R.string.open_until + " " + (closingHour-12) + ":" + closingMinutesStr + "PM";
+                else textFormatAMPM = context.getResources().getString(R.string.open_until) + " " + closingHour + ":" + closingMinutesStr + "AM";
                 holder.hour.setText(textFormatAMPM);
             }
         }
     }
 
-
+    /**
+     * ViewHolder class for ListViewAdapter
+     */
     public static class ViewHolderListView extends RecyclerView.ViewHolder {
 
         private TextView name;
@@ -256,5 +258,17 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
                     view.findViewById(R.id.note_star_2),
                     view.findViewById(R.id.note_star_1));
         }
+    }
+
+    // -------------- ListViewAdapterCallback interface implementation --------------
+    /**
+     * This method is a executed as a callback function after photos are available to be displayed
+     * in RecyclerView.
+     * @param position : position of the item in the restaurant list
+     * @param holder : view holder associated with the item position
+     */
+    @Override
+    public void updateViewHolderWithPhoto(int position, @NonNull ListViewAdapter.ViewHolderListView holder) {
+        holder.photo.setImageBitmap(list.get(position).getPhoto());
     }
 }
