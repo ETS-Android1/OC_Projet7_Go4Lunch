@@ -45,4 +45,12 @@
         <item name="backgroundTint">@color/white</item>
         <item name="tint">#494949</item>
     </style>
+
+    <style name="FloatingActionButtonValidStyle" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="android:layout_margin">20dp</item>
+        <item name="android:src">@drawable/ic_baseline_gps_fixed_24dp_dark_grey</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="tint">@color/light_green</item>
+        <item name="maxImageSize">35dp</item>
+    </style>
 </resources>

@@ -52,6 +52,8 @@ public class SignInActivity extends AppCompatActivity {
      * activity is displayed using FirebaseUI
      */
     private void handleConnexionButtonListener() {
+
+
         binding.buttonConnexion.setOnClickListener((View v) -> {
                 startActivityForResult(
                         AuthUI.getInstance()

@@ -2,7 +2,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <item android:drawable="@drawable/img_nav_header"/>
+    <item android:drawable="@drawable/img_background"/>
 
     <item android:top="200dp">
         <bitmap

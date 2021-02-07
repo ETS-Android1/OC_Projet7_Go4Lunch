@@ -7,4 +7,5 @@ import androidx.annotation.NonNull;
  */
 public interface ListViewAdapterCallback {
     void updateViewHolderWithPhoto(int position, @NonNull ListViewAdapter.ViewHolderListView holder);
+    void updateViewHolderWithDetails(int position, @NonNull ListViewAdapter.ViewHolderListView holder);
 }

@@ -20,6 +20,7 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.openclassrooms.go4lunch.adapters.ListViewAdapter;
 import com.openclassrooms.go4lunch.adapters.ListViewAdapterCallback;
 import com.openclassrooms.go4lunch.model.Restaurant;
+import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +38,7 @@ public class ListRestaurantsService {
      * @param placesClient : client interface to access Place API methods
      * @param context : context of the view
      */
-    public static void searchPlacesInCurrentLocation(PlacesClient placesClient, Context context)  {
+    public static void searchPlacesInCurrentLocation(PlacesClient placesClient, Context context, MapViewFragmentCallback callback)  {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager.getActiveNetworkInfo() != null) {
             // Define data to retrieve from response
@@ -65,9 +66,10 @@ public class ListRestaurantsService {
                                         place.getPlace().getAddress(),
                                         new LatLng(Objects.requireNonNull(place.getPlace().getLatLng()).latitude,
                                                 place.getPlace().getLatLng().longitude));
-                                getPlaceDetails(placesClient, restaurant);
                                 // Update list with new restaurant
                                 updateListRestaurants(restaurant);
+                                // Mark the location in the map
+                                callback.displayMarkerInMap(restaurant);
                             }
                         }
                     }
@@ -79,9 +81,13 @@ public class ListRestaurantsService {
     /**
      * This method is used to retrieve all data from a restaurant (which cannot be using findCurrentPlace()),
      * @param placesClient : client interface to access Place API methods
-     * @param restaurant : restaurant object to update with data
+     * @param position : position of the restaurant in the list
      */
-    public static void getPlaceDetails(PlacesClient placesClient, Restaurant restaurant) {
+    public static void getPlaceDetails(PlacesClient placesClient, int position,
+                                       @NonNull ListViewAdapter.ViewHolderListView holder,
+                                       ListViewAdapterCallback callback) {
+
+        Restaurant restaurant = listRestaurants.get(position);
 
         // Define data to retrieve from response
         List<Place.Field> fields  = Arrays.asList(Place.Field.WEBSITE_URI,
@@ -100,6 +106,8 @@ public class ListRestaurantsService {
                     restaurant.setWebsiteUri(fetchPlaceResponse.getPlace().getWebsiteUri());
                     restaurant.setRating(fetchPlaceResponse.getPlace().getRating());
                     restaurant.setPhotoMetadataList(fetchPlaceResponse.getPlace().getPhotoMetadatas());
+                    callback.updateViewHolderWithDetails(position, holder);
+                    getPlacePhoto(placesClient, restaurant, position, holder, callback);
         }
         ).addOnFailureListener(Throwable::printStackTrace);
     }
@@ -107,31 +115,27 @@ public class ListRestaurantsService {
     /**
      * This method is used to retrieve a photo from a restaurant
      * @param placesClient : client interface to access Place API methods
-     * @param position : position of the restaurant in the list
-     * @param holder : holder in which the photo must be displayed
-     * @param callback : callback to the ListViewFragment adapter
+     * @param restaurant :
      */
-    public static void getPlacePhoto(PlacesClient placesClient, int position,
+    public static void getPlacePhoto(PlacesClient placesClient, Restaurant restaurant, int position,
                                      @NonNull ListViewAdapter.ViewHolderListView holder,
                                      ListViewAdapterCallback callback) {
 
-        Restaurant restaurant = listRestaurants.get(position);
+            FetchPhotoRequest request = FetchPhotoRequest.newInstance(PhotoMetadata
+                    .builder(restaurant.getPhotoMetadataList().get(0)
+                            .zza())
+                    .setHeight(restaurant.getPhotoMetadataList().get(0).getHeight())
+                    .setWidth(restaurant.getPhotoMetadataList().get(0).getWidth())
+                    .build());
 
-        FetchPhotoRequest request = FetchPhotoRequest.newInstance(PhotoMetadata
-                .builder(restaurant.getPhotoMetadataList().get(0)
-                        .zza())
-                .setHeight(restaurant.getPhotoMetadataList().get(0).getHeight())
-                .setWidth(restaurant.getPhotoMetadataList().get(0).getWidth())
-                .build());
-
-        placesClient.fetchPhoto(request)
-                .addOnSuccessListener(fetchPhotoResponse -> {
-                    restaurant.setPhoto(fetchPhotoResponse.getBitmap());
-                    callback.updateViewHolderWithPhoto(position, holder);
-
-                })
-                .addOnFailureListener(Throwable::printStackTrace);
+            placesClient.fetchPhoto(request)
+                    .addOnSuccessListener(fetchPhotoResponse -> {
+                        restaurant.setPhoto(fetchPhotoResponse.getBitmap());
+                        callback.updateViewHolderWithPhoto(position, holder);
+                    })
+                    .addOnFailureListener(Throwable::printStackTrace);
     }
+
 
     private static void clearListRestaurants() {
         listRestaurants.clear();

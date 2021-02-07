@@ -7,6 +7,7 @@ import com.openclassrooms.go4lunch.adapters.ListViewAdapter;
 import com.openclassrooms.go4lunch.adapters.ListViewAdapterCallback;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.service.ListRestaurantsService;
+import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
 import java.util.List;
 
 /**
@@ -18,17 +19,13 @@ public class PlacesRepository {
         return ListRestaurantsService.getListRestaurants();
     }
 
-    public void searchPlacesInCurrentLocation(PlacesClient placesClient, Context context) {
-        ListRestaurantsService.searchPlacesInCurrentLocation(placesClient, context);
+    public void searchPlacesInCurrentLocation(PlacesClient placesClient, Context context, MapViewFragmentCallback callback) {
+        ListRestaurantsService.searchPlacesInCurrentLocation(placesClient, context, callback);
     }
 
-    public void getPlaceDetails(PlacesClient placesClient, Restaurant restaurant) {
-        ListRestaurantsService.getPlaceDetails(placesClient, restaurant);
-    }
-
-    public void getPlacePhoto(PlacesClient placesClient, int position,
-                              @NonNull ListViewAdapter.ViewHolderListView holder,
-                              ListViewAdapterCallback callback) {
-        ListRestaurantsService.getPlacePhoto(placesClient, position, holder, callback);
+    public void getPlaceDetails(PlacesClient placesClient, int position,
+                                @NonNull ListViewAdapter.ViewHolderListView holder,
+                                ListViewAdapterCallback callback) {
+        ListRestaurantsService.getPlaceDetails(placesClient, position, holder, callback);
     }
 }

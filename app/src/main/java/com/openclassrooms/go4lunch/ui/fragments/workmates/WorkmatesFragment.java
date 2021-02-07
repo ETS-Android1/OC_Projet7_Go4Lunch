@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.ui.fragments;
+package com.openclassrooms.go4lunch.ui.fragments.workmates;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;

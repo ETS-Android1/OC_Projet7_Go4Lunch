@@ -38,7 +38,6 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/hour"
-            android:text="Open until 7pm"
             android:textStyle="italic"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"

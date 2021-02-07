@@ -77,6 +77,9 @@ dependencies {
     // Place SDK 
     implementation 'com.google.android.libraries.places:places:2.4.0'
 
+    // Maps SDK for Android Utility Library
+    implementation 'com.google.maps.android:android-maps-utils:2.2.0'
+
     implementation 'androidx.multidex:multidex:2.0.1'
 
     testImplementation 'junit:junit:4.+'

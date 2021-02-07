@@ -1,14 +1,11 @@
 package com.openclassrooms.go4lunch.receivers;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.util.Log;
-import androidx.core.content.ContextCompat;
 import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
 
 /**
@@ -26,15 +23,15 @@ public class GPSBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        callback.updateFloatingButtonIconDisplay(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+        boolean providerStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+        callback.updateFloatingButtonIconDisplay(providerStatus);
 
         if (connectivityManager.getActiveNetworkInfo() != null) {
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-                        PackageManager.PERMISSION_GRANTED) {
-                    callback.searchPlacesInCurrentLocation();
-                }
+            if (providerStatus) {
+                callback.searchPlacesInCurrentLocation();
             }
         }
     }

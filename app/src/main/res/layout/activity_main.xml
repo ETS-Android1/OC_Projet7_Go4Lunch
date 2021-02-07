@@ -58,8 +58,10 @@
                 android:id="@+id/fragment_container_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:tag="TAG_MAP_VIEW_FRAGMENT"
-                android:name="com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragment"/>
+                /> <!--
+                                 android:tag="TAG_LIST_VIEW_FRAGMENT"
+                android:name="com.openclassrooms.go4lunch.ui.fragments.restaurantdetails.ListViewFragment"
+                -->
         </FrameLayout>
 
         <com.google.android.material.bottomnavigation.BottomNavigationView

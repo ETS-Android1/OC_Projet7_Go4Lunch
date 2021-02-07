@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.ui.fragments;
+package com.openclassrooms.go4lunch.ui.fragments.restaurants;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -6,7 +6,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +43,6 @@ public class ListViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         // Initialize RecyclerView
         binding.recyclerViewList.setHasFixedSize(true);
 
@@ -60,6 +58,8 @@ public class ListViewFragment extends Fragment {
 
         // Add observer to placesViewModel
         ((MainActivity) getActivity()).getPlacesViewModel().getListRestaurants()
-                .observe(getViewLifecycleOwner(), newList -> adapter.updateList(newList));
+                .observe(getViewLifecycleOwner(), newList ->
+                        adapter.updateList(newList)
+                );
     }
 }
