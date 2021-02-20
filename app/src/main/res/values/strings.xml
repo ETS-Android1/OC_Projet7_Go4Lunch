@@ -51,4 +51,15 @@
     <string name="closing_soon">Closing soon</string>
     <string name="open_until">Open until</string>
     <string name="closed">Closed</string>
+
+    <!-- fragment_restaurant_details.xml -->
+    <string name="call">Call</string>
+    <string name="like">Like</string>
+    <string name="Website">Website</string>
+
+    <!-- list_view_item.xml -->
+    <string name="schedules_unavailable">Schedules unavailable</string>
+
+    <!-- fragment_list_view.xml -->
+    <string name="no_restaurants_nearby">No restaurants nearby</string>
 </resources>

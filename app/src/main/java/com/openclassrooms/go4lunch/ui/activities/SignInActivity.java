@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -52,8 +51,6 @@ public class SignInActivity extends AppCompatActivity {
      * activity is displayed using FirebaseUI
      */
     private void handleConnexionButtonListener() {
-
-
         binding.buttonConnexion.setOnClickListener((View v) -> {
                 startActivityForResult(
                         AuthUI.getInstance()

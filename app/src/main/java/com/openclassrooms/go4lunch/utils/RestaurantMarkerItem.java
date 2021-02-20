@@ -13,14 +13,17 @@ public class RestaurantMarkerItem implements ClusterItem {
     private final String title;
     private final String snippet;
     private final boolean type; // Defines type of marker (selected restaurant or non-selected)
+    private final int indice; // Indice of the corresponding Restaurant object in the list
 
-    public RestaurantMarkerItem(LatLng position, String title, String snippet, boolean type) {
+    public RestaurantMarkerItem(LatLng position, String title, String snippet, boolean type, int indice) {
         this.position = position;
         this.title = title;
         this.snippet = snippet;
         this.type = type;
+        this.indice = indice;
     }
 
+    // Getter methods
     @NonNull
     @Override
     public LatLng getPosition() { return position; }
@@ -34,4 +37,8 @@ public class RestaurantMarkerItem implements ClusterItem {
     public String getSnippet() { return snippet; }
 
     public boolean getType() { return type; }
+
+    public int getIndice() {
+        return indice;
+    }
 }

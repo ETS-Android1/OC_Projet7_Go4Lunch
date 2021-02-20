@@ -5,7 +5,6 @@ import android.net.Uri;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.OpeningHours;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
-
 import java.util.List;
 
 /**
@@ -22,13 +21,14 @@ public class Restaurant {
     private Uri websiteUri;
     private List<PhotoMetadata> photoMetadataList;
     private Bitmap photo;
-    private Double rating;
+    private final Double rating;
 
-    public Restaurant(String id, String name, String address, LatLng latLng) {
+    public Restaurant(String id, String name, String address, LatLng latLng, double rating) {
         this.id = id;
         this.name = name;
         this.address = address;
         this.latLng = latLng;
+        this.rating = rating;
     }
 
     // Getter methods
@@ -60,8 +60,6 @@ public class Restaurant {
     public void setWebsiteUri(Uri websiteUri) { this.websiteUri = websiteUri; }
 
     public void setPhoto(Bitmap photo) { this.photo = photo; }
-
-    public void setRating(Double rating) { this.rating = rating; }
 
     public void setPhotoMetadataList(List<PhotoMetadata> photoMetadataList) { this.photoMetadataList = photoMetadataList; }
 }

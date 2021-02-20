@@ -1,27 +1,33 @@
 package com.openclassrooms.go4lunch.ui.fragments.restaurants;
 
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.openclassrooms.go4lunch.adapters.ListViewAdapter;
 import com.openclassrooms.go4lunch.databinding.FragmentListViewBinding;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
+import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 
 /**
  * Fragment used to display the list of restaurant in a RecyclerView, using a
  * @{@link ListViewAdapter} adapter
  */
-public class ListViewFragment extends Fragment {
+public class ListViewFragment extends Fragment implements ListViewAdapter.OnItemRestaurantClickListener {
 
     public final static String TAG = "TAG_LIST_VIEW_FRAGMENT";
     private FragmentListViewBinding binding;
     private ListViewAdapter adapter;
+    private PlacesViewModel placesViewModel;
 
     public ListViewFragment() { /* Empty public constructor */ }
 
@@ -32,6 +38,7 @@ public class ListViewFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        placesViewModel = new ViewModelProvider(getActivity()).get(PlacesViewModel.class);
     }
 
     @Override
@@ -43,23 +50,60 @@ public class ListViewFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initializeRecyclerView();
+        // Add observer to placesViewModel
+        placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), newListRestaurants -> {
+            adapter.updateList(newListRestaurants);
+            // Update background text
+            updateTextBackgroundDisplay(newListRestaurants.size() <= 0);
+        });
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        Display display;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display = requireContext().getDisplay();
+            display.getRealMetrics(displayMetrics);
+        }
+        else {
+            display = requireActivity().getWindowManager().getDefaultDisplay();
+            display.getMetrics(displayMetrics);
+        }
+    }
+
+    /**
+     * This method initializes a RecyclerView used to display all detected restaurants in a list
+     */
+    public void initializeRecyclerView() {
         // Initialize RecyclerView
         binding.recyclerViewList.setHasFixedSize(true);
-
         // Initialize LayoutManager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         binding.recyclerViewList.setLayoutManager(layoutManager);
-
         // Initialize Adapter
-        adapter = new ListViewAdapter( ((MainActivity) getActivity()).getClient(), getContext(),
-                ((MainActivity) requireActivity()).getPlacesViewModel(),
-                ((MainActivity) requireActivity()).getPlacesClient());
+        adapter = new ListViewAdapter( ((MainActivity) getActivity()).getClient(),
+                                        getContext(),
+                this);
         binding.recyclerViewList.setAdapter(adapter);
+    }
 
-        // Add observer to placesViewModel
-        ((MainActivity) getActivity()).getPlacesViewModel().getListRestaurants()
-                .observe(getViewLifecycleOwner(), newList ->
-                        adapter.updateList(newList)
-                );
+    /**
+     * ListViewAdapter.OnItemRestaurantClickListener interface implementation.
+     * This method is used to handle click on a RecyclerView item
+     * @param position : position in the RecyclerView
+     */
+    @Override
+    public void onItemRestaurantClick(int position) {
+        ((MainActivity) requireActivity()).addFragmentRestaurantDetails(position);
+        ((MainActivity) requireActivity()).updateBottomBarStatusVisibility(View.GONE);
+        ((MainActivity) requireActivity()).updateToolbarStatusVisibility(View.GONE);
+    }
+
+    /**
+     * This method is used to update the background text visibility status according to "status" boolean value
+     * @param status : status value.
+     */
+    public void updateTextBackgroundDisplay(boolean status) {
+        if (status) binding.noRestaurantNearby.setVisibility(View.VISIBLE);
+        else binding.noRestaurantNearby.setVisibility(View.INVISIBLE);
     }
 }

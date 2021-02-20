@@ -18,6 +18,7 @@ import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.maps.android.clustering.ClusterManager;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentMapViewBinding;
@@ -39,6 +41,8 @@ import com.openclassrooms.go4lunch.ui.dialogs.GPSActivationDialog;
 import com.openclassrooms.go4lunch.receivers.GPSBroadcastReceiver;
 import com.openclassrooms.go4lunch.utils.RestaurantMarkerItem;
 import com.openclassrooms.go4lunch.utils.RestaurantRenderer;
+import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
+import java.util.List;
 
 /**
  * This fragment is used to allow user to interact with a Google Map, search for a restaurant
@@ -66,22 +70,25 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     // To handle markers cluster display on map
     private ClusterManager<RestaurantMarkerItem> clusterManager;
 
-    private LocationListener locationListener = new LocationListener() {
+    private PlacesViewModel placesViewModel;
+
+    private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(@NonNull Location location) {
-            Log.i("LOCATIONLISTENER", "onLocationChanged");
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                searchPlacesFromCurrentLocation();
+            }
         }
 
         @Override
-        public void onProviderEnabled(@NonNull String provider) {
-            Log.i("LOCATIONLISTENER", "onProviderEnabled");
-        }
+        public void onProviderEnabled(@NonNull String provider) { /* NOT USED */ }
 
         @Override
-        public void onProviderDisabled(@NonNull String provider) {
-            Log.i("LOCATIONLISTENER", "onProviderDisabled");
-        }
+        public void onProviderDisabled(@NonNull String provider) { /* NOT USED */ }
 
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) { /* NOT USED */ }
     };
 
     public MapViewFragment() { /* Empty constructor */ }
@@ -93,10 +100,11 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class); // Initialize View Model
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentMapViewBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -111,6 +119,10 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.google_map);
         mapFragment.getMapAsync(this);
+
+        // Update map with Restaurant items markers
+        placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), this::displayMarkersInMap);
+
     }
 
     @Override
@@ -118,7 +130,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         super.onResume();
         requireActivity().registerReceiver(gpsBroadcastReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));
         updateFloatingButtonIconDisplay(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
-
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME, LOCATION_REFRESH_DISTANCE, locationListener);
@@ -166,22 +177,31 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void centerCursorInCurrentLocation(boolean update) {
-        ((MainActivity) getActivity()).getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+        ((MainActivity) requireActivity()).getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener((Location location) -> {
                             CameraUpdate cameraUpdate = CameraUpdateFactory
-                                    .newLatLngZoom(new LatLng(location.getLatitude(),
-                                                    location.getLongitude()),
-                                            18.0f);
+                                    .newLatLngZoom(
+                                            new LatLng(location.getLatitude(),
+                                                       location.getLongitude()), 18.0f);
                             if (update) map.animateCamera(cameraUpdate);
                             else map.moveCamera(cameraUpdate);
                         }
-                );
+                ).addOnFailureListener(Throwable::printStackTrace);
     }
 
-    // -------------- MapViewFragmentCallback interface implementation --------------
     /**
-     * This method is used to update FloatingActionButton Icon display according to GPS activation
-     * status.
+     * This method is to launch a places search to detect all restaurants around user location in a defined radius.
+     */
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    public void searchPlacesFromCurrentLocation() {
+        ((MainActivity) requireActivity()).getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener(location -> placesViewModel.findPlacesNearby(location.getLatitude() +","
+                                + location.getLongitude(), 1000, "restaurant",
+                        ((MainActivity) getActivity()).getPlacesClient()));
+    }
+
+    /**
+     * This method is used to update FloatingActionButton Icon display according to GPS activation status.
      * @param status : GPS activation status.
      */
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -197,64 +217,86 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     @Override
-    public void activateGPS() {
-        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+    public void activateGPS() { startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)); }
+
+    /**
+     * This method is used to update the map by displaying a custom marker for each detected restaurant aroung
+     * user location.
+     * @param listRestaurants : list of detected restaurants.
+     */
+    public void displayMarkersInMap(List<Restaurant> listRestaurants) {
+        clusterManager.clearItems();
+        for (int indice = 0; indice < listRestaurants.size(); indice++) {
+            RestaurantMarkerItem item = new RestaurantMarkerItem(listRestaurants.get(indice).getLatLng(),
+                    listRestaurants.get(indice).getName(), null, false, indice);
+            clusterManager.addItem(item);
+            clusterManager.cluster();
+        }
     }
 
-    @Override
-    public void displayMarkerInMap(Restaurant restaurant) {
-        // Add cluster item to ClusterManager
-        RestaurantMarkerItem item = new RestaurantMarkerItem(restaurant.getLatLng(), restaurant.getName(), "This is a snippet", false);
-        clusterManager.addItem(item);
-    }
-
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    @Override
-    public void updateMyLocationCursorDisplay(boolean display) {
-        map.setMyLocationEnabled(display);
-    }
-
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    @Override
-    public void searchPlacesInCurrentLocation() {
-        //if (map != null) {
-        ((MainActivity) requireActivity()).getPlacesViewModel()
-                .searchPlacesInCurrentLocation(((MainActivity) requireActivity())
-                        .getPlacesClient(), getContext(), this);
-        //}
-    }
-
-    // -------------- OnMapReadyCallback interface implementation --------------
-    @SuppressLint("PotentialBehaviorOverride")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-
             // Initialize map
-            map = googleMap;
-            updateMyLocationCursorDisplay(true);
-            map.getUiSettings().setMyLocationButtonEnabled(false);
-            map.getUiSettings().setCompassEnabled(true);
-            map.getUiSettings().setMapToolbarEnabled(false);
-
+            initializeMapOptions(googleMap);
             // Handle floating action button icon update
             handleFloatingActionButtonListener();
-
-            // Initialize ClusterManager
-            clusterManager = new ClusterManager<>(requireContext(), map);
-            clusterManager.setRenderer(new RestaurantRenderer(getActivity(), map, clusterManager));
-            // Set listener for marker clicks
-            map.setOnCameraIdleListener(clusterManager);
-            map.setOnMarkerClickListener(clusterManager);
-
-            // Initialize current position + search for locations
+            // Initialize map cluster manager
+            initializeClusterManager();
+            // Initialize current position + search for places
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 centerCursorInCurrentLocation(false);
-                if (connectivityManager.getActiveNetworkInfo() != null) {
-                    searchPlacesInCurrentLocation();
-                }
+                if (connectivityManager.getActiveNetworkInfo() != null) searchPlacesFromCurrentLocation();
             }
+            // Enable click interactions on cluster items window
+            handleClusterClickInteractions();
         }
+    }
+
+    /**
+     * This method is used to handle all user "clicking" interactions with clusters and markers on map.
+     */
+    private void handleClusterClickInteractions() {
+        clusterManager.setOnClusterItemInfoWindowClickListener(item -> {
+            ((MainActivity) requireActivity()).addFragmentRestaurantDetails(item.getIndice());
+            ((MainActivity) requireActivity()).updateBottomBarStatusVisibility(View.GONE);
+            ((MainActivity) requireActivity()).updateToolbarStatusVisibility(View.GONE);
+        });
+        clusterManager.setOnClusterClickListener(cluster -> {
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(cluster.getPosition().latitude, cluster.getPosition().longitude)
+                    ,15.0f);
+            map.animateCamera(cameraUpdate);
+            return true;
+        });
+    }
+
+    /**
+     * This method initializes a map configuration.
+     * @param googleMap : map instance to initialize
+     */
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    private void initializeMapOptions(GoogleMap googleMap) {
+        map = googleMap;
+        map.setMyLocationEnabled(true);
+        map.getUiSettings().setMyLocationButtonEnabled(false);
+        map.getUiSettings().setCompassEnabled(true);
+        map.getUiSettings().setMapToolbarEnabled(false);
+    }
+
+    /**
+     * This method initializes a cluster manager for markers and clusters display on map.
+     */
+    @SuppressLint("PotentialBehaviorOverride")
+    private void initializeClusterManager() {
+        clusterManager = new ClusterManager<>(requireContext(), map);
+        // Initialize Renderer for cluster
+        RestaurantRenderer restaurantRenderer = new RestaurantRenderer(getActivity(), map, clusterManager);
+        restaurantRenderer.setMinClusterSize(10);
+        clusterManager.setRenderer(restaurantRenderer);
+        // Set listener for marker clicks
+        map.setOnCameraIdleListener(clusterManager);
+        map.setOnMarkerClickListener(clusterManager);
     }
 }

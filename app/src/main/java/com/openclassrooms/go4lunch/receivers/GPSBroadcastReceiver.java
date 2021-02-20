@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
-import android.util.Log;
 import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
 
 /**
@@ -23,16 +22,12 @@ public class GPSBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         boolean providerStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
         callback.updateFloatingButtonIconDisplay(providerStatus);
 
         if (connectivityManager.getActiveNetworkInfo() != null) {
-            if (providerStatus) {
-                callback.searchPlacesInCurrentLocation();
-            }
+            if (providerStatus) callback.searchPlacesFromCurrentLocation();
         }
     }
 }

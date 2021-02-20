@@ -53,16 +53,10 @@ public class LocationPermissionFragment extends Fragment {
         handlePermissionButtonListener();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
+    /**
+     * This method checks the number of permission requests which have already been displayed to
+     * user.
+     */
     private void initializeNbPermissionRequests() {
         SharedPreferences nbPermissionRequestSaved = getContext()
                 .getSharedPreferences("nb_permission_requests", Context.MODE_PRIVATE);
@@ -70,6 +64,9 @@ public class LocationPermissionFragment extends Fragment {
         nbRequests = nbPermissionRequestSaved.getInt("nb_permission_requests", 0);
     }
 
+    /**
+     * This method is used to handle user interaction with "Enable Permission" button
+     */
     private void handlePermissionButtonListener() {
         binding.buttonPermissionLocation.setOnClickListener((View v) -> {
                     // Update number of sent requests
@@ -113,7 +110,8 @@ public class LocationPermissionFragment extends Fragment {
                 requireActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container_view, MapViewFragment.newInstance(), MapViewFragment.TAG)
                         .commit();
-                ((MainActivity) requireActivity()).updateToolbarBottomBarAndNetworkBarVisibility(View.VISIBLE);
+                ((MainActivity) requireActivity()).updateToolbarStatusVisibility(View.VISIBLE);
+                ((MainActivity) requireActivity()).updateBottomBarStatusVisibility(View.VISIBLE);
             }
         }
     }

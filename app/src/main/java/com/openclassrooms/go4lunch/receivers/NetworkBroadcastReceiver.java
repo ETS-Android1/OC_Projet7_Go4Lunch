@@ -29,9 +29,8 @@ public class NetworkBroadcastReceiver extends BroadcastReceiver {
         if (!isInitialStickyBroadcast()) { // This broadcast must only detect connectivity status changes
             LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             if (networkInfo != null) {
-                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    callback.searchCurrentLocationInMapViewFragment();
-                }
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+                    callback.searchPlacesInMapViewFragment();
             }
         }
     }

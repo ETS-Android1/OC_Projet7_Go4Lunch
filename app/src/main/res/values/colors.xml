@@ -9,13 +9,16 @@
     <color name="black">#FF000000</color>
     <color name="dark_grey">#494949</color>
     <color name="light_grey">#A6A6A6</color>
+    <color name="light_grey_95">#f2f2f2</color>
     <color name="dark_orange">#C41C00</color>
+    <color name="dark_orange_translucent">#66C41C00</color>
     <color name="light_orange">#FF8A50</color>
     <color name="red">#FF0017</color>
     <color name="orange">#FF5722</color>
     <color name="white">#FFFFFFFF</color>
     <color name="light_green">#69F0AE</color>
 
+    <color name="transparent">#00000000</color>
 
-
+    <color name="grey_50">#808080</color>
 </resources>

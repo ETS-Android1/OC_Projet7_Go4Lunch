@@ -30,16 +30,24 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
     }
 
     /**
-     * Called before the marker for a ClusterItem is added to the map
+     * Called before the marker for a ClusterItem is added to the map.
      * @param item : item in map
      * @param markerOptions : options of the associated marker
      */
     @Override
-    protected void onBeforeClusterItemRendered(@NonNull RestaurantMarkerItem item, @NonNull MarkerOptions markerOptions) {
-        markerOptions.title(item.getTitle()).icon(getIconMarkerItem(item));//icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-               // .icon(getItemIcon(item));
+    protected void onBeforeClusterItemRendered(@NonNull RestaurantMarkerItem item,
+                                               @NonNull MarkerOptions markerOptions) {
+        markerOptions.title(item.getTitle()).icon(getIconMarkerItem(item));
     }
 
+    /**
+     * Overriden to define the minimum size of a cluster in map.
+     * @param minClusterSize : minimum size of a cluster
+     */
+    @Override
+    public void setMinClusterSize(int minClusterSize) {
+        super.setMinClusterSize(minClusterSize);
+    }
 
     /**
      * This method defines which Bitmap must be displayed for a marker according to the restaurant status
@@ -60,12 +68,12 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
     }
 
     /**
-     * Defines the color of a cluster icon
+     * Defines the color of a cluster icon.
      * @param clusterSize : not used
      * @return : resource id associated with the corresponding color
      */
     @Override
     protected int getColor(int clusterSize) {
-        return context.getResources().getColor(R.color.orange);
+        return context.getResources().getColor(R.color.dark_orange);
     }
 }

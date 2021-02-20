@@ -1,151 +1,153 @@
 package com.openclassrooms.go4lunch.service;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.util.Log;
-import androidx.annotation.NonNull;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.RuntimeExecutionException;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.PlaceLikelihood;
 import com.google.android.libraries.places.api.net.FetchPhotoRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceResponse;
-import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
-import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.openclassrooms.go4lunch.adapters.ListViewAdapter;
-import com.openclassrooms.go4lunch.adapters.ListViewAdapterCallback;
 import com.openclassrooms.go4lunch.model.Restaurant;
-import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
+import com.openclassrooms.go4lunch.service.response.places.PlaceResponse;
+import com.openclassrooms.go4lunch.service.request.PlaceService;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Service to access and update the list of restaurants, with location requests results.
  */
 public class ListRestaurantsService {
 
-    private static final List<Restaurant> listRestaurants = new ArrayList<>();
+    private final List<Restaurant> listRestaurants;
 
-    /**
-     * This method is used to search to all restaurants localized around user location
-     * @param placesClient : client interface to access Place API methods
-     * @param context : context of the view
-     */
-    public static void searchPlacesInCurrentLocation(PlacesClient placesClient, Context context, MapViewFragmentCallback callback)  {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager.getActiveNetworkInfo() != null) {
-            // Define data to retrieve from response
-            List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME,
-                                                          Place.Field.ADDRESS, Place.Field.LAT_LNG,
-                                                          Place.Field.TYPES);
+    // Service instance
+    private final PlaceService service;
 
-            // Initialize request & response
-            FindCurrentPlaceRequest request = FindCurrentPlaceRequest.builder(placeFields).build();
-            @SuppressLint("MissingPermission")
-            Task<FindCurrentPlaceResponse> placeResponse = placesClient.findCurrentPlace(request);
+    public ListRestaurantsService() {
+        // Initialize list of restaurants
+        listRestaurants = new ArrayList<>();
 
-            placeResponse.addOnCompleteListener(task -> {
-                // Clear previous list
-                clearListRestaurants();
-                // Update list with new restaurants
-                try {
-                    for (PlaceLikelihood place : task.getResult().getPlaceLikelihoods()) {
-                        List<Place.Type> types = place.getPlace().getTypes();
-                        if (types != null) {
-                            if (types.contains(Place.Type.RESTAURANT)) {
-                                // Create a new Restaurant with the first data fields
-                                Restaurant restaurant = new Restaurant(place.getPlace().getId(),
-                                        place.getPlace().getName(),
-                                        place.getPlace().getAddress(),
-                                        new LatLng(Objects.requireNonNull(place.getPlace().getLatLng()).latitude,
-                                                place.getPlace().getLatLng().longitude));
-                                // Update list with new restaurant
-                                updateListRestaurants(restaurant);
-                                // Mark the location in the map
-                                callback.displayMarkerInMap(restaurant);
-                            }
-                        }
-                    }
-                } catch(RuntimeExecutionException exception) { exception.printStackTrace(); }
-            }).addOnFailureListener(Throwable::printStackTrace);
-        }
+        // Define HTTP traffic interceptor
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
+        // Define HTTP client
+        OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+
+        // Initialize retrofit instance
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://maps.googleapis.com/maps/api/place/")
+                .client(httpClient) // Client HTTP
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        // Create service
+        service = retrofit.create(PlaceService.class);
     }
 
     /**
-     * This method is used to retrieve all data from a restaurant (which cannot be using findCurrentPlace()),
-     * @param placesClient : client interface to access Place API methods
-     * @param position : position of the restaurant in the list
+     * This method is used to return the result of a GET request using a @{@link PlaceService } interface
+     * @param location : Info location of the user
+     * @param radius : Detection radius
+     * @param type : Type of places to search
+     * @return : Result of a GET request
+     * @throws IOException : Exception thrown if the GET request fail
      */
-    public static void getPlaceDetails(PlacesClient placesClient, int position,
-                                       @NonNull ListViewAdapter.ViewHolderListView holder,
-                                       ListViewAdapterCallback callback) {
+    public PlaceResponse findPlacesNearby(String location, int radius, String type) throws IOException {
+        clearListRestaurants();
+        return service.searchPlaces(location, radius, type).execute().body();
+    }
 
-        Restaurant restaurant = listRestaurants.get(position);
-
+    /**
+     * This method is used to update the list of restaurants with details
+     * @param list : List of restaurant to update with details for each place
+     * @param placesClient : PlacesClient Instance to access Places API methods
+     * @param callback : Callback interface
+     */
+    public void getPlacesDetails(List<Restaurant> list, PlacesClient placesClient, ServiceDetailsCallback callback) {
         // Define data to retrieve from response
         List<Place.Field> fields  = Arrays.asList(Place.Field.WEBSITE_URI,
                 Place.Field.PHONE_NUMBER,
                 Place.Field.OPENING_HOURS,
-                Place.Field.PHOTO_METADATAS,
-                Place.Field.RATING,
-                Place.Field.ADDRESS_COMPONENTS);
+                Place.Field.PHOTO_METADATAS);
 
-        // Define request
-        FetchPlaceRequest request = FetchPlaceRequest.newInstance(restaurant.getId(), fields);
+        try {
+            for (int indice = 0; indice < list.size(); indice++) {
+                Restaurant restaurant = list.get(indice);
 
-        placesClient.fetchPlace(request).addOnSuccessListener((FetchPlaceResponse fetchPlaceResponse) -> {
-                    restaurant.setOpeningHours(fetchPlaceResponse.getPlace().getOpeningHours());
-                    restaurant.setPhoneNumber(fetchPlaceResponse.getPlace().getPhoneNumber());
-                    restaurant.setWebsiteUri(fetchPlaceResponse.getPlace().getWebsiteUri());
-                    restaurant.setRating(fetchPlaceResponse.getPlace().getRating());
-                    restaurant.setPhotoMetadataList(fetchPlaceResponse.getPlace().getPhotoMetadatas());
-                    callback.updateViewHolderWithDetails(position, holder);
-                    getPlacePhoto(placesClient, restaurant, position, holder, callback);
+                // Define request
+                FetchPlaceRequest request = FetchPlaceRequest.newInstance(restaurant.getId(), fields);
+                int finalIndice = indice;
+                placesClient.fetchPlace(request).addOnSuccessListener((FetchPlaceResponse fetchPlaceResponse) -> {
+                            restaurant.setOpeningHours(fetchPlaceResponse.getPlace().getOpeningHours());
+                            restaurant.setPhoneNumber(fetchPlaceResponse.getPlace().getPhoneNumber());
+                            restaurant.setWebsiteUri(fetchPlaceResponse.getPlace().getWebsiteUri());
+                            restaurant.setPhotoMetadataList(fetchPlaceResponse.getPlace().getPhotoMetadatas());
+                            list.set(finalIndice, restaurant);
+                            if (finalIndice == list.size()-1) {
+                                callback.onPlacesDetailsAvailable(list);
+                            }
+                        }
+                ).addOnFailureListener(Throwable::printStackTrace);
+            }
+        } catch (NullPointerException exception) {
+            exception.printStackTrace();
         }
-        ).addOnFailureListener(Throwable::printStackTrace);
     }
+
 
     /**
-     * This method is used to retrieve a photo from a restaurant
-     * @param placesClient : client interface to access Place API methods
-     * @param restaurant :
+     * This method is used to update the list of restaurants with photo
+     * @param placesClient : PlacesClient Instance to access Places API methods
+     * @param list : List of restaurant to update with details for each place
+     * @param callback : Callback interface
      */
-    public static void getPlacePhoto(PlacesClient placesClient, Restaurant restaurant, int position,
-                                     @NonNull ListViewAdapter.ViewHolderListView holder,
-                                     ListViewAdapterCallback callback) {
+    public void getPlacesPhotos(PlacesClient placesClient, List<Restaurant> list, ServicePhotoCallback callback) {
+        for (int indice = 0; indice < list.size(); indice++) {
+            Restaurant restaurant = list.get(indice);
+            try {
+                FetchPhotoRequest request = FetchPhotoRequest.newInstance(PhotoMetadata
+                        .builder(restaurant.getPhotoMetadataList().get(0).zza())
+                        .setHeight(restaurant.getPhotoMetadataList().get(0).getHeight())
+                        .setWidth(restaurant.getPhotoMetadataList().get(0).getWidth())
+                        .build());
 
-            FetchPhotoRequest request = FetchPhotoRequest.newInstance(PhotoMetadata
-                    .builder(restaurant.getPhotoMetadataList().get(0)
-                            .zza())
-                    .setHeight(restaurant.getPhotoMetadataList().get(0).getHeight())
-                    .setWidth(restaurant.getPhotoMetadataList().get(0).getWidth())
-                    .build());
-
-            placesClient.fetchPhoto(request)
-                    .addOnSuccessListener(fetchPhotoResponse -> {
-                        restaurant.setPhoto(fetchPhotoResponse.getBitmap());
-                        callback.updateViewHolderWithPhoto(position, holder);
-                    })
-                    .addOnFailureListener(Throwable::printStackTrace);
+                int finalIndice = indice;
+                placesClient.fetchPhoto(request)
+                        .addOnSuccessListener(fetchPhotoResponse -> {
+                            restaurant.setPhoto(fetchPhotoResponse.getBitmap());
+                            list.set(finalIndice, restaurant);
+                            if (finalIndice == list.size() - 1) callback.onPhotoAvailable(list);
+                        })
+                        .addOnFailureListener(Throwable::printStackTrace);
+            } catch (NullPointerException exception) {
+                exception.printStackTrace();
+            }
+        }
     }
 
-
-    private static void clearListRestaurants() {
+    private void clearListRestaurants() {
         listRestaurants.clear();
     }
 
-    private static void updateListRestaurants(Restaurant restaurant) {
+    /**
+     * This method updates a list of restaurant by adding a new one
+     * @param restaurant : New restaurant to add
+     */
+    public void updateListRestaurants(Restaurant restaurant) {
         listRestaurants.add(restaurant);
     }
 
-    public static List<Restaurant> getListRestaurants() {
+    /**
+     * This method return the list of existing restaurants
+     * @return : List of restaurants
+     */
+    public List<Restaurant> getListRestaurants() {
         return listRestaurants;
     }
 }
