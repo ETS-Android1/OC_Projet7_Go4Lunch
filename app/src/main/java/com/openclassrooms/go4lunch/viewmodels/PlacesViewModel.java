@@ -1,9 +1,9 @@
 package com.openclassrooms.go4lunch.viewmodels;
 
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import java.io.IOException;
@@ -36,16 +36,14 @@ public class PlacesViewModel extends ViewModel {
     /**
      * This method is used to access the findPlacesNearby() method of the @{@link PlacesRepository } repository class
      * @param location : Info location of the user
-     * @param radius : Detection radius
      * @param type : Type of places to search
-     * @param placesClient : PlacesClient Instance to access Places API methods
      */
-    public void findPlacesNearby(String location, int radius, String type, PlacesClient placesClient)  {
+    public void findPlacesNearby(String location, String type)  {
             executor.execute(() -> {
                 try {
-                    placesRepository.findPlacesNearby(location, radius, type, newListRestaurant -> {
-                        listRestaurants.postValue(newListRestaurant);
-                        getPlacesDetails(placesClient, newListRestaurant);
+                    placesRepository.findPlacesNearby(location, type, newListRestaurants -> {
+                        listRestaurants.postValue(newListRestaurants);
+                        getPlacesDetails(newListRestaurants);
                     });
                 } catch (IOException exception) {
                     exception.printStackTrace();
@@ -56,22 +54,28 @@ public class PlacesViewModel extends ViewModel {
 
     /**
      * This method is used to access the getPlacesDetails() method of the @{@link PlacesRepository } repository class
-     * @param placesClient : PlacesClient Instance to access Places API methods
      * @param list : List of restaurant to update with details for each place
      */
-    public void getPlacesDetails(PlacesClient placesClient, List<Restaurant> list) {
-        executor.execute(() -> placesRepository.getPlacesDetails(list, placesClient, newListRestaurant -> {
-            listRestaurants.postValue(newListRestaurant);
-            getPlacesPhotos(placesClient, newListRestaurant);
-        }));
+    public void getPlacesDetails(List<Restaurant> list) {
+        executor.execute(() -> {
+            try {
+                placesRepository.getPlacesDetails(list, newListRestaurants -> {
+                    listRestaurants.postValue(newListRestaurants);
+                    getPlacesPhoto(newListRestaurants);
+                });
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        });
     }
 
     /**
-     * This method is used to access the getPlacesPhotos() method of the @{@link PlacesRepository } repository class
-     * @param placesClient : PlacesClient Instance to access Places API methods
-     * @param list : List of restaurant to update with photo for each place
+     * This method is used to access the getPlacesPhoto() method of the @{@link PlacesRepository } repository class
+     * @param list : List of restaurant to update with photos for each place
      */
-    public void getPlacesPhotos(PlacesClient placesClient, List<Restaurant> list) {
-        executor.execute(() -> placesRepository.getPlacesPhotos(placesClient, list, listRestaurants::postValue));
+    public void getPlacesPhoto(List<Restaurant> list) {
+        executor.execute(() -> {
+                placesRepository.getPlacesPhoto(list, listRestaurants::postValue);
+        });
     }
 }

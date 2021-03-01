@@ -81,10 +81,10 @@ public class LocationPermissionFragment extends Fragment {
                     }
                     else { // If user checked Checkbox "Don't ask again"
                         if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) { // If "Do not ask again" checkbox has been checked
-                            requireActivity().getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.fragment_container_view, AccessSettingsAppFragment.newInstance(),
-                                            AccessSettingsAppFragment.TAG)
-                                    .commit();
+                        //    requireActivity().getSupportFragmentManager().beginTransaction()
+                        //            .replace(R.id.fragment_container_view, AccessSettingsAppFragment.newInstance(),
+                        //                    AccessSettingsAppFragment.TAG)
+                        //            .commit();
                         }
                         else { // Others request permission
                             ActivityCompat.requestPermissions(requireActivity(), new String[] {
@@ -99,7 +99,6 @@ public class LocationPermissionFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
         if (requestCode == LOCATION_PERMISSION_CODE) {
             if (permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) && grantResults[0]
                     == PackageManager.PERMISSION_GRANTED) {

@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:orientation="horizontal"
@@ -34,7 +35,6 @@
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/address"
             android:text="French - 12 rue du Faubourg Poissonnière "
-
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_row="1"
@@ -95,7 +95,8 @@
                 android:layout_row="0"
                 android:visibility="visible"
                 android:rotation="180"
-                android:rotationX="180"/>
+                android:rotationX="180"
+                tools:ignore="ContentDescription"/>
             <ImageView
                 android:id="@+id/note_star_4"
                 android:layout_width="15dp"
@@ -104,7 +105,8 @@
                 android:layout_row="0"
                 android:visibility="visible"
                 android:rotation="180"
-                android:rotationX="180"/>
+                android:rotationX="180"
+                tools:ignore="ContentDescription"/>
             <ImageView
                 android:id="@+id/note_star_3"
                 android:layout_width="15dp"
@@ -113,7 +115,8 @@
                 android:layout_row="0"
                 android:visibility="visible"
                 android:rotation="180"
-                android:rotationX="180"/>
+                android:rotationX="180"
+                tools:ignore="ContentDescription"/>
             <ImageView
                 android:id="@+id/note_star_2"
                 android:layout_width="15dp"
@@ -122,7 +125,8 @@
                 android:layout_row="0"
                 android:visibility="visible"
                 android:rotation="180"
-                android:rotationX="180"/>
+                android:rotationX="180"
+                tools:ignore="ContentDescription"/>
             <ImageView
                 android:id="@+id/note_star_1"
                 android:layout_width="15dp"
@@ -131,7 +135,8 @@
                 android:layout_row="0"
                 android:visibility="visible"
                 android:rotation="180"
-                android:rotationX="180"/>
+                android:rotationX="180"
+                android:contentDescription="@string/content_description_rating" />
         </GridLayout>
     </GridLayout>
 
@@ -152,17 +157,8 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"/>
-
-        <!--<ProgressBar
-            android:id="@+id/progress_bar_icon_restaurant"
-            android:visibility="visible"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>-->
+            android:contentDescription="@string/content_description_icon_restaurant" />
 
         <ImageView
             android:id="@+id/no_image_icon"
@@ -173,7 +169,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/content_description_no_restaurant_icon" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

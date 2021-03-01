@@ -41,6 +41,7 @@
     <string name="title_location">Enable location</string>
     <string name="text_location">Go4Lunch needs to access the location settings of your device.</string>
     <string name="button_location_activation">Enable location</string>
+    <string name="content_description_location_icon">Location icon</string>
 
     <!-- fragment_access_settings_app -->
     <string name="title_access_settings_app">Oups</string>
@@ -52,14 +53,42 @@
     <string name="open_until">Open until</string>
     <string name="closed">Closed</string>
 
+    <!-- fragment_map_view.xml -->
+    <string name="content_description_fab_location">Button to center map cursor in current user location</string>
+
     <!-- fragment_restaurant_details.xml -->
-    <string name="call">Call</string>
-    <string name="like">Like</string>
-    <string name="Website">Website</string>
+    <string name="call">CALL</string>
+    <string name="like">LIKE</string>
+    <string name="website">WEBSITE</string>
+    <string name="content_description_restaurant_img">Restaurant Photo</string>
+    <string name="content_description_no_restaurant_photo_icon">Icon indicating that no photo is available for this restaurant</string>
+    <string name="content_description_selection_fab">Button to mark the restaurant as selected</string>
 
     <!-- list_view_item.xml -->
     <string name="schedules_unavailable">Schedules unavailable</string>
+    <string name="content_description_rating">Restaurant rating</string>
+    <string name="content_description_icon_restaurant">Restaurant Photo</string>
+    <string name="content_description_no_restaurant_icon">Icon indicating that no photo is available for this restaurant</string>
 
     <!-- fragment_list_view.xml -->
     <string name="no_restaurants_nearby">No restaurants nearby</string>
+
+    <!-- activity_sign_in.xml -->
+    <string name="title_sign_in_page">Go4Lunch</string>
+    <string name="subtitle_sign_in_page">Find a nice restaurant and invite your co-workers for lunch!</string>
+
+    <!-- authentication_layout.xml -->
+    <string name="authentication_btn_sign_in">Sign in</string>
+    <string name="authentication_btn_google">Sign in with Google</string>
+    <string name="authentication_btn_facebook">Sign in with Facebook</string>
+
+    <!-- activity_main.xml -->
+    <string name="no_network_detected">No network detected</string>
+
+    <!-- activity_sign_in.xml/activity_main.xml -->
+    <string name="content_description_logo">Go4Lunch application logo</string>
+
+    <!-- main_activity_nav_header.xml -->
+    <string name="nav_header_title">Go4Lunch</string>
+    <string name="content_description_user_icon">User account icon</string>
 </resources>

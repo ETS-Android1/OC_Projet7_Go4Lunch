@@ -4,9 +4,9 @@
 
     <item android:drawable="@drawable/img_background"/>
 
-    <item android:top="200dp">
+    <!--<item android:top="200dp">
         <bitmap
             android:src="@drawable/logo"
             android:gravity="top|center_horizontal" />
-    </item>
+    </item>-->
 </layer-list>

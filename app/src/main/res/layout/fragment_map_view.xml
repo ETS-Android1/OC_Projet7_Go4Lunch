@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.fragments.map.MapViewFragment"
-    android:id="@+id/fragment_map_root_layout">
+    android:id="@+id/fragment_map_root_layout"
+    tools:context=".ui.fragments.map.MapViewFragment">
 
     <fragment
         android:id="@+id/google_map"
@@ -21,6 +22,7 @@
         android:layout_margin="20dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        style="@style/FloatingActionButtonStyle"/>
+        style="@style/FloatingActionButtonStyle"
+        android:contentDescription="@string/content_description_fab_location" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

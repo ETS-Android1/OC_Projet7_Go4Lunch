@@ -23,6 +23,13 @@ public class Restaurant {
     private Bitmap photo;
     private final Double rating;
 
+
+    // -------- TEST -------------
+    // Photo data
+    private String photoReference;
+    private int photoHeight;
+    private int photoWidth;
+    // ---------------------------
     public Restaurant(String id, String name, String address, LatLng latLng, double rating) {
         this.id = id;
         this.name = name;
@@ -52,6 +59,14 @@ public class Restaurant {
 
     public List<PhotoMetadata> getPhotoMetadataList() { return this.photoMetadataList; }
 
+    // -------- TEST -------------
+    public String getPhotoReference() { return photoReference; }
+
+    public int getPhotoHeight() { return photoHeight; }
+
+    public int getPhotoWidth() { return photoWidth; }
+    // ---------------------------
+
     // Setter methods
     public void setOpeningHours(OpeningHours openingHours) { this.openingHours = openingHours; }
 
@@ -62,4 +77,12 @@ public class Restaurant {
     public void setPhoto(Bitmap photo) { this.photo = photo; }
 
     public void setPhotoMetadataList(List<PhotoMetadata> photoMetadataList) { this.photoMetadataList = photoMetadataList; }
+
+    // -------- TEST -------------
+    public void setPhotoReference(String photoReference) { this.photoReference = photoReference; }
+
+    public void setPhotoHeight(int photoHeight) { this.photoHeight = photoHeight; }
+
+    public void setPhotoWidth(int photoWidth) { this.photoWidth = photoWidth; }
+    // ---------------------------
 }

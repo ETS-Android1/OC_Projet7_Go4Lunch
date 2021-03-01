@@ -1,9 +1,11 @@
 package com.openclassrooms.go4lunch.ui.fragments.restaurants;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +22,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentRestaurantDetailsBinding;
@@ -67,6 +71,7 @@ public class RestaurantDetailsFragment extends Fragment {
         restaurant = Objects.requireNonNull(placesViewModel.getListRestaurants().getValue()).get(indiceRestaurant);
         initializeDetails();
         initializePhotoRestaurant();
+
         updateFloatingActionButtonIconDisplay();
         handleFloatingButtonClicks();
         handleButtonsClicks();
@@ -87,12 +92,18 @@ public class RestaurantDetailsFragment extends Fragment {
      */
     @SuppressLint("UseCompatLoadingForDrawables")
     private void initializeToolbar() {
+        // Add SupportActionBar
         ((MainActivity) requireActivity()).setSupportActionBar(binding.toolbarDetailsRestaurantFragment);
+        // Configure Toolbar
         Objects.requireNonNull(((MainActivity) requireActivity()).getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         Objects.requireNonNull(((MainActivity) requireActivity()).getSupportActionBar()).setTitle("");
         Objects.requireNonNull(((MainActivity) requireActivity()).getSupportActionBar())
-                                                                 .setHomeAsUpIndicator(getResources()
-                                                                 .getDrawable(R.drawable.ic_baseline_arrow_back_24dp_white));
+                .setHomeAsUpIndicator(getResources()
+                        .getDrawable(R.drawable.ic_baseline_arrow_back_24dp_white));
+        // Set margin
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.toolbarDetailsRestaurantFragment.getLayoutParams();
+        params.setMargins(0, ((MainActivity) getActivity()).getStatusBarSize(), 0, 0);
+        binding.toolbarDetailsRestaurantFragment.setLayoutParams(params);
     }
 
     /**
@@ -199,4 +210,5 @@ public class RestaurantDetailsFragment extends Fragment {
         }
         else Toast.makeText(getContext(), "No website url available", Toast.LENGTH_SHORT).show();
     }
+
 }

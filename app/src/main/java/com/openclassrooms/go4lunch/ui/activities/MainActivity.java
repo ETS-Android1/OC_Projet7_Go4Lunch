@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,11 +17,14 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -122,7 +127,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentManager = getSupportFragmentManager();
     }
 
-    private void initializeToolbar() { setSupportActionBar(binding.toolbar); }
+    private void initializeToolbar() {
+        setSupportActionBar(binding.toolbar);
+        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.toolbar.getLayoutParams();
+            params.setMargins(0, getStatusBarSize(), 0, 0);
+            binding.toolbar.setLayoutParams(params);
+        }
+    }
 
     private void initializeDrawerLayout() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar,
@@ -146,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         try {
             userName.setText(user.getDisplayName());
             userEmail.setText(user.getEmail());
+
             Glide.with(this).load(user.getPhotoUrl())
                     .apply(RequestOptions.circleCropTransform())
                     .into(userAvatar);
@@ -236,8 +249,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void addFragmentRestaurantDetails(int indiceRestaurant) {
         indice = indiceRestaurant;
         fragmentManager.beginTransaction().add(R.id.fragment_restaurant_details_container_view,
-                                               new RestaurantDetailsFragment(),
-                                               RestaurantDetailsFragment.TAG).commit();
+                new RestaurantDetailsFragment(),
+                RestaurantDetailsFragment.TAG).commit();
     }
 
     public void removeFragment(Fragment fragment) { fragmentManager.beginTransaction().remove(fragment).commit(); }
@@ -251,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (fragment!= null) {
                 if (fragment.isVisible()) {
                     removeFragment(fragment);
+                    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     updateToolbarStatusVisibility(View.VISIBLE);
                     updateBottomBarStatusVisibility(View.VISIBLE);
                 }
@@ -285,6 +299,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fadeOutAnim.withEndAction(() -> binding.barConnectivityInfo.setVisibility(View.GONE));
             } else { // No network activated
                 binding.barConnectivityInfo.setVisibility(View.VISIBLE);
+                ViewCompat.setElevation(binding.barConnectivityInfo, 10);
                 ViewPropertyAnimator fadeInAnim = binding.barConnectivityInfo.animate().alpha(1.0f).setDuration(200);
                 fadeInAnim.start();
             }
@@ -293,7 +308,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void updateBottomBarStatusVisibility(int visibility) { binding.bottomNavigationBar.setVisibility(visibility); }
 
-    public void updateToolbarStatusVisibility(int visibility) { binding.toolbar.setVisibility(visibility); }
+    public void updateToolbarStatusVisibility(int visibility) {
+        binding.toolbar.setVisibility(visibility); }
 
     /**
      * This method is used to check if location permission is granted.
@@ -307,16 +323,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //updateToolbarBottomBarAndNetworkBarVisibility(View.GONE);
             updateToolbarStatusVisibility(View.GONE);
             updateBottomBarStatusVisibility(View.GONE);
+            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             fragmentManager.beginTransaction()
-                           .replace(R.id.fragment_container_view, LocationPermissionFragment.newInstance(), LocationPermissionFragment.TAG)
-                           .commit();
+                    .replace(R.id.fragment_container_view, LocationPermissionFragment.newInstance(), LocationPermissionFragment.TAG)
+                    .commit();
         } else {
             //updateToolbarBottomBarAndNetworkBarVisibility(View.VISIBLE);
+            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             updateToolbarStatusVisibility(View.VISIBLE);
             updateBottomBarStatusVisibility(View.VISIBLE);
             fragmentManager.beginTransaction()
-                           .replace(R.id.fragment_container_view, mapViewFragment, MapViewFragment.TAG)
-                           .commit();
+                    .replace(R.id.fragment_container_view, mapViewFragment, MapViewFragment.TAG)
+                    .commit();
             initialize = true;
         }
     }
@@ -330,8 +348,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Start the autocomplete intent
         Intent intent = new Autocomplete.IntentBuilder(
                 AutocompleteActivityMode.OVERLAY, fields).setCountry("FR")
-                                                         .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                                                         .build(this);
+                .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                .build(this);
 
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -374,4 +392,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public PlacesClient getPlacesClient() { return placesClient; }
 
     public int getIndice() { return indice; }
+
+    public int getStatusBarSize() {
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        int statusBarSize = 0;
+        statusBarSize = getResources().getDimensionPixelSize(resourceId);
+        return statusBarSize;
+    }
+
+    public DrawerLayout getDrawerLayout() {
+        return binding.drawerLayout;
+    }
 }

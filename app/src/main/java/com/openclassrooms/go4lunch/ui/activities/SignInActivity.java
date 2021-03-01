@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+
+import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -51,18 +53,23 @@ public class SignInActivity extends AppCompatActivity {
      * activity is displayed using FirebaseUI
      */
     private void handleConnexionButtonListener() {
+        AuthMethodPickerLayout layout = new AuthMethodPickerLayout.Builder(R.layout.authentication_layout)
+                .setGoogleButtonId(R.id.google_auth_btn)
+                .setFacebookButtonId(R.id.facebook_auth_btn).build();
+
         binding.buttonConnexion.setOnClickListener((View v) -> {
-                startActivityForResult(
-                        AuthUI.getInstance()
-                                .createSignInIntentBuilder()
-                                .setAvailableProviders(providers)
-                                .setTheme(R.style.LoginTheme)
-                                .setIsSmartLockEnabled(false)
-                                .build(),
-                        RC_SIGN_IN
-                );
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            }
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setAvailableProviders(providers)
+                                    .setAuthMethodPickerLayout(layout)
+                                    .setTheme(R.style.LoginTheme)
+                                    .setIsSmartLockEnabled(false)
+                                    .build(),
+                            RC_SIGN_IN
+                    );
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                }
         );
     }
 

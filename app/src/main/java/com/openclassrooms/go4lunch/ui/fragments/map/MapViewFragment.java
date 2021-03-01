@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import android.provider.Settings;
@@ -156,12 +157,12 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                 == PackageManager.PERMISSION_GRANTED) {
             if (map != null) {
                 binding.fabLocation.setOnClickListener((View v) -> {
-                            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { // GPS Activated
-                                centerCursorInCurrentLocation(true);
-                            } else { // GPS deactivated
-                                GPSActivationDialog dialog = new GPSActivationDialog(this);
-                                dialog.show(getParentFragmentManager(), GPSActivationDialog.TAG);
-                            }
+                           if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { // GPS Activated
+                               centerCursorInCurrentLocation(true);
+                           } else { // GPS deactivated
+                               GPSActivationDialog dialog = new GPSActivationDialog(this);
+                               dialog.show(getParentFragmentManager(), GPSActivationDialog.TAG);
+                           }
                         }
                 );
             }
@@ -179,12 +180,17 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     public void centerCursorInCurrentLocation(boolean update) {
         ((MainActivity) requireActivity()).getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener((Location location) -> {
-                            CameraUpdate cameraUpdate = CameraUpdateFactory
-                                    .newLatLngZoom(
-                                            new LatLng(location.getLatitude(),
-                                                       location.getLongitude()), 18.0f);
-                            if (update) map.animateCamera(cameraUpdate);
-                            else map.moveCamera(cameraUpdate);
+                    if (location == null) {
+                        Log.e("LOCATION", "NULL");
+                    }
+                    else {
+                        CameraUpdate cameraUpdate = CameraUpdateFactory
+                                .newLatLngZoom(
+                                        new LatLng(location.getLatitude(),
+                                                location.getLongitude()), 18.0f);
+                        if (update) map.animateCamera(cameraUpdate);
+                        else map.moveCamera(cameraUpdate);
+                    }
                         }
                 ).addOnFailureListener(Throwable::printStackTrace);
     }
@@ -196,8 +202,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     public void searchPlacesFromCurrentLocation() {
         ((MainActivity) requireActivity()).getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener(location -> placesViewModel.findPlacesNearby(location.getLatitude() +","
-                                + location.getLongitude(), 1000, "restaurant",
-                        ((MainActivity) getActivity()).getPlacesClient()));
+                                + location.getLongitude(),"restaurant"));
     }
 
     /**
@@ -244,8 +249,10 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             handleFloatingActionButtonListener();
             // Initialize map cluster manager
             initializeClusterManager();
+            Log.i("LOCATION", "onMapReady");
             // Initialize current position + search for places
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                Log.i("LOCATION", "locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)");
                 centerCursorInCurrentLocation(false);
                 if (connectivityManager.getActiveNetworkInfo() != null) searchPlacesFromCurrentLocation();
             }
@@ -260,6 +267,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     private void handleClusterClickInteractions() {
         clusterManager.setOnClusterItemInfoWindowClickListener(item -> {
             ((MainActivity) requireActivity()).addFragmentRestaurantDetails(item.getIndice());
+            ((MainActivity) getActivity()).getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             ((MainActivity) requireActivity()).updateBottomBarStatusVisibility(View.GONE);
             ((MainActivity) requireActivity()).updateToolbarStatusVisibility(View.GONE);
         });

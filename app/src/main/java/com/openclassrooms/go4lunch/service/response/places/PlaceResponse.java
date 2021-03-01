@@ -7,4 +7,6 @@ import java.util.List;
  */
 public class PlaceResponse {
     public List<ResultPlacesResponse> results;
+    public String next_page_token;
+    public String status;
 }

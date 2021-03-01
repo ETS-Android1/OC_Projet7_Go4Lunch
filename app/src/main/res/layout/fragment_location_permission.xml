@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.fragments.permission.LocationPermissionFragment">
+    tools:context=".ui.fragments.permission.LocationPermissionFragment"
+    android:background="@color/white">
 
     <ImageView
         android:id="@+id/icon_localisation"
@@ -15,7 +16,8 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/content_description_location_icon" />
 
     <TextView
         android:id="@+id/title_localisation"
