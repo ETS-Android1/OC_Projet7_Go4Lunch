@@ -27,7 +27,9 @@ public class GPSBroadcastReceiver extends BroadcastReceiver {
         callback.updateFloatingButtonIconDisplay(providerStatus);
 
         if (connectivityManager.getActiveNetworkInfo() != null) {
-            if (providerStatus) callback.searchPlacesFromCurrentLocation();
+            if (providerStatus) {
+                callback.checkLocationSharedPreferences();
+            }
         }
     }
 }

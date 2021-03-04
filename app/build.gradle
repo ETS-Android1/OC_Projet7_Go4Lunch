@@ -54,9 +54,6 @@ dependencies {
     // Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:26.3.0')
 
-    // Firebase Crashlytics
-    //implementation 'com.google.firebase:firebase-crashlytics'
-
     // Firebase Analytics
     implementation 'com.google.firebase:firebase-analytics'
 
@@ -87,6 +84,10 @@ dependencies {
 
     // Facebook Login
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
+
+    // Room
+    implementation "androidx.room:room-runtime:2.2.6"
+    annotationProcessor "androidx.room:room-compiler:2.2.6"
 
     // Play Services
     implementation 'com.google.android.gms:play-services-maps:17.0.0'

@@ -43,6 +43,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
 
     public ListViewAdapter(FusedLocationProviderClient client, Context context,
                            OnItemRestaurantClickListener onItemRestaurantClickListener) {
+        Log.i("ADAPTER", "ListViewAdapter");
         this.client = client;
         this.context = context;
         this.onItemRestaurantClickListener = onItemRestaurantClickListener;
@@ -51,6 +52,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolderListView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        Log.i("ADAPTER", "onCreateViewHolder");
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_item, parent, false);
         return new ViewHolderListView(view, onItemRestaurantClickListener);
     }
@@ -58,6 +60,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onBindViewHolder(@NonNull ViewHolderListView holder, int position) {
+        Log.i("ADAPTER", "onBindViewHolder");
         // Name
         holder.name.setText(list.get(position).getName());
 
@@ -68,10 +71,11 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
         displayDistanceBetweenRestaurantAndUserLocation(holder, position);
 
         // Rating
-        if (list.get(position).getRating() != null) displayRestaurantRating(holder, position);
+       //  if (list.get(position).getRating() != null)
+             displayRestaurantRating(holder, position);
 
         // Closing hours
-        if (list.get(position).getOpeningHours() != null) displayOpenHours(holder,position);
+       // if (list.get(position).getOpeningHours() != null) displayOpenHours(holder,position);
 
         // Photo
         if (list.get(position).getPhoto() != null) displayRestaurantPhoto(holder, position);
@@ -106,8 +110,8 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
                     .addOnSuccessListener(location -> {
                         double userLatitude = location.getLatitude();
                         double userLongitude = location.getLongitude();
-                        double restaurantLatitude = list.get(position).getLatLng().latitude;
-                        double restaurantLongitude = list.get(position).getLatLng().longitude;
+                        double restaurantLatitude = list.get(position).getLatitude();
+                        double restaurantLongitude = list.get(position).getLongitude();
                         float[] result = new float[1];
                         Location.distanceBetween(userLatitude, userLongitude, restaurantLatitude, restaurantLongitude, result);
 

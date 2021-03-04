@@ -16,8 +16,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,6 +48,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
+import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
 import com.openclassrooms.go4lunch.ui.fragments.restaurants.ListViewFragment;
@@ -211,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) != null)
                                 if (workmatesFragment.isVisible())
                                     hideFragment(workmatesFragment);
-
                             break;
                         case R.id.list: // List View Fragment
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) != null)
@@ -269,7 +269,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     updateBottomBarStatusVisibility(View.VISIBLE);
                 }
             }
-            else finishAffinity();
+            else {
+                Go4LunchDatabase.getInstance(getApplicationContext()).close();
+                finishAffinity();
+            }
         }
     }
 
@@ -379,17 +382,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * search places around current user location.
      */
     @Override
-    public void searchPlacesInMapViewFragment() {
+    public void checkLocationSharedPreferencesInMapViewFragment() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            mapViewFragment.searchPlacesFromCurrentLocation();
+            mapViewFragment.checkLocationSharedPreferences();
         }
     }
 
     // Getter methods
     public FusedLocationProviderClient getClient() { return this.client; }
-
-    public PlacesClient getPlacesClient() { return placesClient; }
 
     public int getIndice() { return indice; }
 
@@ -402,5 +403,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public DrawerLayout getDrawerLayout() {
         return binding.drawerLayout;
+    }
+
+    public boolean checkIfFirstRunApp() {
+        final String PREFS_FIRST_RUN = "first_run_app";
+        final String PREF_VERSION_CODE_KEY = "version_code";
+
+        // Get current version code
+        int currentVersionCode = BuildConfig.VERSION_CODE;
+
+        // Get saved version code
+        SharedPreferences prefsVersionCode = getSharedPreferences(PREFS_FIRST_RUN, MODE_PRIVATE);
+        int savedVersionCode = prefsVersionCode.getInt(PREF_VERSION_CODE_KEY, -1);
+
+        if (savedVersionCode == -1 || currentVersionCode > savedVersionCode) { // New install (first run) OR Update app
+            SharedPreferences.Editor editor = prefsVersionCode.edit();
+            editor.putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
+            return true;
+        }
+        else { // Normal run in same app version
+            return false;
+        }
     }
 }

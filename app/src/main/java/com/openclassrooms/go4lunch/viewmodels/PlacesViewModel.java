@@ -1,15 +1,13 @@
 package com.openclassrooms.go4lunch.viewmodels;
 
-import android.util.Log;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import com.openclassrooms.go4lunch.di.DI;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * ViewModel class used to store a list of detected restaurant in a MutableLiveData object.
@@ -17,28 +15,31 @@ import java.util.concurrent.Executors;
 public class PlacesViewModel extends ViewModel {
 
     // Repository to access a service
-    private final PlacesRepository placesRepository;
+    private PlacesRepository placesRepository;
+
     // Executor to launch all repository accesses
-    private final Executor executor;
+    private final Executor executor = DI.provideExecutor();
+
     // To store the list of restaurant
     private final MutableLiveData<List<Restaurant>> listRestaurants = new MutableLiveData<>();
 
-    public PlacesViewModel() {
-        this.placesRepository = new PlacesRepository();
-        this.executor = Executors.newSingleThreadExecutor();
-    }
+    public PlacesViewModel(){ /* Empty constructor */ }
 
-    public LiveData<List<Restaurant>> getListRestaurants() {
+    public MutableLiveData<List<Restaurant>> getListRestaurants() {
         return listRestaurants;
     }
 
+    public void setRepository(PlacesRepository placesRepository) {
+        this.placesRepository = placesRepository;
+    }
 
+    // Methods to access PlacesRepository -> ListRestaurantsService methods
     /**
      * This method is used to access the findPlacesNearby() method of the @{@link PlacesRepository } repository class
      * @param location : Info location of the user
      * @param type : Type of places to search
      */
-    public void findPlacesNearby(String location, String type)  {
+    public void findPlacesNearby(String location, String type) {
             executor.execute(() -> {
                 try {
                     placesRepository.findPlacesNearby(location, type, newListRestaurants -> {
@@ -48,8 +49,8 @@ public class PlacesViewModel extends ViewModel {
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
-
-            });
+            }
+            );
     }
 
     /**
@@ -63,9 +64,7 @@ public class PlacesViewModel extends ViewModel {
                     listRestaurants.postValue(newListRestaurants);
                     getPlacesPhoto(newListRestaurants);
                 });
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
+            } catch (IOException exception) { exception.printStackTrace(); }
         });
     }
 
@@ -75,7 +74,45 @@ public class PlacesViewModel extends ViewModel {
      */
     public void getPlacesPhoto(List<Restaurant> list) {
         executor.execute(() -> {
-                placesRepository.getPlacesPhoto(list, listRestaurants::postValue);
+                placesRepository.getPlacesPhoto(list, newListRestaurant -> {
+                    listRestaurants.postValue(newListRestaurant);
+                    updateDatabaseWithPlacesNearbyResults(newListRestaurant);
+                });
         });
     }
+
+    public void restorePlacesPhoto(List<Restaurant> listFromDataBase) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                // Post data from DB on ListRestaurant when available
+                placesRepository.getPlacesPhoto(listFromDataBase, listRestaurants::postValue);
+            }
+        });
+    }
+
+    private void updateDatabaseWithPlacesNearbyResults(List<Restaurant> list) {
+        deleteAllRestaurants();
+        for (int i = 0; i < list.size(); i++) {
+            insertRestaurant(list.get(i));
+        }
+    }
+
+    // Methods to access PlacesRepository -> RestaurantDao methods
+    public void insertRestaurant(Restaurant restaurant) {
+        executor.execute(() -> placesRepository.insertRestaurant(restaurant));
+    }
+
+    public void updateRestaurant(Restaurant restaurant) {
+        executor.execute(() -> placesRepository.updateRestaurant(restaurant));
+    }
+
+    public void deleteAllRestaurants() {
+        executor.execute(placesRepository::deleteAllRestaurants);
+    }
+
+    public PlacesRepository getPlacesRepository() {
+        return placesRepository;
+    }
+
 }

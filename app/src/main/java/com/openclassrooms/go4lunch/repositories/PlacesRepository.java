@@ -1,8 +1,8 @@
 package com.openclassrooms.go4lunch.repositories;
 
 import android.net.Uri;
-import android.util.Log;
-import com.google.android.gms.maps.model.LatLng;
+import androidx.lifecycle.LiveData;
+import com.openclassrooms.go4lunch.dao.RestaurantDao;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.service.ListRestaurantsService;
 import com.openclassrooms.go4lunch.service.ServiceDetailsCallback;
@@ -18,12 +18,20 @@ import java.util.List;
  */
 public class PlacesRepository {
 
-    private final ListRestaurantsService listRestaurantsServices = new ListRestaurantsService();
+    private final ListRestaurantsService listRestaurantsServices;
+
+    private final RestaurantDao restaurantDao;
+
+    public PlacesRepository(RestaurantDao restaurantDao) {
+        this.restaurantDao = restaurantDao;
+        this.listRestaurantsServices = new ListRestaurantsService();
+    }
 
     public List<Restaurant> getListRestaurants() {
         return listRestaurantsServices.getListRestaurants();
     }
 
+    // Methods to access ListRestaurantsService
     /**
      * This method is used to access the findPlacesNearby() method of the @{@link ListRestaurantsService } service class
      * @param location : Info location of the user
@@ -36,19 +44,20 @@ public class PlacesRepository {
         for (int i = 0; i < response.results.size(); i++) {
             // Initialize new restaurant object
             Restaurant restaurant = new Restaurant(
+                    getListRestaurants().size()+1,
                     response.results.get(i).place_id,
                     response.results.get(i).name,
                     response.results.get(i).vicinity,
-                    new LatLng(response.results.get(i).geometry.location.lat,
-                               response.results.get(i).geometry.location.lng),
+                    response.results.get(i).geometry.location.lat,
+                               response.results.get(i).geometry.location.lng,
                     response.results.get(i).rating);
+
             // Add photo data
             if (response.results.get(i).photos != null) {
                 if (response.results.get(i).photos.size() > 0) {
                     restaurant.setPhotoReference(response.results.get(i).photos.get(0).photo_reference);
                     restaurant.setPhotoHeight(response.results.get(i).photos.get(0).height);
                     restaurant.setPhotoWidth(response.results.get(i).photos.get(0).width);
-                 //   listRestaurantsServices.getPlacePhoto(restaurant);
                 }
             }
             // Add restaurant to the list
@@ -58,79 +67,61 @@ public class PlacesRepository {
     }
 
     /**
-     * This method is used to update the list of locations with their details
+     * This method is used to update the list of restaurants with their details
+     * @param list : List of restaurants
      * @param callback : Callback interface
      * @throws IOException : Exception thrown by getPlacesDetails() method of the @{@link ListRestaurantsService } service class
      */
     public void getPlacesDetails(List<Restaurant> list, ServiceDetailsCallback callback) throws IOException{
         for (int i = 0; i < list.size(); i++) {
-            DetailsResponse response = listRestaurantsServices.getPlacesDetails(list.get(i).getId());
+            DetailsResponse response = listRestaurantsServices.getPlacesDetails(list.get(i).getPlace_id());
             if (response.result.website != null) list.get(i).setWebsiteUri(Uri.parse(response.result.website));
             if (response.result.formatted_phone_number != null) list.get(i).setPhoneNumber(response.result.formatted_phone_number);
         }
         callback.onPlacesDetailsAvailable(list);
     }
 
+    /**
+     * This method is used to update the list of restaurants with their photos
+     * @param list : List of restaurants
+     * @param callback : Callback interface
+     */
     public void getPlacesPhoto(List<Restaurant> list, ServicePhotoCallback callback)  {
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getPhotoReference() != null) {
-                listRestaurantsServices.getPlacePhoto(list.get(i));
-            }
+            if (list.get(i).getPhotoReference() != null) listRestaurantsServices.getPlacePhoto(list.get(i));
         }
         callback.onPhotoAvailable(list);
     }
-/*
-    public void getNextSetOfPlaces(String nextPageToken) {
 
-        while (nextPageToken != null) {
-            Log.i("NEXTPAGETOKEN", nextPageToken);
-            try {
-                PlaceResponse response;
-                do {
-                    response = listRestaurantsServices.getNextSetOfPlaces(nextPageToken);
-                    Log.i("NEXTPAGETOKEN", response.status); // TODO () : Préciser type établissement dans requête
-                } while (response.status.equals("INVALID_REQUEST"));
-
-                Log.i("NEXTPAGETOKEN", "Size : " + response.results.size());
-                for (int i = 0; i < response.results.size(); i++) {
-                    Restaurant restaurant = new Restaurant(
-                            response.results.get(i).place_id,
-                            response.results.get(i).name,
-                            response.results.get(i).vicinity,
-                            new LatLng(response.results.get(i).geometry.location.lat,
-                                    response.results.get(i).geometry.location.lng),
-                            response.results.get(i).rating);
-                    Log.i("NEXTPAGETOKEN", "Name : " + response.results.get(i).name);
-                    Log.i("NEXTPAGETOKEN", "Name : " + response.results.get(i).place_id);
-                    Log.i("NEXTPAGETOKEN", "Name : " + response.results.get(i).vicinity);
-                    listRestaurantsServices.updateListRestaurants(restaurant);
-                }
-                nextPageToken = response.next_page_token;
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-
-        }
-    }
-    */
+    // Methods to access Database Dao
     /**
-     * This method is used to access the getPlacesDetails() method of the @{@link ListRestaurantsService } service class
-     * @param listRestaurant : List of restaurant to update with details for each place
-     * @param placesClient : PlacesClient Instance to access Places API methods
-     * @param callback : Callback interface
+     * DAO method used to insert a new Restaurant item in database
+     * @param restaurant : item to add
      */
-    /*   public void getPlacesDetails(List<Restaurant> listRestaurant, PlacesClient placesClient, ServiceDetailsCallback callback) {
-        listRestaurantsServices.getPlacesDetails(listRestaurant, placesClient, callback);
-    } */
+    public void insertRestaurant(Restaurant restaurant) {
+        restaurantDao.insertRestaurant(restaurant);
+    }
 
     /**
-     * This method is used to access the getPlacesPhotos() method of the @{@link ListRestaurantsService } service class
-     * @param placesClient : PlacesClient Instance to access Places API methods
-     * @param listRestaurant : List of restaurant to update with photo for each place
-     * @param callback : Callback interface
+     * DAO method used to update an existing item in database
+     * @param restaurant : item to update
      */
-    /*   public void getPlacesPhotos(PlacesClient placesClient, List<Restaurant> listRestaurant, ServicePhotoCallback callback) {
-        listRestaurantsServices.getPlacesPhotos(placesClient, listRestaurant, callback);
+    public void updateRestaurant(Restaurant restaurant) {
+        restaurantDao.updateRestaurant(restaurant);
     }
-    */
+
+    /**
+     * DAO method used to delete all data in restaurant_table from database
+     */
+    public void deleteAllRestaurants() {
+        restaurantDao.deleteAllRestaurants();
+    }
+
+    /**
+     * DAO method used to load all data from restaurant_table
+     * @return : LiveData object containing the list of restaurants stored in database
+     */
+    public LiveData<List<Restaurant>> loadAllRestaurants() {
+        return restaurantDao.loadAllRestaurants();
+    }
 }

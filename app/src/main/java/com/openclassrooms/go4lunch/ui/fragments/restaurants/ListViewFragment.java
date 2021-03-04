@@ -9,12 +9,15 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.openclassrooms.go4lunch.adapters.ListViewAdapter;
 import com.openclassrooms.go4lunch.databinding.FragmentListViewBinding;
+import com.openclassrooms.go4lunch.di.DI;
+import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 
@@ -38,7 +41,8 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        placesViewModel = new ViewModelProvider(getActivity()).get(PlacesViewModel.class);
+        placesViewModel = new ViewModelProvider(getActivity()).get(PlacesViewModel.class); // Initialize View Model
+        placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao()));
     }
 
     @Override

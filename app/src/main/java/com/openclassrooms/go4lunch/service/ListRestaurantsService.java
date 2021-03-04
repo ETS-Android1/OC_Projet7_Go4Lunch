@@ -10,6 +10,7 @@ import com.openclassrooms.go4lunch.service.response.details.DetailsResponse;
 import com.openclassrooms.go4lunch.service.response.places.PlaceResponse;
 import com.openclassrooms.go4lunch.service.request.PlaceService;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import okhttp3.Call;
@@ -31,6 +32,7 @@ public class ListRestaurantsService {
     // Service instance
     private final PlaceService service;
     private final OkHttpClient httpClient;
+
     public ListRestaurantsService() {
         // Initialize list of restaurants
         listRestaurants = new ArrayList<>();
@@ -77,7 +79,7 @@ public class ListRestaurantsService {
     /**
      * This method is used to update each @{@link Restaurant} object with its associated photo, which is the result
      * of an HTTP GET request.
-     * @param restaurant
+     * @param restaurant : Restaurant to update
      */
     public void getPlacePhoto(Restaurant restaurant) {
         Request request = new Request.Builder()
