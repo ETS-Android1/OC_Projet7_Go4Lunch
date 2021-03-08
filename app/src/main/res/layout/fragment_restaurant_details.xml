@@ -41,7 +41,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraint_layout_restaurant_info"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
         android:background="@color/orange"
         app:layout_constraintTop_toBottomOf="@id/photo_restaurant"
         app:layout_constraintRight_toRightOf="parent"
@@ -54,7 +56,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginBottom="20dp"
             android:columnCount="1"
-            android:rowCount="2"
+            android:rowCount="3"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
@@ -68,13 +70,74 @@
                 android:layout_column="0"
                 android:layout_marginStart="10dp"/>
 
+            <GridLayout
+                android:id="@+id/rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="1"
+                android:layout_column="0"
+                android:rowCount="1"
+                android:columnCount="5"
+                android:layout_marginStart="10dp">
+                <ImageView
+                    android:id="@+id/note_star_5"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_column="4"
+                    android:layout_row="0"
+                    android:visibility="visible"
+                    android:rotation="180"
+                    android:rotationX="180"
+                    tools:ignore="ContentDescription"/>
+                <ImageView
+                    android:id="@+id/note_star_4"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_column="3"
+                    android:layout_row="0"
+                    android:visibility="visible"
+                    android:rotation="180"
+                    android:rotationX="180"
+                    tools:ignore="ContentDescription"/>
+                <ImageView
+                    android:id="@+id/note_star_3"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_column="2"
+                    android:layout_row="0"
+                    android:visibility="visible"
+                    android:rotation="180"
+                    android:rotationX="180"
+                    tools:ignore="ContentDescription"/>
+                <ImageView
+                    android:id="@+id/note_star_2"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_column="1"
+                    android:layout_row="0"
+                    android:visibility="visible"
+                    android:rotation="180"
+                    android:rotationX="180"
+                    tools:ignore="ContentDescription"/>
+                <ImageView
+                    android:id="@+id/note_star_1"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_column="0"
+                    android:layout_row="0"
+                    android:visibility="visible"
+                    android:rotation="180"
+                    android:rotationX="180"
+                    android:contentDescription="@string/content_description_rating" />
+            </GridLayout>
+
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/address_restaurant"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:layout_row="1"
+                android:layout_row="2"
                 android:layout_column="0"
                 android:layout_marginStart="10dp"/>
         </GridLayout>

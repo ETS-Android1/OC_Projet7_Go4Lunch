@@ -23,7 +23,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +42,7 @@ import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.ui.dialogs.GPSActivationDialog;
 import com.openclassrooms.go4lunch.receivers.GPSBroadcastReceiver;
+import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.RestaurantMarkerItem;
 import com.openclassrooms.go4lunch.utils.RestaurantRenderer;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
@@ -114,8 +114,10 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        placesViewModel = new ViewModelProvider(getActivity()).get(PlacesViewModel.class); // Initialize View Model
-        placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao()));
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class); // Initialize View Model
+        placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao(),
+                                                           DI.provideDatabase(getContext()).hoursDao(),
+                                                           DI.provideDatabase(getContext()).restaurantAndHoursDao()));
     }
 
     @Override
@@ -136,12 +138,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         mapFragment.getMapAsync(this);
 
         // Update map with Restaurant items markers
-        placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), new Observer<List<Restaurant>>() {
-            @Override
-            public void onChanged(List<Restaurant> list) {
-                displayMarkersInMap(list);
-            }
-        });
+        placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), this::displayMarkersInMap);
 
         // Initialize SharedPreferences & Editor
         String PREF_USER_POSITION = "pref_user_position";
@@ -180,6 +177,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      * This method is used to check the current user location and compare with the previous saved value, allowing to
      * determine if a new search request is necessary, instead of reloading stored locations from database.
      */
+    // TODO() : A déplacer dans le Repository
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     @Override
     public void checkLocationSharedPreferences() {
@@ -188,7 +186,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                     // Get location
                     currentLatUserPosition = location.getLatitude();
                     currentLonUserPosition = location.getLongitude();
-                    if (((MainActivity) requireActivity()).checkIfFirstRunApp()) {
+                    if (AppInfo.checkIfFirstRunApp(requireContext())) {
                         searchPlacesFromCurrentLocation();
                     }
                     else {
@@ -371,13 +369,13 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         map.setOnMarkerClickListener(clusterManager);
     }
 
+    /**
+     * This methods is used to launch a loadAllRestaurantsWithHours request to database and
+     * send the result to view model to perform a data restoration.
+     */
     private void restoreListFromDatabase() {
-        placesViewModel.getPlacesRepository().loadAllRestaurants().observe(getViewLifecycleOwner(), new Observer<List<Restaurant>>() {
-            @Override
-            public void onChanged(List<Restaurant> listFromDataBase) {
-                // Update list from database with photos
-                placesViewModel.restorePlacesPhoto(listFromDataBase);
-            }
-        });
+        placesViewModel.getPlacesRepository().loadAllRestaurantsWithHours()
+                .observe(getViewLifecycleOwner(), restaurantAndHoursData
+                        -> placesViewModel.restoreData(restaurantAndHoursData));
     }
 }

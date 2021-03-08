@@ -16,7 +16,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -106,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (!Places.isInitialized()) Places.initialize(getApplicationContext(), BuildConfig.API_KEY);
         placesClient = Places.createClient(this);
         initializeFragments();
+
     }
 
     @Override
@@ -323,7 +323,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void checkIfLocationPermissionIsGranted() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            //updateToolbarBottomBarAndNetworkBarVisibility(View.GONE);
             updateToolbarStatusVisibility(View.GONE);
             updateBottomBarStatusVisibility(View.GONE);
             binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -331,7 +330,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .replace(R.id.fragment_container_view, LocationPermissionFragment.newInstance(), LocationPermissionFragment.TAG)
                     .commit();
         } else {
-            //updateToolbarBottomBarAndNetworkBarVisibility(View.VISIBLE);
             binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             updateToolbarStatusVisibility(View.VISIBLE);
             updateBottomBarStatusVisibility(View.VISIBLE);
@@ -403,26 +401,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public DrawerLayout getDrawerLayout() {
         return binding.drawerLayout;
-    }
-
-    public boolean checkIfFirstRunApp() {
-        final String PREFS_FIRST_RUN = "first_run_app";
-        final String PREF_VERSION_CODE_KEY = "version_code";
-
-        // Get current version code
-        int currentVersionCode = BuildConfig.VERSION_CODE;
-
-        // Get saved version code
-        SharedPreferences prefsVersionCode = getSharedPreferences(PREFS_FIRST_RUN, MODE_PRIVATE);
-        int savedVersionCode = prefsVersionCode.getInt(PREF_VERSION_CODE_KEY, -1);
-
-        if (savedVersionCode == -1 || currentVersionCode > savedVersionCode) { // New install (first run) OR Update app
-            SharedPreferences.Editor editor = prefsVersionCode.edit();
-            editor.putInt(PREF_VERSION_CODE_KEY, currentVersionCode).apply();
-            return true;
-        }
-        else { // Normal run in same app version
-            return false;
-        }
     }
 }

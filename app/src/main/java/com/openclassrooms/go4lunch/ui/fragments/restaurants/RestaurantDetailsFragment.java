@@ -3,7 +3,6 @@ package com.openclassrooms.go4lunch.ui.fragments.restaurants;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,9 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,10 +17,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import com.bumptech.glide.Glide;
+import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentRestaurantDetailsBinding;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
+import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import java.util.Objects;
 
@@ -67,7 +66,6 @@ public class RestaurantDetailsFragment extends Fragment {
         restaurant = Objects.requireNonNull(placesViewModel.getListRestaurants().getValue()).get(indiceRestaurant);
         initializeDetails();
         initializePhotoRestaurant();
-
         updateFloatingActionButtonIconDisplay();
         handleFloatingButtonClicks();
         handleButtonsClicks();
@@ -98,7 +96,7 @@ public class RestaurantDetailsFragment extends Fragment {
                         .getDrawable(R.drawable.ic_baseline_arrow_back_24dp_white));
         // Set margin
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.toolbarDetailsRestaurantFragment.getLayoutParams();
-        params.setMargins(0, ((MainActivity) getActivity()).getStatusBarSize(), 0, 0);
+        params.setMargins(0, ((MainActivity) requireActivity()).getStatusBarSize(), 0, 0);
         binding.toolbarDetailsRestaurantFragment.setLayoutParams(params);
     }
 
@@ -107,23 +105,26 @@ public class RestaurantDetailsFragment extends Fragment {
      */
     private void initializeStatusBar() {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            ((MainActivity) requireActivity()).getWindow().setStatusBarColor(getResources().getColor(R.color.transparent));
+            requireActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.transparent));
         }
     }
 
     /**
      * This method initializes all views according to fields values of the Restaurant object.
      */
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void initializeDetails() {
         binding.nameRestaurant.setText(restaurant.getName());
         binding.addressRestaurant.setText(restaurant.getAddress());
+        RatingDisplayHandler.displayRating(binding.noteStar1, binding.noteStar2, binding.noteStar3,
+                        binding.noteStar4, binding.noteStar5, restaurant.getRating(), getContext());
     }
 
     /**
      * This method initializes a PlaceViewModel instance and attaches an observer.
      */
     private void initializePlacesViewModel() {
-        placesViewModel = new ViewModelProvider(getActivity()).get(PlacesViewModel.class);
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), list -> {
             // Info available
             initializeDetails();
@@ -135,23 +136,14 @@ public class RestaurantDetailsFragment extends Fragment {
      * This methods initializes the ImageView used to display the photo of the selected restaurant.
      */
     private void initializePhotoRestaurant() {
-        if (restaurant.getPhoto() != null) {
+        if (restaurant.getPhotoReference() != null) {
             binding.noPhotoIcon.setVisibility(View.GONE);
-            Display display;
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                display = getContext().getDisplay();
-                display.getRealMetrics(displayMetrics);
-            }
-            else {
-                display = getActivity().getWindowManager().getDefaultDisplay();
-                display.getMetrics(displayMetrics);
-            }
-            int WIDTH_BITMAP_IMAGE = displayMetrics.widthPixels;
-            int HEIGHT_BITMAP_IMAGE = binding.photoRestaurant.getLayoutParams().height;
-            binding.photoRestaurant.setImageBitmap(Bitmap.createScaledBitmap(
-                    restaurant.getPhoto(), WIDTH_BITMAP_IMAGE, HEIGHT_BITMAP_IMAGE, false
-            ));
+            Glide.with(requireContext())
+                 .load("https://maps.googleapis.com/maps/api/place/photo?&maxwidth=400&maxheight=400&photo_reference="
+                         + restaurant.getPhotoReference() + "&key=" + BuildConfig.API_KEY)
+                 .centerCrop()
+                 .override(binding.noPhotoIcon.getWidth(), binding.noPhotoIcon.getHeight())
+                 .into(binding.photoRestaurant);
         }
     }
 

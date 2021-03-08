@@ -41,8 +41,10 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        placesViewModel = new ViewModelProvider(getActivity()).get(PlacesViewModel.class); // Initialize View Model
-        placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao()));
+        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class); // Initialize View Model
+        placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao(),
+                                                           DI.provideDatabase(getContext()).hoursDao(),
+                                                           DI.provideDatabase(getContext()).restaurantAndHoursDao()));
     }
 
     @Override
@@ -84,7 +86,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         binding.recyclerViewList.setLayoutManager(layoutManager);
         // Initialize Adapter
-        adapter = new ListViewAdapter( ((MainActivity) getActivity()).getClient(),
+        adapter = new ListViewAdapter( ((MainActivity) requireActivity()).getClient(),
                                         getContext(),
                 this);
         binding.recyclerViewList.setAdapter(adapter);

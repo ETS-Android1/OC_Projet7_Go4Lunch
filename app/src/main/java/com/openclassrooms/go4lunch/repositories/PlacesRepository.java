@@ -1,16 +1,24 @@
 package com.openclassrooms.go4lunch.repositories;
 
 import android.net.Uri;
+import android.util.Log;
 import androidx.lifecycle.LiveData;
+import com.openclassrooms.go4lunch.dao.HoursDao;
+import com.openclassrooms.go4lunch.dao.RestaurantAndHoursDao;
 import com.openclassrooms.go4lunch.dao.RestaurantDao;
+import com.openclassrooms.go4lunch.database.HoursData;
+import com.openclassrooms.go4lunch.database.RestaurantAndHoursData;
 import com.openclassrooms.go4lunch.model.Restaurant;
+import com.openclassrooms.go4lunch.database.RestaurantData;
 import com.openclassrooms.go4lunch.service.ListRestaurantsService;
 import com.openclassrooms.go4lunch.service.ServiceDetailsCallback;
 import com.openclassrooms.go4lunch.service.ServicePhotoCallback;
 import com.openclassrooms.go4lunch.service.ServicePlacesCallback;
 import com.openclassrooms.go4lunch.service.response.details.DetailsResponse;
 import com.openclassrooms.go4lunch.service.response.places.PlaceResponse;
+import com.openclassrooms.go4lunch.utils.DataConverters;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,10 +29,14 @@ public class PlacesRepository {
     private final ListRestaurantsService listRestaurantsServices;
 
     private final RestaurantDao restaurantDao;
+    private final HoursDao hoursDao;
+    private final RestaurantAndHoursDao restaurantAndHoursDao;
 
-    public PlacesRepository(RestaurantDao restaurantDao) {
-        this.restaurantDao = restaurantDao;
+    public PlacesRepository(RestaurantDao restaurantDao, HoursDao hoursDao, RestaurantAndHoursDao restaurantAndHoursDao) {
         this.listRestaurantsServices = new ListRestaurantsService();
+        this.restaurantDao = restaurantDao;
+        this.hoursDao = hoursDao;
+        this.restaurantAndHoursDao = restaurantAndHoursDao;
     }
 
     public List<Restaurant> getListRestaurants() {
@@ -33,7 +45,7 @@ public class PlacesRepository {
 
     // Methods to access ListRestaurantsService
     /**
-     * This method is used to access the findPlacesNearby() method of the @{@link ListRestaurantsService } service class
+     * This method is used to access the findPlacesNearby() method of the @{@link ListRestaurantsService } service class.
      * @param location : Info location of the user
      * @param type : Type of places to search
      * @param callback : Callback interface
@@ -44,7 +56,6 @@ public class PlacesRepository {
         for (int i = 0; i < response.results.size(); i++) {
             // Initialize new restaurant object
             Restaurant restaurant = new Restaurant(
-                    getListRestaurants().size()+1,
                     response.results.get(i).place_id,
                     response.results.get(i).name,
                     response.results.get(i).vicinity,
@@ -60,6 +71,7 @@ public class PlacesRepository {
                     restaurant.setPhotoWidth(response.results.get(i).photos.get(0).width);
                 }
             }
+
             // Add restaurant to the list
             listRestaurantsServices.updateListRestaurants(restaurant);
         }
@@ -67,22 +79,43 @@ public class PlacesRepository {
     }
 
     /**
-     * This method is used to update the list of restaurants with their details
-     * @param list : List of restaurants
+     * This method is used to update the list of restaurants with their details.
+     * @param listRestaurant : List of restaurants
      * @param callback : Callback interface
      * @throws IOException : Exception thrown by getPlacesDetails() method of the @{@link ListRestaurantsService } service class
      */
-    public void getPlacesDetails(List<Restaurant> list, ServiceDetailsCallback callback) throws IOException{
-        for (int i = 0; i < list.size(); i++) {
-            DetailsResponse response = listRestaurantsServices.getPlacesDetails(list.get(i).getPlace_id());
-            if (response.result.website != null) list.get(i).setWebsiteUri(Uri.parse(response.result.website));
-            if (response.result.formatted_phone_number != null) list.get(i).setPhoneNumber(response.result.formatted_phone_number);
+    public void getPlacesDetails(List<Restaurant> listRestaurant, ServiceDetailsCallback callback) throws IOException{
+        // Contains each restaurant periods (closing and opening hours of a week) found
+        List<HoursData> listHoursData = new ArrayList<>();
+        List<List<HoursData>> listOfListHoursData = new ArrayList<>();
+
+        for (int i = 0; i < listRestaurant.size(); i++) {
+            DetailsResponse response = listRestaurantsServices.getPlacesDetails(listRestaurant.get(i).getPlaceId());
+            if (response.result.website != null) listRestaurant.get(i).setWebsiteUri(Uri.parse(response.result.website));
+            if (response.result.formatted_phone_number != null) listRestaurant.get(i).setPhoneNumber(response.result.formatted_phone_number);
+
+            if (response.result.opening_hours != null) {
+                if (response.result.opening_hours.periods != null) {
+                    for (int j = 0; j < response.result.opening_hours.periods.size(); j++) {
+                        HoursData hoursData = new HoursData(response.result.opening_hours.periods.get(j).close,
+                                                            response.result.opening_hours.periods.get(j).open,
+                                                            listRestaurant.get(i).getPlaceId());
+                        listHoursData.add(hoursData);
+                    }
+                    // Update Restaurant with associated Closing/Opening hours
+                    listRestaurant.get(i).setOpeningAndClosingHours(DataConverters.converterHoursDataToOpeningAndClosingHours(listHoursData));
+                    // Update list of data (Closing/Opening hours) to send to database
+                    ArrayList<HoursData> copy = new ArrayList<>(listHoursData);
+                    listOfListHoursData.add(copy);
+                }
+            }
+            listHoursData.clear();
         }
-        callback.onPlacesDetailsAvailable(list);
+        callback.onPlacesDetailsAvailable(listRestaurant, listOfListHoursData);
     }
 
     /**
-     * This method is used to update the list of restaurants with their photos
+     * This method is used to update the list of restaurants with their photos.
      * @param list : List of restaurants
      * @param callback : Callback interface
      */
@@ -93,35 +126,46 @@ public class PlacesRepository {
         callback.onPhotoAvailable(list);
     }
 
-    // Methods to access Database Dao
+
+    // Methods to access Database RestaurantDao
     /**
-     * DAO method used to insert a new Restaurant item in database
-     * @param restaurant : item to add
+     * DAO method used to insert a new RestaurantData item in database.
+     * @param restaurantData : item to add
      */
-    public void insertRestaurant(Restaurant restaurant) {
-        restaurantDao.insertRestaurant(restaurant);
+    public void insertRestaurantData(RestaurantData restaurantData) {
+        restaurantDao.insertRestaurantData(restaurantData);
     }
 
     /**
-     * DAO method used to update an existing item in database
-     * @param restaurant : item to update
+     * DAO method used to delete all data in restaurant_table from database.
      */
-    public void updateRestaurant(Restaurant restaurant) {
-        restaurantDao.updateRestaurant(restaurant);
+    public void deleteAllRestaurantsData() {
+        restaurantDao.deleteAllRestaurantsData();
+    }
+
+    // Methods to access Database HoursDataDao
+    /**
+     * DAO method used to insert a new HoursData item in database.
+     * @param hoursData : item to add
+     */
+    public void insertHoursData(HoursData hoursData) {
+        hoursDao.insertHoursData(hoursData);
     }
 
     /**
-     * DAO method used to delete all data in restaurant_table from database
+     * DAO method used to delete all data in horus_table from database.
      */
-    public void deleteAllRestaurants() {
-        restaurantDao.deleteAllRestaurants();
+    public void deleteAllHoursData() {
+        hoursDao.deleteAllHoursData();
     }
 
+    // Methods to access Database RestaurantAndHoursDao
     /**
-     * DAO method used to load all data from restaurant_table
-     * @return : LiveData object containing the list of restaurants stored in database
+     * DAO method to retrieve all RestaurantData and associated HourData from both tables in
+     * database.
+     * @return : list of RestaurantData and HoursData
      */
-    public LiveData<List<Restaurant>> loadAllRestaurants() {
-        return restaurantDao.loadAllRestaurants();
+    public LiveData<List<RestaurantAndHoursData>> loadAllRestaurantsWithHours() {
+        return restaurantAndHoursDao.loadAllRestaurantsWithHours();
     }
 }

@@ -5,8 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import java.util.Calendar;
-import java.util.Locale;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.util.Log;
@@ -19,14 +17,17 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
+import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.model.Restaurant;
+import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
+import com.openclassrooms.go4lunch.utils.TimeComparator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Adapter class to display all restaurants from list in ListViewFragment RecyclerView,
@@ -52,7 +53,6 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolderListView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Log.i("ADAPTER", "onCreateViewHolder");
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_item, parent, false);
         return new ViewHolderListView(view, onItemRestaurantClickListener);
     }
@@ -60,7 +60,6 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onBindViewHolder(@NonNull ViewHolderListView holder, int position) {
-        Log.i("ADAPTER", "onBindViewHolder");
         // Name
         holder.name.setText(list.get(position).getName());
 
@@ -71,16 +70,14 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
         displayDistanceBetweenRestaurantAndUserLocation(holder, position);
 
         // Rating
-       //  if (list.get(position).getRating() != null)
-             displayRestaurantRating(holder, position);
+        RatingDisplayHandler.displayRating(holder.rating.get(0), holder.rating.get(1), holder.rating.get(2),
+                        holder.rating.get(3), holder.rating.get(4), list.get(position).getRating(), context);
 
         // Closing hours
-       // if (list.get(position).getOpeningHours() != null) displayOpenHours(holder,position);
+         if (list.get(position).getOpeningAndClosingHours() != null) displayOpenHours(holder,position);
 
         // Photo
-        if (list.get(position).getPhoto() != null) displayRestaurantPhoto(holder, position);
-        else holder.photo.setImageDrawable(context.getResources()
-                                                  .getDrawable(R.drawable.ic_baseline_image_not_supported_24dp_oyster_white));
+        displayRestaurantPhoto(holder, position);
     }
 
     @Override
@@ -122,233 +119,177 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
     }
 
     /**
-     * This method is used to display rating for a restaurant in each recyclerview item.
-     * @param holder : holder containing the item view
-     * @param position : restaurant at the indice "position" in list
-     */
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private void displayRestaurantRating(@NonNull ViewHolderListView holder, int position) {
-        try {
-            double rating = list.get(position).getRating();
-
-            if (rating >= 0 && rating < 0.5) { // 0 STARS
-                // DO NOTHING
-            }
-            else if (rating >= 0.5 && rating < 1) // 0.5 STARS
-                holder.rating.get(4).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_half_24dp_yellow));
-            else if (rating >= 1 && rating < 1.5) // 1 STAR
-                holder.rating.get(4).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-            else if (rating >= 1.5 && rating < 2) { // 1.5 STARS
-                holder.rating.get(4).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(3).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_half_24dp_yellow));
-            }
-            else if (rating >= 2 && rating < 2.5) { // 2 STARS
-                holder.rating.get(4).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(3).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-            }
-            else if (rating >= 2.5 & rating < 3) { // 2.5 STARS
-                holder.rating.get(4).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(3).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(2).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_half_24dp_yellow));
-            }
-            else if (rating >= 3 & rating < 3.5) { // 3 STARS
-                holder.rating.get(4).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(3).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(2).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-            }
-            else if (rating >= 3.5 && rating < 4) { // 3.5 STARS
-                holder.rating.get(4).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(3).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(2).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(1).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_half_24dp_yellow));
-            }
-            else if (rating >= 4 && rating < 4.5) { // 4 STARS
-                holder.rating.get(4).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(3).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(2).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(1).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-            }
-            else if (rating >= 4.5 && rating < 5) { // 4.5 STARS
-                holder.rating.get(4).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(3).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(2).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(1).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(0).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_half_24dp_yellow));
-            }
-            else { // 5 STARS
-                holder.rating.get(4).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(3).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(2).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(1).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-                holder.rating.get(0).setImageDrawable(context.getResources().getDrawable(R.drawable.ic_baseline_star_24dp_yellow));
-            }
-        } catch (NullPointerException exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    /**
      * This method is used to display open hours for a restaurant in each recyclerview item.
      * @param holder : holder containing the item view
      * @param position : restaurant at the indice "position" in list
      */
     private void displayOpenHours(@NonNull ViewHolderListView holder, int position) {
-        if (list.get(position).getOpeningHours() != null) {
-            try {
-                Calendar calendar = Calendar.getInstance();
-                int closingHour = 0;
-                int closingMinutes = 0;
-                int currentHour;
-                int currentMinutes = 0;
-                // Get current day
-                int currentDay = calendar.get(Calendar.DAY_OF_WEEK);
-                // Find closing hours for a restaurant, according to the current day
-                switch (currentDay) {
-                    case 2 : // MONDAY
-                        if (list.get(position).getOpeningHours().getPeriods().size() >= 2) {
-                            if (list.get(position).getOpeningHours().getPeriods().get(1) != null) {
-                                closingHour = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(1).getClose()).getTime().getHours();
-                                closingMinutes = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(1).getClose()).getTime().getMinutes();
-                            }
-                        }
-                        break;
-                    case 3 : // TUESDAY
-                        if (list.get(position).getOpeningHours().getPeriods().size() >= 3) {
-                            if (list.get(position).getOpeningHours().getPeriods().get(2) != null) {
-                                closingHour = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(2).getClose()).getTime().getHours();
-                                closingMinutes = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(2).getClose()).getTime().getMinutes();
-                            }
-                        }
-                        break;
-                    case 4 : // WEDNESDAY
-                        if (list.get(position).getOpeningHours().getPeriods().size() >= 4) {
-                            if (list.get(position).getOpeningHours().getPeriods().get(3) != null) {
-                                closingHour = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(3).getClose()).getTime().getHours();
-                                closingMinutes = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(3).getClose()).getTime().getMinutes();
-                            }
-                        }
-                        break;
-                    case 5 : // THURSDAY
-                        if (list.get(position).getOpeningHours().getPeriods().size() >= 5) {
-                            if (list.get(position).getOpeningHours().getPeriods().get(4) != null) {
-                                closingHour = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(4).getClose()).getTime().getHours();
-                                closingMinutes = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(4).getClose()).getTime().getMinutes();
-                            }
-                        }
-                        break;
-                    case 6 : // FRIDAY
-                        if (list.get(position).getOpeningHours().getPeriods().size() >= 6) {
-                            if (list.get(position).getOpeningHours().getPeriods().get(5) != null) {
-                                closingHour = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(5).getClose()).getTime().getHours();
-                                closingMinutes = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(5).getClose()).getTime().getMinutes();
-                            }
-                        }
-                        break;
-                    case 7 : // SATURDAY
-                        if (list.get(position).getOpeningHours().getPeriods().size() == 7) {
-                            if (list.get(position).getOpeningHours().getPeriods().get(6) != null) {
-                                closingHour = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(6).getClose()).getTime().getHours();
-                                closingMinutes = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(6).getClose()).getTime().getMinutes();
-                            }
-                        }
-                        break;
-                    case 1 : // SUNDAY
-                        if (list.get(position).getOpeningHours().getPeriods().size() >= 1) {
-                            if (list.get(position).getOpeningHours().getPeriods().get(0) != null) {
-                                closingHour = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(0).getClose()).getTime().getHours();
-                                closingMinutes = Objects.requireNonNull(list.get(position).getOpeningHours().getPeriods()
-                                        .get(0).getClose()).getTime().getMinutes();
-                            }
-                        }
-                        break;
-                }
+        boolean colorText = false;
+        Calendar calendar = Calendar.getInstance();
+        int currentDay = calendar.get(Calendar.DAY_OF_WEEK);
+        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int currentMinutes = calendar.get(Calendar.MINUTE);
 
-                // Format hours and minutes to the language
-                currentHour = calendar.get(Calendar.HOUR_OF_DAY);
-                currentMinutes = calendar.get(Calendar.MINUTE);
+        // Get Opening/Closing hours associated to the current day
+        ArrayList<String> closingHours = new ArrayList<>();
+        ArrayList<String> openingHours = new ArrayList<>();
+        closingHours = getClosingAndOpeningHoursForADay(closingHours, currentDay, position, true);
+        openingHours = getClosingAndOpeningHoursForADay(closingHours, currentDay, position, false);
 
-                if (currentHour > closingHour) {
-                    holder.hour.setText(R.string.closed); // Closed
-                    displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50);
-                }
-                else if (currentHour == closingHour) {
-                    if (currentMinutes >= closingMinutes) {
-                        holder.hour.setText(R.string.closed);
-                        displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50);
-                    }
-                    else {
-                        if (Math.abs(currentMinutes - closingMinutes) <= 30) {
-                            holder.hour.setText(R.string.closing_soon);
-                            displayStyleTextViewForHoursDisplay(holder.hour, R.color.red);
-                        }
-                        else {
-                            displayFormatHours(holder, closingMinutes, closingHour);
-                            displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50);
-                        }
-                    }
-                }
-                else if (currentHour == closingHour-1) {
-                    if (Math.abs(currentMinutes - closingMinutes) <= 30){
-                        holder.hour.setText(R.string.closing_soon);
-                        displayStyleTextViewForHoursDisplay(holder.hour, R.color.red);
-                    }
-                    else {
-                        displayFormatHours(holder, closingMinutes, closingHour);
-                        displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50);
-                    }
+        // Check number of opening and closing hours for a day
+        if (closingHours.size() == 1) { // Restaurant closed once
+            int closingHour = Integer.parseInt(closingHours.get(0).substring(0,2));
+            int closingMinutes = Integer.parseInt(closingHours.get(0).substring(2,4));
+            int openingHour = Integer.parseInt(openingHours.get(0).substring(0,2));
+            int openingMinutes = Integer.parseInt(openingHours.get(0).substring(2,4));
+            // Update text
+            if (TimeComparator.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) >= 0) { // CLOSED
+                holder.hour.setText(context.getResources().getString(R.string.closed));
+            }
+            else {
+                if (TimeComparator.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) > -60) { // CLOSED SOON
+                    holder.hour.setText(context.getResources().getString(R.string.closing_soon));
+                    colorText = true;
                 }
                 else {
-                    displayFormatHours(holder, closingMinutes, closingHour);
-                    displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50);
+                    if (TimeComparator.getTimeDiff(currentHour, currentMinutes, openingHour, openingMinutes) > 0) { // OPEN UNTIL
+                        String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(0).substring(0,2)
+                                + ":" + closingHours.get(0).substring(2,4);
+                        holder.hour.setText(text);
+                    }
+                    else { // CLOSED (NOT OPENED YET)
+                        holder.hour.setText(context.getResources().getString(R.string.closed));
+                    }
                 }
-            } catch (NullPointerException exception) { exception.printStackTrace(); }
+            }
         }
+        if (closingHours.size() == 2) { // Restaurant closed twice
+            int firstClosingHour = Integer.parseInt(closingHours.get(0).substring(0,2));
+            int firstClosingMinutes = Integer.parseInt(closingHours.get(0).substring(2,4));
+            int firstOpeningHour = Integer.parseInt(openingHours.get(0).substring(0,2));
+            int firstOpeningMinutes = Integer.parseInt(openingHours.get(0).substring(2,4));
+
+            int secondClosingHour = Integer.parseInt(closingHours.get(1).substring(0,2));
+            int secondClosingMinutes = Integer.parseInt(closingHours.get(1).substring(2,4));
+            int secondOpeningHour = Integer.parseInt(openingHours.get(1).substring(0,2));
+            int secondOpeningMinutes = Integer.parseInt(openingHours.get(1).substring(2,4));
+            // Update text
+            if (TimeComparator.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) < 0) { // CLOSED (NOT OPENING YET)
+                holder.hour.setText(context.getResources().getString(R.string.closed));
+            }
+            else if (TimeComparator.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) >= 0 &&
+                    TimeComparator.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) < 0) {
+                    if (TimeComparator.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) > -60) { // CLOSING SOON
+                        holder.hour.setText(context.getResources().getString(R.string.closing_soon));
+                        colorText = true;
+                    }
+                    else { // OPEN UNTIL
+                        String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(0).substring(0,2)
+                                                                                            + ":" + closingHours.get(0).substring(2,4);
+                        holder.hour.setText(text);
+                    }
+            }
+            else if (TimeComparator.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) >= 0 &&
+                     TimeComparator.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) < 0) {  // CLOSED (NOT OPENING YET)
+                    holder.hour.setText(context.getResources().getString(R.string.closed));
+            }
+            else if (TimeComparator.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) >= 0 &&
+                     TimeComparator.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingMinutes) < 0) {
+                if (TimeComparator.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingHour) > -60) { // CLOSING SOON
+                    holder.hour.setText(context.getResources().getString(R.string.closed));
+                    colorText = true;
+                }
+                else { // OPEN UNTIL
+                    String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(1).substring(0,2) + ":" + closingHours.get(1).substring(2,4);
+                    holder.hour.setText(text);
+                }
+            }
+            else { // CLOSED
+                holder.hour.setText(context.getResources().getString(R.string.closed));
+            }
+        }
+
+        // Update color text for "closing soon" hours
+        if (colorText)
+            displayStyleTextViewForHoursDisplay(holder.hour, R.color.red, Typeface.BOLD_ITALIC);
+        else
+            displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50, Typeface.ITALIC);
     }
 
+
     /**
-     * This method displays the correct hour format according to device language
-     * @param holder : holder containing the item view
-     * @param closingMinutes : Closing minutes for a restaurant
-     * @param closingHour : CLosing hour for a restaurant
+     * This method is used to get the list of opening or closing hours for a Restaurant.
+     * @param hours : list or hours
+     * @param currentDay : current day
+     * @param position : position of the Restaurant in the list of Restaurant
+     * @param type : type of list (true : Closing hours / false : Opening hours)
+     * @return : list of hours
      */
-    private void displayFormatHours(@NonNull ViewHolderListView holder, int closingMinutes, int closingHour) {
-        String closingMinutesStr = closingMinutes < 10 ? closingMinutes + "0" : String.valueOf(closingMinutes);
-        if (Locale.getDefault().getDisplayLanguage().equals("français")) { // FR
-            String textFormatH24 = context.getResources().getString(R.string.open_until)
-                    + " " + closingHour + ":" + closingMinutesStr;
-            holder.hour.setText(textFormatH24);
+    private ArrayList<String> getClosingAndOpeningHoursForADay(ArrayList<String> hours, int currentDay,
+                                                     int position, boolean type) {
+        if (type) { // CLOSING HOURS
+            switch (currentDay) {
+                case 1 : // SUNDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getSundayClosingHours();
+                    break;
+                case 2: // MONDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getMondayClosingHours();
+                    break;
+                case 3: // TUESDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getTuesdayClosingHours();
+                    break;
+                case 4: // WEDNESDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getWednesdayClosingHours();
+                    break;
+                case 5: // THURSDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getThursdayClosingHours();
+                    break;
+                case 6: // FRIDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getFridayClosingHours();
+                    break;
+                case 7 : // SATURDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getSaturdayClosingHours();
+                    break;
+            }
         }
-        else { // ENG
-            String textFormatAMPM;
-            if (closingHour > 12) textFormatAMPM = context.getResources().getString(R.string.open_until)
-                    + " " + (closingHour-12) + ":" + closingMinutesStr + "PM";
-            else textFormatAMPM = context.getResources().getString(R.string.open_until)
-                    + " " + closingHour + ":" + closingMinutesStr + "AM";
-            holder.hour.setText(textFormatAMPM);
+        else { // OPENING HOURS
+            switch (currentDay) {
+                case 1 : // SUNDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getSundayOpeningHours();
+                    break;
+                case 2: // MONDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getMondayOpeningHours();
+                    break;
+                case 3: // TUESDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getTuesdayOpeningHours();
+                    break;
+                case 4: // WEDNESDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getWednesdayOpeningHours();
+                    break;
+                case 5: // THURSDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getThursdayOpeningHours();
+                    break;
+                case 6: // FRIDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getFridayOpeningHours();
+                    break;
+                case 7 : // SATURDAY
+                    hours = list.get(position).getOpeningAndClosingHours().getSaturdayOpeningHours();
+                    break;
+            }
         }
+        return hours;
     }
 
+
     /**
-     * This method updates the "closing hour" text with a color
+     * This method updates the "closing hour" text with a color and a style.
      * @param text : "closing hour" text for a recyclerview item
      * @param color : color to apply
+     * @param typeface : style to apply
      */
-    private void displayStyleTextViewForHoursDisplay(TextView text, @ColorRes int color) {
+    private void displayStyleTextViewForHoursDisplay(TextView text, @ColorRes int color, int typeface) {
         text.setTextColor(context.getResources().getColor(color));
-        text.setTypeface(null, Typeface.BOLD_ITALIC);
+        text.setTypeface(null, typeface);
     }
 
     /**
@@ -356,12 +297,20 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
      * @param holder : holder containing the item view
      * @param position : restaurant at the indice "position" in list
      */
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void displayRestaurantPhoto(@NonNull ViewHolderListView holder, int position) {
-        holder.noImageIcon.setVisibility(View.GONE);
-        holder.photo.setImageBitmap(Bitmap.createScaledBitmap(list.get(position).getPhoto(),
-                WIDTH_BITMAP_ITEM,
-                HEIGHT_BITMAP_ITEM,
-                false));
+        if (list.get(position).getPhotoReference() != null) {
+            Glide.with(context)
+                    .load("https://maps.googleapis.com/maps/api/place/photo?&maxwidth=400&maxheight=400&photo_reference="
+                            + list.get(position).getPhotoReference() + "&key=" + BuildConfig.API_KEY)
+                             .centerCrop()
+                    .override(holder.photo.getWidth(), holder.photo.getHeight())
+                    .into(holder.photo);
+        }
+        else {
+            holder.photo.setImageDrawable(context.getResources()
+                    .getDrawable(R.drawable.ic_baseline_image_not_supported_24dp_oyster_white));
+        }
     }
 
     /**
@@ -376,7 +325,6 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
         private final ImageView photo;
         private final List<ImageView> rating;
         private final OnItemRestaurantClickListener onItemRestaurantClickListener;
-        private final ImageView noImageIcon;
 
         @SuppressLint("ClickableViewAccessibility")
         ViewHolderListView(View view, OnItemRestaurantClickListener onItemRestaurantClickListener) {
@@ -389,7 +337,6 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
             hour = view.findViewById(R.id.hour);
             photo = view.findViewById(R.id.photo_restaurant);
             View layout = view.findViewById(R.id.root_layout_item);
-            noImageIcon = view.findViewById(R.id.no_image_icon);
 
             rating = Arrays.asList(view.findViewById(R.id.note_star_5),
                                    view.findViewById(R.id.note_star_4),

@@ -3,10 +3,14 @@ package com.openclassrooms.go4lunch.service.response.places;
 import java.util.List;
 
 /**
- * JSON object (root field) returned after a GET request to Places Search API
- */
+ * Data retrieved from a JSON object, as a response of a Search Nearby API request.
+ * Contains all information from the root element of the JSON object :
+ *      - "result"
+ *      - "next_page_token"
+ *      - "status"
+ **/
 public class PlaceResponse {
-    public List<ResultPlacesResponse> results;
+    public List<ResultPlaces> results;
     public String next_page_token;
     public String status;
 }
