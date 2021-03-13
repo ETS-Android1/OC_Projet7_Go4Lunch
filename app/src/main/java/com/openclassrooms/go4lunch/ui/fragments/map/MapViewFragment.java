@@ -20,9 +20,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +42,6 @@ import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.ui.dialogs.GPSActivationDialog;
 import com.openclassrooms.go4lunch.receivers.GPSBroadcastReceiver;
-import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.RestaurantMarkerItem;
 import com.openclassrooms.go4lunch.utils.RestaurantRenderer;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
@@ -80,10 +79,11 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     // To store current user position and user position saved in previous session
     private SharedPreferences.Editor editor;
     private SharedPreferences sharedPrefLatLon;
-    private double savedLatUserPosition;
-    private double savedLonUserPosition;
     private double currentLatUserPosition;
     private double currentLonUserPosition;
+
+    // To store next_page_token attribute value from Nearby Search API GET request
+    private SharedPreferences[] sharedPrefNextPageToken;
 
     // Listener of user position updates
     private final LocationListener locationListener = new LocationListener() {
@@ -91,6 +91,11 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         public void onLocationChanged(@NonNull Location location) {
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
+
+                editor = sharedPrefNextPageToken[0].edit();
+                editor.clear();
+                editor = sharedPrefNextPageToken[1].edit();
+                editor.clear();
                 searchPlacesFromCurrentLocation();
             }
         }
@@ -117,7 +122,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class); // Initialize View Model
         placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao(),
                                                            DI.provideDatabase(getContext()).hoursDao(),
-                                                           DI.provideDatabase(getContext()).restaurantAndHoursDao()));
+                                                           DI.provideDatabase(getContext()).restaurantAndHoursDao(),
+                                                           getContext()));
     }
 
     @Override
@@ -140,10 +146,9 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         // Update map with Restaurant items markers
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), this::displayMarkersInMap);
 
-        // Initialize SharedPreferences & Editor
+        // Initialize SharedPreferences for user position
         String PREF_USER_POSITION = "pref_user_position";
         sharedPrefLatLon = requireContext().getSharedPreferences(PREF_USER_POSITION, Context.MODE_PRIVATE);
-        editor = sharedPrefLatLon.edit();
     }
 
     @Override
@@ -169,42 +174,17 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         }
 
         // Save position
+        editor = sharedPrefLatLon.edit();
         editor.putLong("old_lat_position", Double.doubleToRawLongBits(currentLatUserPosition)).apply();
         editor.putLong("old_lon_position", Double.doubleToRawLongBits(currentLonUserPosition)).apply();
     }
 
-    /**
-     * This method is used to check the current user location and compare with the previous saved value, allowing to
-     * determine if a new search request is necessary, instead of reloading stored locations from database.
-     */
-    // TODO() : A déplacer dans le Repository
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    @Override
-    public void checkLocationSharedPreferences() {
-        ((MainActivity) requireActivity()).getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
-                .addOnSuccessListener(location -> {
-                    // Get location
-                    currentLatUserPosition = location.getLatitude();
-                    currentLonUserPosition = location.getLongitude();
-                    if (AppInfo.checkIfFirstRunApp(requireContext())) {
-                        searchPlacesFromCurrentLocation();
-                    }
-                    else {
-                        // Get previous location
-                        savedLatUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong("old_lat_position", Double.doubleToRawLongBits(currentLatUserPosition)));
-                        savedLonUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong("old_lon_position", Double.doubleToRawLongBits(currentLonUserPosition)));
-                        // Check distance
-                        float[] result = new float[1];
-                        Location.distanceBetween(currentLatUserPosition, currentLonUserPosition, savedLatUserPosition, savedLonUserPosition, result);
-                        // Get locations
-                        if (result[0] < 800) { // distance < 800m : reload locations from database
-                            restoreListFromDatabase();
-                        }
-                        else { // >= 800m : search places
-                            searchPlacesFromCurrentLocation();
-                        }
-                    }
-                });
+    public void getPlacesFromDatabaseOrRetrofitRequest() {
+        placesViewModel.getPlacesRepository().getPlacesFromDatabaseOrRetrofitRequest(
+                                                ((MainActivity) requireActivity()),
+                                                sharedPrefLatLon,
+                                        this);
     }
 
     /**
@@ -256,11 +236,15 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      * This method is to launch a places search to detect all restaurants around user location in a defined radius.
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    @Override
     public void searchPlacesFromCurrentLocation() {
 
         ((MainActivity) requireActivity()).getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
-                .addOnSuccessListener(location -> placesViewModel.findPlacesNearby(location.getLatitude() +","
-                                + location.getLongitude(),"restaurant"));
+                .addOnSuccessListener(location -> {
+                    currentLatUserPosition = location.getLatitude();
+                    currentLonUserPosition = location.getLongitude();
+                    placesViewModel.findPlacesNearby(location.getLatitude() +"," + location.getLongitude(),"restaurant");
+                });
     }
 
     /**
@@ -314,8 +298,9 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             // Initialize current position + search for places
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 centerCursorInCurrentLocation(false);
-                if (connectivityManager.getActiveNetworkInfo() != null)
-                    checkLocationSharedPreferences();
+                if (connectivityManager.getActiveNetworkInfo() != null) {
+                    getPlacesFromDatabaseOrRetrofitRequest();
+                }
             }
             // Enable click interactions on cluster items window
             handleClusterClickInteractions();
@@ -373,7 +358,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      * This methods is used to launch a loadAllRestaurantsWithHours request to database and
      * send the result to view model to perform a data restoration.
      */
-    private void restoreListFromDatabase() {
+    @Override
+    public void restoreListFromDatabase() {
         placesViewModel.getPlacesRepository().loadAllRestaurantsWithHours()
                 .observe(getViewLifecycleOwner(), restaurantAndHoursData
                         -> placesViewModel.restoreData(restaurantAndHoursData));

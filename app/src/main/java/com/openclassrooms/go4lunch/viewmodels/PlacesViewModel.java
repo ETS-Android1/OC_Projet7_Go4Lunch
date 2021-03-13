@@ -1,7 +1,6 @@
 package com.openclassrooms.go4lunch.viewmodels;
 
 import android.util.Log;
-
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.openclassrooms.go4lunch.database.RestaurantAndHoursData;
@@ -10,7 +9,7 @@ import com.openclassrooms.go4lunch.database.HoursData;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.database.RestaurantData;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
-import com.openclassrooms.go4lunch.service.ServiceDetailsCallback;
+import com.openclassrooms.go4lunch.service.ServicePlacesCallback;
 import com.openclassrooms.go4lunch.utils.DataConverters;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class PlacesViewModel extends ViewModel {
                 try {
                     placesRepository.findPlacesNearby(location, type, newListRestaurants -> {
                         listRestaurants.postValue(newListRestaurants);
-                        getPlacesDetails(newListRestaurants);
+                        getPlacesDetails(newListRestaurants, false);
                     });
                 } catch (IOException exception) {
                     exception.printStackTrace();
@@ -64,39 +63,38 @@ public class PlacesViewModel extends ViewModel {
             );
     }
 
+    public void getNextPlacesNearby(List<Restaurant> listRestaurants, int numNextPageToken) {
+        executor.execute(() -> {
+            try {
+                placesRepository.getNextPlacesNearby(listRestaurant ->
+                        getPlacesDetails(listRestaurant, true), listRestaurants, numNextPageToken);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        });
+    }
+
     /**
      * This method is used to access the getPlacesDetails() method of the @{@link PlacesRepository } repository class.
      * @param list : List of restaurant to update with details for each place
      */
-    public void getPlacesDetails(List<Restaurant> list) {
+    public void getPlacesDetails(List<Restaurant> list, boolean nextPageTokenResults) {
         executor.execute(() -> {
             try {
                 placesRepository.getPlacesDetails(list, (newListRestaurants, listOfListHoursData) -> {
                     listRestaurants.postValue(newListRestaurants);
-                    // Store list of periods in database
-                    updateDatabaseHoursDataTable(listOfListHoursData);
-                    // Get photos
-                    getPlacesPhoto(newListRestaurants);
+                    if (!nextPageTokenResults) {
+                        // Store list of periods in database
+                        updateDatabaseHoursDataTable(listOfListHoursData);
+                        // Store list of restaurants in database
+                        updateDatabaseRestaurantTable(newListRestaurants);
+                    }
                 });
             } catch (IOException exception) { exception.printStackTrace(); }
         });
     }
 
-    /**
-     * This method is used to access the getPlacesPhoto() method of the @{@link PlacesRepository } repository class.
-     * @param list : List of restaurant to update with photos for each place
-     */
-    public void getPlacesPhoto(List<Restaurant> list) {
-        executor.execute(() -> {
-                placesRepository.getPlacesPhoto(list, newListRestaurant -> {
-                    listRestaurants.postValue(newListRestaurant);
-                    updateDatabaseRestaurantTable(newListRestaurant);
-                });
-        });
-    }
-
     // Methods to access PlacesRepository -> RestaurantDao methods
-
     /**
      * This method handles the insertion operation of a new RestaurantData object in restaurant_table.
      * @param restaurantData : Data to insert

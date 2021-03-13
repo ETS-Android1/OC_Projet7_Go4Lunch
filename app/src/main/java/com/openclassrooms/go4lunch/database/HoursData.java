@@ -33,5 +33,4 @@ public class HoursData {
     public String getRestaurantId() { return restaurantId; }
 
     public void setId(int id) { this.id = id; }
-
 }

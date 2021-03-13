@@ -21,4 +21,5 @@ public interface RestaurantAndHoursDao {
     @Transaction
     @Query("SELECT * FROM restaurant_table")
     LiveData<List<RestaurantAndHoursData>> loadAllRestaurantsWithHours();
+
 }

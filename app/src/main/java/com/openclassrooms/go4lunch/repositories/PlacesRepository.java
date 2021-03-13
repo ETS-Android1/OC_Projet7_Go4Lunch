@@ -1,8 +1,14 @@
 package com.openclassrooms.go4lunch.repositories;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
+import androidx.annotation.RequiresPermission;
 import androidx.lifecycle.LiveData;
+import com.google.android.gms.location.LocationRequest;
 import com.openclassrooms.go4lunch.dao.HoursDao;
 import com.openclassrooms.go4lunch.dao.RestaurantAndHoursDao;
 import com.openclassrooms.go4lunch.dao.RestaurantDao;
@@ -12,10 +18,13 @@ import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.database.RestaurantData;
 import com.openclassrooms.go4lunch.service.ListRestaurantsService;
 import com.openclassrooms.go4lunch.service.ServiceDetailsCallback;
-import com.openclassrooms.go4lunch.service.ServicePhotoCallback;
 import com.openclassrooms.go4lunch.service.ServicePlacesCallback;
 import com.openclassrooms.go4lunch.service.response.details.DetailsResponse;
 import com.openclassrooms.go4lunch.service.response.places.PlaceResponse;
+import com.openclassrooms.go4lunch.service.response.places.ResultPlaces;
+import com.openclassrooms.go4lunch.ui.activities.MainActivity;
+import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
+import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.DataConverters;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,15 +41,26 @@ public class PlacesRepository {
     private final HoursDao hoursDao;
     private final RestaurantAndHoursDao restaurantAndHoursDao;
 
-    public PlacesRepository(RestaurantDao restaurantDao, HoursDao hoursDao, RestaurantAndHoursDao restaurantAndHoursDao) {
+    private final SharedPreferences[] sharedPrefNextPageToken;
+    private SharedPreferences.Editor editor;
+    private final Context context;
+
+    public PlacesRepository(RestaurantDao restaurantDao,
+                            HoursDao hoursDao,
+                            RestaurantAndHoursDao restaurantAndHoursDao,
+                            Context context) {
         this.listRestaurantsServices = new ListRestaurantsService();
         this.restaurantDao = restaurantDao;
         this.hoursDao = hoursDao;
         this.restaurantAndHoursDao = restaurantAndHoursDao;
-    }
+        this.context = context;
 
-    public List<Restaurant> getListRestaurants() {
-        return listRestaurantsServices.getListRestaurants();
+        // Initialize parameters for SharedPreferences
+        String PREF_FIRST_NEXT_PAGE_TOKEN = "pref_first_next_page_token";
+        String PREF_SECOND_NEXT_PAGE_TOKEN = "pref_second_next_page_token";
+        sharedPrefNextPageToken = new SharedPreferences[2];
+        sharedPrefNextPageToken[0] = context.getSharedPreferences(PREF_FIRST_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
+        sharedPrefNextPageToken[1] = context.getSharedPreferences(PREF_SECOND_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
     }
 
     // Methods to access ListRestaurantsService
@@ -55,28 +75,69 @@ public class PlacesRepository {
         PlaceResponse response = listRestaurantsServices.findPlacesNearby(location, type);
         for (int i = 0; i < response.results.size(); i++) {
             // Initialize new restaurant object
-            Restaurant restaurant = new Restaurant(
-                    response.results.get(i).place_id,
-                    response.results.get(i).name,
-                    response.results.get(i).vicinity,
-                    response.results.get(i).geometry.location.lat,
-                               response.results.get(i).geometry.location.lng,
-                    response.results.get(i).rating);
-
-            // Add photo data
-            if (response.results.get(i).photos != null) {
-                if (response.results.get(i).photos.size() > 0) {
-                    restaurant.setPhotoReference(response.results.get(i).photos.get(0).photo_reference);
-                    restaurant.setPhotoHeight(response.results.get(i).photos.get(0).height);
-                    restaurant.setPhotoWidth(response.results.get(i).photos.get(0).width);
-                }
-            }
+            Restaurant restaurant = initializeRestaurantObject(response.results.get(i));
 
             // Add restaurant to the list
             listRestaurantsServices.updateListRestaurants(restaurant);
+
+            // Save next page token
+            if (response.next_page_token != null) {
+                editor = sharedPrefNextPageToken[0].edit();
+                editor.putString("first_next_page_token", response.next_page_token).apply();
+            }
         }
         callback.onPlacesAvailable(listRestaurantsServices.getListRestaurants());
     }
+
+    public void getNextPlacesNearby(ServicePlacesCallback callback, List<Restaurant> listRestaurants, int numNextPageToken) throws IOException {
+        String nextPage_Token;
+        nextPage_Token = sharedPrefNextPageToken[numNextPageToken].getString("first_next_page_token", null);
+        PlaceResponse response = listRestaurantsServices.getNextPlacesNearby(nextPage_Token);
+
+        for (int i = 0; i < response.results.size(); i++) {
+            // Initialize new restaurant object
+            Restaurant restaurant = initializeRestaurantObject(response.results.get(i));
+
+            // Add restaurant to the list
+            listRestaurants.add(restaurant);
+
+            // Save next page token
+            if (response.next_page_token != null) {
+                switch (numNextPageToken) {
+                    case 0:
+                        editor = sharedPrefNextPageToken[0].edit();
+                        editor.putString("first_next_page_token", response.next_page_token).apply();
+                        break;
+                    case 1:
+                        editor = sharedPrefNextPageToken[1].edit();
+                        editor.putString("second_next_page_token", response.next_page_token).apply();
+                        break;
+                }
+            }
+        }
+        callback.onPlacesAvailable(listRestaurants);
+    }
+
+    private Restaurant initializeRestaurantObject(ResultPlaces results) {
+        Restaurant restaurant = new Restaurant(
+                results.place_id,
+                results.name,
+                results.vicinity,
+                results.geometry.location.lat,
+                results.geometry.location.lng,
+                results.rating);
+
+        // Add photo data
+        if (results.photos != null) {
+            if (results.photos.size() > 0) {
+                restaurant.setPhotoReference(results.photos.get(0).photo_reference);
+                restaurant.setPhotoHeight(results.photos.get(0).height);
+                restaurant.setPhotoWidth(results.photos.get(0).width);
+            }
+        }
+        return restaurant;
+    }
+
 
     /**
      * This method is used to update the list of restaurants with their details.
@@ -113,19 +174,6 @@ public class PlacesRepository {
         }
         callback.onPlacesDetailsAvailable(listRestaurant, listOfListHoursData);
     }
-
-    /**
-     * This method is used to update the list of restaurants with their photos.
-     * @param list : List of restaurants
-     * @param callback : Callback interface
-     */
-    public void getPlacesPhoto(List<Restaurant> list, ServicePhotoCallback callback)  {
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getPhotoReference() != null) listRestaurantsServices.getPlacePhoto(list.get(i));
-        }
-        callback.onPhotoAvailable(list);
-    }
-
 
     // Methods to access Database RestaurantDao
     /**
@@ -167,5 +215,45 @@ public class PlacesRepository {
      */
     public LiveData<List<RestaurantAndHoursData>> loadAllRestaurantsWithHours() {
         return restaurantAndHoursDao.loadAllRestaurantsWithHours();
+    }
+
+    // Other methods
+
+    /**
+     * This method is used to check the current user location and compare with the previous saved value,
+     * to determine if a new search request is necessary or if data can be reloading from database.
+     */
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    public void getPlacesFromDatabaseOrRetrofitRequest(MainActivity activity, SharedPreferences sharedPrefLatLon, MapViewFragmentCallback callback) {
+        activity.getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener(location -> {
+                    double currentLatUserPosition;
+                    double currentLonUserPosition;
+                    double savedLatUserPosition;
+                    double savedLonUserPosition;
+
+                    // Get current location
+                    currentLatUserPosition = location.getLatitude();
+                    currentLonUserPosition = location.getLongitude();
+
+                    if (AppInfo.checkIfFirstRunApp(activity.getApplicationContext())) {
+                        callback.searchPlacesFromCurrentLocation();
+                    }
+                    else {
+                        // Get previous location
+                        savedLatUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong("old_lat_position", Double.doubleToRawLongBits(currentLatUserPosition)));
+                        savedLonUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong("old_lon_position", Double.doubleToRawLongBits(currentLonUserPosition)));
+                        // Check distance
+                        float[] result = new float[1];
+                        Location.distanceBetween(currentLatUserPosition, currentLonUserPosition, savedLatUserPosition, savedLonUserPosition, result);
+                        // Get locations
+                        if (result[0] < 800) { // distance < 800m : reload locations from database
+                            callback.restoreListFromDatabase();
+                        }
+                        else { // >= 800m : search places
+                            callback.searchPlacesFromCurrentLocation();
+                        }
+                    }
+                });
     }
 }

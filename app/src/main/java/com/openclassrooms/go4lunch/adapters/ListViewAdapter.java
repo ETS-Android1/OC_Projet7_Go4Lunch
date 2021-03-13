@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
@@ -33,18 +34,22 @@ import java.util.List;
  * Adapter class to display all restaurants from list in ListViewFragment RecyclerView,
  * using a @{@link androidx.recyclerview.widget.RecyclerView.ViewHolder} class
  */
-public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHolderListView> {
+public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final ArrayList<Restaurant> list = new ArrayList<>();
     private final FusedLocationProviderClient client;
     private final Context context;
-    private final static int WIDTH_BITMAP_ITEM = 120;
-    private final static int HEIGHT_BITMAP_ITEM = 120;
     private final OnItemRestaurantClickListener onItemRestaurantClickListener;
+
+    // Values attached to a type of ViewHolder
+    private final static int VIEW_ITEM = 0;
+    private final static int VIEW_FOOTER = 1;
+
+    // ProgressBar visibility status value
+    private int progressBarVisibilityStatus = View.INVISIBLE;
 
     public ListViewAdapter(FusedLocationProviderClient client, Context context,
                            OnItemRestaurantClickListener onItemRestaurantClickListener) {
-        Log.i("ADAPTER", "ListViewAdapter");
         this.client = client;
         this.context = context;
         this.onItemRestaurantClickListener = onItemRestaurantClickListener;
@@ -52,33 +57,47 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
 
     @NonNull
     @Override
-    public ViewHolderListView onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_item, parent, false);
-        return new ViewHolderListView(view, onItemRestaurantClickListener);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == VIEW_ITEM) { // ViewHolderListView
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_item, parent, false);
+            return new ViewHolderListView(view, onItemRestaurantClickListener);
+        }
+        else { // ViewHolderFooterListView
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_footer_item, parent, false);
+            return new ViewHolderFooterListView(view);
+        }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     @Override
-    public void onBindViewHolder(@NonNull ViewHolderListView holder, int position) {
-        // Name
-        holder.name.setText(list.get(position).getName());
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        // Handle item display
+        if (holder instanceof ViewHolderListView) {
+            // Name
+            ((ViewHolderListView) holder).name.setText(list.get(position).getName());
 
-        // Address
-        holder.address.setText(list.get(position).getAddress());
+            // Address
+            ((ViewHolderListView) holder).address.setText(list.get(position).getAddress());
 
-        // Distance between restaurant location and user location
-        displayDistanceBetweenRestaurantAndUserLocation(holder, position);
+            // Distance between restaurant location and user location
+            displayDistanceBetweenRestaurantAndUserLocation(((ViewHolderListView) holder), position);
 
-        // Rating
-        RatingDisplayHandler.displayRating(holder.rating.get(0), holder.rating.get(1), holder.rating.get(2),
-                        holder.rating.get(3), holder.rating.get(4), list.get(position).getRating(), context);
+            // Rating
+            RatingDisplayHandler.displayRating(((ViewHolderListView) holder).rating.get(0), ((ViewHolderListView) holder).rating.get(1), ((ViewHolderListView) holder).rating.get(2),
+                    ((ViewHolderListView) holder).rating.get(3), ((ViewHolderListView) holder).rating.get(4), list.get(position).getRating(), context);
 
-        // Closing hours
-         if (list.get(position).getOpeningAndClosingHours() != null) displayOpenHours(holder,position);
+            // Closing hours
+            if (list.get(position).getOpeningAndClosingHours() != null) displayOpenHours(((ViewHolderListView) holder),position);
 
-        // Photo
-        displayRestaurantPhoto(holder, position);
+            // Photo
+            displayRestaurantPhoto(((ViewHolderListView) holder), position);
+        }
+        // Handle footer item display
+        if (holder instanceof ViewHolderFooterListView) {
+            ((ViewHolderFooterListView) holder).progressBar.setVisibility(progressBarVisibilityStatus);
+        }
     }
+
 
     @Override
     public int getItemCount() {
@@ -314,9 +333,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
     }
 
     /**
-     * ViewHolder class for ListViewAdapter
+     * ViewHolder class to display a Restaurant item using ListViewAdapter
      */
-    public static class ViewHolderListView extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private static class ViewHolderListView extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private final TextView name;
         private final TextView address;
@@ -354,9 +373,44 @@ public class ListViewAdapter extends RecyclerView.Adapter<ListViewAdapter.ViewHo
     }
 
     /**
+     * ViewHolder class to display a footer item using ListViewAdapter
+     */
+    private static class ViewHolderFooterListView extends RecyclerView.ViewHolder {
+
+        private final ProgressBar progressBar;
+
+        ViewHolderFooterListView(View view) {
+            super(view);
+            progressBar = view.findViewById(R.id.progress_bar_list_view);
+        }
+    }
+
+    /**
      * Interface to handle click on RecyclerView items
      */
     public interface OnItemRestaurantClickListener {
         void onItemRestaurantClick(int position);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (isPositionItem(position)) {
+            return VIEW_ITEM;
+        }
+        else return VIEW_FOOTER;
+    }
+
+    private boolean isPositionItem(int position) {
+        return position < getItemCount()-1; // last position
+    }
+
+    public void updateVisibilityProgressBarStatus(int visibility) {
+        progressBarVisibilityStatus = visibility;
+        notifyDataSetChanged();
+    }
+
+    // Getter
+    public List<Restaurant> getList() {
+        return list;
     }
 }

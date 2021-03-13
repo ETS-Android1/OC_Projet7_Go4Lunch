@@ -35,7 +35,6 @@ public abstract class Go4LunchDatabase extends RoomDatabase {
                     .fallbackToDestructiveMigration()
                     .build();
         }
-
         return instance;
     }
 }

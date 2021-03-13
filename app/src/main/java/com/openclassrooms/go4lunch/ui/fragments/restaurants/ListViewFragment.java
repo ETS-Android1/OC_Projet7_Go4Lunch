@@ -17,9 +17,12 @@ import android.view.ViewGroup;
 import com.openclassrooms.go4lunch.adapters.ListViewAdapter;
 import com.openclassrooms.go4lunch.databinding.FragmentListViewBinding;
 import com.openclassrooms.go4lunch.di.DI;
+import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
+
+import java.util.ArrayList;
 
 /**
  * Fragment used to display the list of restaurant in a RecyclerView, using a
@@ -31,6 +34,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     private FragmentListViewBinding binding;
     private ListViewAdapter adapter;
     private PlacesViewModel placesViewModel;
+    private int numNextPageRequest;
 
     public ListViewFragment() { /* Empty public constructor */ }
 
@@ -44,7 +48,8 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class); // Initialize View Model
         placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao(),
                                                            DI.provideDatabase(getContext()).hoursDao(),
-                                                           DI.provideDatabase(getContext()).restaurantAndHoursDao()));
+                                                           DI.provideDatabase(getContext()).restaurantAndHoursDao(),
+                                                           getContext()));
     }
 
     @Override
@@ -56,12 +61,16 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        numNextPageRequest = 0;
+
         initializeRecyclerView();
         // Add observer to placesViewModel
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), newListRestaurants -> {
             adapter.updateList(newListRestaurants);
             // Update background text
             updateTextBackgroundDisplay(newListRestaurants.size() <= 0);
+            // Hide circular progress bar when loading is over
+            adapter.updateVisibilityProgressBarStatus(View.INVISIBLE);
         });
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -86,10 +95,35 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         binding.recyclerViewList.setLayoutManager(layoutManager);
         // Initialize Adapter
-        adapter = new ListViewAdapter( ((MainActivity) requireActivity()).getClient(),
-                                        getContext(),
-                this);
+        adapter = new ListViewAdapter(((MainActivity) requireActivity()).getClient(),
+                                       getContext(),
+               this);
         binding.recyclerViewList.setAdapter(adapter);
+
+
+        binding.recyclerViewList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                // If end of RecyclerView list
+                if (numNextPageRequest < 1) { // Search Nearby API can only returns 2 others pages of locations
+                    if (!recyclerView.canScrollVertically(1)) {
+                        // Get next places available to display
+                        ArrayList<Restaurant> listToUpdate = new ArrayList<>();
+                        listToUpdate.addAll(adapter.getList());
+                        placesViewModel.getNextPlacesNearby(listToUpdate, numNextPageRequest);
+                        numNextPageRequest++;
+                        // Display circular progress bar
+                        adapter.updateVisibilityProgressBarStatus(View.VISIBLE);
+                    }
+                }
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
     }
 
     /**

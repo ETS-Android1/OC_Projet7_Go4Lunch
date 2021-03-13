@@ -30,7 +30,7 @@ public class NetworkBroadcastReceiver extends BroadcastReceiver {
             LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             if (networkInfo != null) {
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    callback.checkLocationSharedPreferencesInMapViewFragment();
+                    callback.getPlacesFroMDatabaseOrRetrofitInMapViewFragment();
                 }
             }
         }

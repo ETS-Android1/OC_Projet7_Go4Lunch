@@ -1,23 +1,13 @@
 package com.openclassrooms.go4lunch.service;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
-import androidx.annotation.NonNull;
-import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.service.response.details.DetailsResponse;
 import com.openclassrooms.go4lunch.service.response.places.PlaceResponse;
 import com.openclassrooms.go4lunch.service.request.PlaceService;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -56,7 +46,8 @@ public class ListRestaurantsService {
     }
 
     /**
-     * This method is used to return the result of a GET request using a @{@link PlaceService } interface
+     * This method is used to send a GET request using a @{@link PlaceService } interface, and
+     * returns as a result a set of available places nearby user location.
      * @param location : Info location of the user
      * @param type : Type of places to search
      * @return : Result of a GET request
@@ -68,38 +59,23 @@ public class ListRestaurantsService {
     }
 
     /**
+     * This method is used to send a GET request using a @{@link PlaceService} interface, and
+     * returns as a result a set of others available places nearby user location.
+     * @param nextPlaceToken : String value used to request the other available places
+     * @return : available places
+     * @throws IOException : Exception thrown if the GET request fail
+     */
+    public PlaceResponse getNextPlacesNearby(String nextPlaceToken) throws IOException {
+        return service.getNextPlacesAvailable(nextPlaceToken).execute().body();
+    }
+
+    /**
      * This method is used to return the details of a restaurant with a GET request using a @{@link PlaceService } interface
      * @return : Result of a GET request
      * @throws IOException : Exception thrown if the GET request fail
      */
     public DetailsResponse getPlacesDetails(String place_id) throws IOException{
         return service.getPlaceDetails(place_id).execute().body();
-    }
-
-    /**
-     * This method is used to update each @{@link Restaurant} object with its associated photo, which is the result
-     * of an HTTP GET request.
-     * @param restaurant : Restaurant to update
-     */
-    public void getPlacePhoto(Restaurant restaurant) {
-        Request request = new Request.Builder()
-                .url("https://maps.googleapis.com/maps/api/place/photo?&maxwidth=400&maxheight=400&photo_reference=" + restaurant.getPhotoReference() + "&key=" + BuildConfig.API_KEY)
-                .build();
-
-        httpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException exception) {
-                exception.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-                if (response.body() != null) {
-                    Bitmap bitmap = Bitmap.createBitmap(BitmapFactory.decodeStream(response.body().byteStream()));
-                    restaurant.setPhoto(bitmap);
-                }
-            }
-        });
     }
 
     private void clearListRestaurants() {

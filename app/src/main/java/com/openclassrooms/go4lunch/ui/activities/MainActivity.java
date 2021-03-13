@@ -70,8 +70,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int AUTOCOMPLETE_REQUEST_CODE = 102;
     private NetworkBroadcastReceiver networkBroadcastReceiver; // To catch Network status changed event
     private FusedLocationProviderClient client; // To get current user position
-    private PlacesViewModel placesViewModel; // View model to store list of restaurants
-    private PlacesClient placesClient; // To access Places API methods
     private ListViewFragment listViewFragment;
     private WorkmatesFragment workmatesFragment;
     private MapViewFragment mapViewFragment;
@@ -101,9 +99,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         handleBottomNavigationItemsListeners();
         networkBroadcastReceiver = new NetworkBroadcastReceiver(this);
         client = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        // View model to store list of restaurants
+        PlacesViewModel placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
         if (!Places.isInitialized()) Places.initialize(getApplicationContext(), BuildConfig.API_KEY);
-        placesClient = Places.createClient(this);
+        // To access Places API methods
+        PlacesClient placesClient = Places.createClient(this);
         initializeFragments();
 
     }
@@ -380,10 +380,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * search places around current user location.
      */
     @Override
-    public void checkLocationSharedPreferencesInMapViewFragment() {
+    public void getPlacesFroMDatabaseOrRetrofitInMapViewFragment() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            mapViewFragment.checkLocationSharedPreferences();
+            mapViewFragment.getPlacesFromDatabaseOrRetrofitRequest();
         }
     }
 
