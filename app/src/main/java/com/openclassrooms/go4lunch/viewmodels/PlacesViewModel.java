@@ -1,6 +1,11 @@
 package com.openclassrooms.go4lunch.viewmodels;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.util.Log;
+import androidx.annotation.RequiresPermission;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.openclassrooms.go4lunch.database.RestaurantAndHoursData;
@@ -9,7 +14,7 @@ import com.openclassrooms.go4lunch.database.HoursData;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.database.RestaurantData;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
-import com.openclassrooms.go4lunch.service.ServicePlacesCallback;
+import com.openclassrooms.go4lunch.service.autocomplete.ServiceAutocompleteCallback;
 import com.openclassrooms.go4lunch.utils.DataConverters;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,37 +35,49 @@ public class PlacesViewModel extends ViewModel {
     // To store the list of restaurant
     private final MutableLiveData<List<Restaurant>> listRestaurants = new MutableLiveData<>();
 
-    public PlacesViewModel(){ /* Empty constructor */ }
+
+    // To store the list of autocomplete results
+    private final MutableLiveData<List<String>> listRestaurantsIdAutocomplete = new MutableLiveData<>();
+
+
+    public PlacesViewModel() { /* Empty constructor */ }
 
     public MutableLiveData<List<Restaurant>> getListRestaurants() {
         return listRestaurants;
     }
 
+    public MutableLiveData<List<String>> getListRestaurantsAutocomplete() {
+        return listRestaurantsIdAutocomplete;
+    }
+
     // Getter/Setter
-    public void setRepository(PlacesRepository placesRepository) { this.placesRepository = placesRepository; }
+    public void setRepository(PlacesRepository placesRepository) {
+        this.placesRepository = placesRepository;
+    }
 
     public PlacesRepository getPlacesRepository() {
         return placesRepository;
     }
 
     // Methods to access PlacesRepository -> ListRestaurantsService methods
+
     /**
      * This method is used to access the findPlacesNearby() method of the @{@link PlacesRepository } repository class.
      * @param location : Info location of the user
      * @param type : Type of places to search
      */
     public void findPlacesNearby(String location, String type) {
-            executor.execute(() -> {
-                try {
-                    placesRepository.findPlacesNearby(location, type, newListRestaurants -> {
-                        listRestaurants.postValue(newListRestaurants);
-                        getPlacesDetails(newListRestaurants, false);
-                    });
-                } catch (IOException exception) {
-                    exception.printStackTrace();
+        executor.execute(() -> {
+                    try {
+                        placesRepository.findPlacesNearby(location, type, newListRestaurants -> {
+                            listRestaurants.postValue(newListRestaurants);
+                            getPlacesDetails(newListRestaurants, false);
+                        });
+                    } catch (IOException exception) {
+                        exception.printStackTrace();
+                    }
                 }
-            }
-            );
+        );
     }
 
     public void getNextPlacesNearby(List<Restaurant> listRestaurants, int numNextPageToken) {
@@ -90,7 +107,29 @@ public class PlacesViewModel extends ViewModel {
                         updateDatabaseRestaurantTable(newListRestaurants);
                     }
                 });
-            } catch (IOException exception) { exception.printStackTrace(); }
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        });
+    }
+
+    // Methods to access PlacesRepository -> AutocompleteService methods
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    public void performAutocompleteRequest(String query, Context context) {
+        Log.i("PERFORMAUTOCOMPLETE", "PlacesViewModel performAutocompleteRequest : " + query);
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    placesRepository.performAutocompleteRequest(query, new ServiceAutocompleteCallback() {
+                        @Override
+                        public void getAutocompleteResults(List<String> autocompleteIdRestaurantsList) {
+                            Log.i("PERFORMAUTOCOMPLETE", "PlacesViewModel getAutocompleteResults size : " + autocompleteIdRestaurantsList.size());
+                            listRestaurantsIdAutocomplete.postValue(autocompleteIdRestaurantsList);
+                        }
+                    });
+                }
+            }
         });
     }
 

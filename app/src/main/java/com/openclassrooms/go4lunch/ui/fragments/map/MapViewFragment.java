@@ -22,7 +22,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,8 +41,8 @@ import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.ui.dialogs.GPSActivationDialog;
 import com.openclassrooms.go4lunch.receivers.GPSBroadcastReceiver;
-import com.openclassrooms.go4lunch.utils.RestaurantMarkerItem;
-import com.openclassrooms.go4lunch.utils.RestaurantRenderer;
+import com.openclassrooms.go4lunch.utils.mapping.RestaurantMarkerItem;
+import com.openclassrooms.go4lunch.utils.mapping.RestaurantRenderer;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import java.util.List;
 
@@ -123,7 +122,10 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao(),
                                                            DI.provideDatabase(getContext()).hoursDao(),
                                                            DI.provideDatabase(getContext()).restaurantAndHoursDao(),
-                                                           getContext()));
+                                                           getContext(),
+                                                           ((MainActivity) requireActivity()).getPlacesClient(),
+                                                           ((MainActivity) requireActivity()).getClient(),
+                                                           (MainActivity) requireActivity()));
     }
 
     @Override

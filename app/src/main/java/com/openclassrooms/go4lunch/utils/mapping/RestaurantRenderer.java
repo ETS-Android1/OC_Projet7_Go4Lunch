@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.utils;
+package com.openclassrooms.go4lunch.utils.mapping;
 
 import android.content.Context;
 import android.content.res.AssetManager;

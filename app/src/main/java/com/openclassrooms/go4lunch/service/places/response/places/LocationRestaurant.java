@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.service.response.places;
+package com.openclassrooms.go4lunch.service.places.response.places;
 
 /**
  * Data retrieved from a JSON object, as a response of a Search Nearby API request, and containing

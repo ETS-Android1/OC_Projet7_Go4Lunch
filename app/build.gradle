@@ -55,12 +55,12 @@ dependencies {
     // Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:26.3.0')
 
-    // Firebase Analytics
-    implementation 'com.google.firebase:firebase-analytics'
+    // Firestore
+    implementation 'com.google.firebase:firebase-firestore'
 
     // Firebase Analytics
     implementation 'com.google.firebase:firebase-analytics'
-
+    
     // FirebaseUI
     implementation 'com.firebaseui:firebase-ui-auth:6.4.0'
 

@@ -1,7 +1,6 @@
 package com.openclassrooms.go4lunch.ui.activities;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -14,7 +13,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -27,20 +25,15 @@ import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,15 +43,15 @@ import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
+import com.openclassrooms.go4lunch.ui.fragments.OptionsFragment;
 import com.openclassrooms.go4lunch.ui.fragments.restaurants.ListViewFragment;
 import com.openclassrooms.go4lunch.ui.fragments.permission.LocationPermissionFragment;
 import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragment;
 import com.openclassrooms.go4lunch.ui.fragments.restaurants.RestaurantDetailsFragment;
 import com.openclassrooms.go4lunch.ui.fragments.workmates.WorkmatesFragment;
 import com.openclassrooms.go4lunch.receivers.NetworkBroadcastReceiver;
+import com.openclassrooms.go4lunch.utils.search.SearchTextWatcher;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Main activity of the application.
@@ -66,17 +59,31 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainActivityCallback {
 
     private ActivityMainBinding binding;
+    private boolean initialize = false;
+
+    // For Sign out firebase operation
     private static final int SIGN_OUT = 10;
-    private static final int AUTOCOMPLETE_REQUEST_CODE = 102;
+
+    // Receiver
     private NetworkBroadcastReceiver networkBroadcastReceiver; // To catch Network status changed event
-    private FusedLocationProviderClient client; // To get current user position
+
+    // Fragments
     private ListViewFragment listViewFragment;
     private WorkmatesFragment workmatesFragment;
     private MapViewFragment mapViewFragment;
+    private OptionsFragment optionsFragment;
     private FragmentManager fragmentManager;
-    private boolean initialize = false;
+
+    // Indice of the corresponding Restaurant object in the list
     private int indice;
 
+    // Place API client
+    private PlacesClient placesClient;
+
+    // Location client
+    private FusedLocationProviderClient locationClient; // To get current user position
+
+    // OnSuccess listener for logout operation
     private OnSuccessListener<Void> updateUIAfterRequestCompleted(final int request) {
         return aVoid -> {
             if (request == SIGN_OUT) {
@@ -87,6 +94,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
     }
 
+    // ViewModel
+    private PlacesViewModel placesViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,15 +105,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeToolbar();
         initializeDrawerLayout();
         initializeNavigationView();
+        initializeSearchEditTextListener();
         loadUserInfoInNavigationView();
         handleBottomNavigationItemsListeners();
         networkBroadcastReceiver = new NetworkBroadcastReceiver(this);
-        client = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        locationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
         // View model to store list of restaurants
-        PlacesViewModel placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
         if (!Places.isInitialized()) Places.initialize(getApplicationContext(), BuildConfig.API_KEY);
         // To access Places API methods
-        PlacesClient placesClient = Places.createClient(this);
+        placesClient = Places.createClient(this);
         initializeFragments();
 
     }
@@ -125,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         listViewFragment = ListViewFragment.newInstance();
         workmatesFragment = WorkmatesFragment.newInstance();
         mapViewFragment = MapViewFragment.newInstance();
+        optionsFragment = OptionsFragment.newInstance();
         fragmentManager = getSupportFragmentManager();
     }
 
@@ -146,11 +158,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initializeNavigationView() { binding.navigationView.setNavigationItemSelectedListener(this); }
 
+    private void initializeSearchEditTextListener() {
+        SearchTextWatcher searchTextWatcher = new SearchTextWatcher(this);
+        binding.textInputEditAutocomplete.addTextChangedListener(searchTextWatcher);
+    }
+
     /**
      * This methods updates the Navigation View header with user information
      */
     private void loadUserInfoInNavigationView() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         View header = binding.navigationView.getHeaderView(0);
 
         TextView userName = header.findViewById(R.id.user_name);
@@ -174,9 +192,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.search) {
-            onSearchAutocompleteCalled();
-        }
+        if (item.getItemId() == R.id.search) onSearchAutocompleteCalled();
         return super.onOptionsItemSelected(item);
     }
 
@@ -199,6 +215,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    /**
+     * This method handles interactions with Bottom navigation bar, and displays
+     * fragment according to the selected item.
+     */
     @SuppressLint("NonConstantResourceId")
     private void handleBottomNavigationItemsListeners() {
         binding.bottomNavigationBar.setOnNavigationItemSelectedListener((@NonNull MenuItem item) -> {
@@ -225,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         case R.id.workmates: // Workmates Fragment
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null)
-                                if (workmatesFragment.isVisible())
+                                if (listViewFragment.isVisible())
                                     hideFragment(listViewFragment);
 
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) == null)
@@ -258,8 +278,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onBackPressed() {
         if (binding.drawerLayout.isDrawerOpen(GravityCompat.START))
+            // Close DrawerLayout if displayed
             binding.drawerLayout.closeDrawer(GravityCompat.START);
+        else if (binding.textInputLayoutAutocomplete.getVisibility() == View.VISIBLE){
+            // Hide search field if displayed
+            binding.textInputLayoutAutocomplete.setVisibility(View.GONE);
+        }
         else {
+            // Close RestaurantDetailsFragment if displayed
             Fragment fragment = fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG);
             if (fragment!= null) {
                 if (fragment.isVisible()) {
@@ -270,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
             else {
+                // Close app
                 Go4LunchDatabase.getInstance(getApplicationContext()).close();
                 finishAffinity();
             }
@@ -286,6 +313,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AuthUI.getInstance().delete(this)
                 .addOnFailureListener(this, exception -> finish())
                 .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));
+    }
+
+    /**
+     * MainActivityCallback interface implementation :
+     * @param query : query to use to perform an Autocomplete request
+     */
+    @Override
+    public void provideSearchQuery(String query) {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Log.i("PERFORMAUTOCOMPLETE", "MainActivity provideSearchQuery : " + query);
+            placesViewModel.performAutocompleteRequest(query, getApplicationContext());
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "GPS not enabled", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -344,35 +387,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * This method is used to configure and display the Autocomplete search bar.
      */
     public void onSearchAutocompleteCalled() {
-        // Set the fields to specify which types of place data to return
-        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
-        // Start the autocomplete intent
-        Intent intent = new Autocomplete.IntentBuilder(
-                AutocompleteActivityMode.OVERLAY, fields).setCountry("FR")
-                .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                .build(this);
-
-        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                Log.i("AUTOCOMPLETERESULT", place.getName());
-            }
-            else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                Status status = Autocomplete.getStatusFromIntent(data);
-                Log.i("AUTOCOMPLETERESULT", "Error : " + status.getStatusMessage());
-            }
-            else if (resultCode == RESULT_CANCELED) {
-                Log.i("AUTOCOMPLETERESULT", "Canceled");
-            }
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
+        binding.textInputLayoutAutocomplete.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -387,11 +402,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    // Getter methods
-    public FusedLocationProviderClient getClient() { return this.client; }
-
-    public int getIndice() { return indice; }
-
     public int getStatusBarSize() {
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
         int statusBarSize = 0;
@@ -399,7 +409,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return statusBarSize;
     }
 
+
+    // Getter methods
+    public FusedLocationProviderClient getClient() { return this.locationClient; }
+
+    public int getIndice() { return indice; }
+
     public DrawerLayout getDrawerLayout() {
         return binding.drawerLayout;
+    }
+
+    public PlacesClient getPlacesClient() {
+        return this.placesClient;
     }
 }

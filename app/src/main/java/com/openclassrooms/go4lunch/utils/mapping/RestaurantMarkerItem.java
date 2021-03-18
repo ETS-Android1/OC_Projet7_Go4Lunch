@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.utils;
+package com.openclassrooms.go4lunch.utils.mapping;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

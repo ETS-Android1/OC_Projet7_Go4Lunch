@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,7 @@ import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Fragment used to display the list of restaurant in a RecyclerView, using a
@@ -49,7 +51,10 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
         placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao(),
                                                            DI.provideDatabase(getContext()).hoursDao(),
                                                            DI.provideDatabase(getContext()).restaurantAndHoursDao(),
-                                                           getContext()));
+                                                           getContext(),
+                                                           ((MainActivity) requireActivity()).getPlacesClient(),
+                                                           ((MainActivity) requireActivity()).getClient(),
+                                                           (MainActivity) requireActivity()));
     }
 
     @Override
@@ -66,11 +71,44 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
         initializeRecyclerView();
         // Add observer to placesViewModel
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), newListRestaurants -> {
-            adapter.updateList(newListRestaurants);
-            // Update background text
-            updateTextBackgroundDisplay(newListRestaurants.size() <= 0);
-            // Hide circular progress bar when loading is over
-            adapter.updateVisibilityProgressBarStatus(View.INVISIBLE);
+            if (!adapter.getSwitchList()) { // If displayed list by adapter is list of restaurant
+                adapter.updateListRestaurants(newListRestaurants);
+                // Update background text
+                updateTextBackgroundDisplay(newListRestaurants.size() <= 0);
+                // Hide circular progress bar when loading is over
+                adapter.updateVisibilityProgressBarStatus(View.INVISIBLE);
+            }
+        });
+
+        placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
+            @Override
+            public void onChanged(List<String> newListIdAutocomplete) {
+                Log.i("PERFORMAUTOCOMPLETE", "ListViewFragment onChanged size : " + newListIdAutocomplete.size());
+                if (newListIdAutocomplete.size() == 0) {
+                    // Adapter affiche list restaurants
+                    adapter.switchListToDisplay(false);
+                }
+                else {
+                    List<Restaurant> currentList = adapter.getListRestaurant();
+                    List<Restaurant> newListRestaurantsAutocomplete = new ArrayList<>();
+                    boolean found = false;
+                    int index = 0;
+                    Log.i("PERFORMAUTOCOMPLETE", "ListViewFragment onChanged else : " + newListIdAutocomplete.size());
+                    // Get list of Restaurants to display after autocomplete operation
+                    for (int i = 0; i < newListIdAutocomplete.size(); i++) {
+                        while (index < currentList.size() && !found) {
+                            if (currentList.get(index).getPlaceId().equals(newListIdAutocomplete.get(i))) {
+                                found = true;
+                                newListRestaurantsAutocomplete.add(currentList.get(index));
+                            }
+                            else index++;
+                        }
+                    }
+                    // Send to adapter
+                    adapter.updateListAutocomplete(newListRestaurantsAutocomplete);
+                    adapter.switchListToDisplay(true);
+                }
+            }
         });
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -110,7 +148,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
                     if (!recyclerView.canScrollVertically(1)) {
                         // Get next places available to display
                         ArrayList<Restaurant> listToUpdate = new ArrayList<>();
-                        listToUpdate.addAll(adapter.getList());
+                        listToUpdate.addAll(adapter.getListRestaurant());
                         placesViewModel.getNextPlacesNearby(listToUpdate, numNextPageRequest);
                         numNextPageRequest++;
                         // Display circular progress bar

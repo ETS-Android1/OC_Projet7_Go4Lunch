@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.service.response.details;
+package com.openclassrooms.go4lunch.service.places.response.details;
 
 import java.util.List;
 

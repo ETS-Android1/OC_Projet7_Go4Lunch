@@ -91,4 +91,8 @@
     <!-- main_activity_nav_header.xml -->
     <string name="nav_header_title">Go4Lunch</string>
     <string name="content_description_user_icon">User account icon</string>
+
+    <!-- WorkmatesAdapter -->
+    <string name="no_decision">has\'t decided yet</string>
+    <string name="is_eating_at">is eating at</string>
 </resources>

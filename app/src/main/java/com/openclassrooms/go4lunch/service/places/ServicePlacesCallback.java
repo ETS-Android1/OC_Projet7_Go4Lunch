@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.service;
+package com.openclassrooms.go4lunch.service.places;
 
 import com.openclassrooms.go4lunch.model.Restaurant;
 import java.util.List;

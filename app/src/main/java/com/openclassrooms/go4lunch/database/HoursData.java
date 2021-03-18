@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import com.openclassrooms.go4lunch.service.response.details.ClosingHours;
-import com.openclassrooms.go4lunch.service.response.details.OpeningHours;
+import com.openclassrooms.go4lunch.service.places.response.details.ClosingHours;
+import com.openclassrooms.go4lunch.service.places.response.details.OpeningHours;
 
 /**
  * Data to store in a row of the @{@link Go4LunchDatabase} hours_table table.

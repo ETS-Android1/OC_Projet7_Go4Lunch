@@ -1,8 +1,8 @@
-package com.openclassrooms.go4lunch.service.request;
+package com.openclassrooms.go4lunch.service.places.request;
 
 import com.openclassrooms.go4lunch.BuildConfig;
-import com.openclassrooms.go4lunch.service.response.details.DetailsResponse;
-import com.openclassrooms.go4lunch.service.response.places.PlaceResponse;
+import com.openclassrooms.go4lunch.service.places.response.details.DetailsResponse;
+import com.openclassrooms.go4lunch.service.places.response.places.PlaceResponse;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;

@@ -1,9 +1,9 @@
-package com.openclassrooms.go4lunch.service;
+package com.openclassrooms.go4lunch.service.places;
 
 import com.openclassrooms.go4lunch.model.Restaurant;
-import com.openclassrooms.go4lunch.service.response.details.DetailsResponse;
-import com.openclassrooms.go4lunch.service.response.places.PlaceResponse;
-import com.openclassrooms.go4lunch.service.request.PlaceService;
+import com.openclassrooms.go4lunch.service.places.response.details.DetailsResponse;
+import com.openclassrooms.go4lunch.service.places.response.places.PlaceResponse;
+import com.openclassrooms.go4lunch.service.places.request.PlaceService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

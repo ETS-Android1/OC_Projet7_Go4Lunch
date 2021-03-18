@@ -1,4 +1,4 @@
-package com.openclassrooms.go4lunch.service.response.details;
+package com.openclassrooms.go4lunch.service.places.response.details;
 
 /**
  * Data retrieved from a JSON object, as a response of a Place Details API request, and representing

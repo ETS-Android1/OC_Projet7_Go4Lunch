@@ -6,9 +6,13 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
+
 import androidx.annotation.RequiresPermission;
 import androidx.lifecycle.LiveData;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.openclassrooms.go4lunch.dao.HoursDao;
 import com.openclassrooms.go4lunch.dao.RestaurantAndHoursDao;
 import com.openclassrooms.go4lunch.dao.RestaurantDao;
@@ -16,13 +20,16 @@ import com.openclassrooms.go4lunch.database.HoursData;
 import com.openclassrooms.go4lunch.database.RestaurantAndHoursData;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.database.RestaurantData;
-import com.openclassrooms.go4lunch.service.ListRestaurantsService;
-import com.openclassrooms.go4lunch.service.ServiceDetailsCallback;
-import com.openclassrooms.go4lunch.service.ServicePlacesCallback;
-import com.openclassrooms.go4lunch.service.response.details.DetailsResponse;
-import com.openclassrooms.go4lunch.service.response.places.PlaceResponse;
-import com.openclassrooms.go4lunch.service.response.places.ResultPlaces;
+import com.openclassrooms.go4lunch.service.autocomplete.AutocompleteService;
+import com.openclassrooms.go4lunch.service.autocomplete.ServiceAutocompleteCallback;
+import com.openclassrooms.go4lunch.service.places.ListRestaurantsService;
+import com.openclassrooms.go4lunch.service.places.ServiceDetailsCallback;
+import com.openclassrooms.go4lunch.service.places.ServicePlacesCallback;
+import com.openclassrooms.go4lunch.service.places.response.details.DetailsResponse;
+import com.openclassrooms.go4lunch.service.places.response.places.PlaceResponse;
+import com.openclassrooms.go4lunch.service.places.response.places.ResultPlaces;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
+import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
 import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
 import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.DataConverters;
@@ -35,25 +42,36 @@ import java.util.List;
  */
 public class PlacesRepository {
 
+    // Services
     private final ListRestaurantsService listRestaurantsServices;
+    private final AutocompleteService autocompleteService;
 
+    // Dao
     private final RestaurantDao restaurantDao;
     private final HoursDao hoursDao;
     private final RestaurantAndHoursDao restaurantAndHoursDao;
 
+    // SharedPreferences
     private final SharedPreferences[] sharedPrefNextPageToken;
     private SharedPreferences.Editor editor;
+
     private final Context context;
 
     public PlacesRepository(RestaurantDao restaurantDao,
                             HoursDao hoursDao,
                             RestaurantAndHoursDao restaurantAndHoursDao,
-                            Context context) {
+                            Context context,
+                            PlacesClient placesClient,
+                            FusedLocationProviderClient locationClient,
+                            MainActivityCallback callback) {
+        // Initialize services
         this.listRestaurantsServices = new ListRestaurantsService();
+        this.autocompleteService = new AutocompleteService(placesClient, locationClient, callback);
+
+        // Initialize daos
         this.restaurantDao = restaurantDao;
         this.hoursDao = hoursDao;
         this.restaurantAndHoursDao = restaurantAndHoursDao;
-        this.context = context;
 
         // Initialize parameters for SharedPreferences
         String PREF_FIRST_NEXT_PAGE_TOKEN = "pref_first_next_page_token";
@@ -61,6 +79,9 @@ public class PlacesRepository {
         sharedPrefNextPageToken = new SharedPreferences[2];
         sharedPrefNextPageToken[0] = context.getSharedPreferences(PREF_FIRST_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
         sharedPrefNextPageToken[1] = context.getSharedPreferences(PREF_SECOND_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
+
+        // Get context
+        this.context = context;
     }
 
     // Methods to access ListRestaurantsService
@@ -118,27 +139,6 @@ public class PlacesRepository {
         callback.onPlacesAvailable(listRestaurants);
     }
 
-    private Restaurant initializeRestaurantObject(ResultPlaces results) {
-        Restaurant restaurant = new Restaurant(
-                results.place_id,
-                results.name,
-                results.vicinity,
-                results.geometry.location.lat,
-                results.geometry.location.lng,
-                results.rating);
-
-        // Add photo data
-        if (results.photos != null) {
-            if (results.photos.size() > 0) {
-                restaurant.setPhotoReference(results.photos.get(0).photo_reference);
-                restaurant.setPhotoHeight(results.photos.get(0).height);
-                restaurant.setPhotoWidth(results.photos.get(0).width);
-            }
-        }
-        return restaurant;
-    }
-
-
     /**
      * This method is used to update the list of restaurants with their details.
      * @param listRestaurant : List of restaurants
@@ -174,6 +174,39 @@ public class PlacesRepository {
         }
         callback.onPlacesDetailsAvailable(listRestaurant, listOfListHoursData);
     }
+
+    /**
+     * This method creates a Restaurant object, by extracting data from a ResultPlaces
+     * @param results : from GET response
+     * @return : Restaurant object
+     */
+    private Restaurant initializeRestaurantObject(ResultPlaces results) {
+        Restaurant restaurant = new Restaurant(
+                results.place_id,
+                results.name,
+                results.vicinity,
+                results.geometry.location.lat,
+                results.geometry.location.lng,
+                results.rating);
+
+        // Add photo data
+        if (results.photos != null) {
+            if (results.photos.size() > 0) {
+                restaurant.setPhotoReference(results.photos.get(0).photo_reference);
+                restaurant.setPhotoHeight(results.photos.get(0).height);
+                restaurant.setPhotoWidth(results.photos.get(0).width);
+            }
+        }
+        return restaurant;
+    }
+
+    // Methods to access AutocompleteService
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    public void performAutocompleteRequest(String query, ServiceAutocompleteCallback callback) {
+        Log.i("PERFORMAUTOCOMPLETE", "PlacesRepository performAutocompleteRequest : " + query);
+        autocompleteService.performAutocompleteRequest(query, callback);
+    }
+
 
     // Methods to access Database RestaurantDao
     /**

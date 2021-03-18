@@ -3,18 +3,25 @@ package com.openclassrooms.go4lunch.ui.activities;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.ActivitySignInBinding;
+import com.openclassrooms.go4lunch.model.Workmate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This class is used to handle sign-in operation, using FirebaseUI Auth SDK
@@ -86,7 +93,10 @@ public class SignInActivity extends AppCompatActivity {
         if (requestCode == RC_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
 
-            if (resultCode == RESULT_OK) startMainActivity();
+            if (resultCode == RESULT_OK) {
+                addUserIdToFirestoreDatabase();
+                startMainActivity();
+            }
             else {
                 if (response == null) {
                     Snackbar.make(binding.signInActivityLayout, R.string.snack_bar_auth_cancelled, Snackbar.LENGTH_SHORT).show();
@@ -98,6 +108,38 @@ public class SignInActivity extends AppCompatActivity {
                     Snackbar.make(binding.signInActivityLayout, R.string.snack_bar_error_unknown, Snackbar.LENGTH_SHORT).show();
                 }
             }
+        }
+    }
+
+    /**
+     * This method is used to update Firestore database with current user information, if these
+     * information are not stored yet (first authentication).
+     */
+    private void addUserIdToFirestoreDatabase() {
+        SharedPreferences userIdPreferences = getSharedPreferences("user_id", MODE_PRIVATE);
+        SharedPreferences.Editor editor = userIdPreferences.edit();
+
+        String id = userIdPreferences.getString("id", null);
+
+        if (id == null) { // If id does not exist, user data not stored in db yet
+            // Get user
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            // Create new data object to store in dn
+            Workmate workmate = new Workmate(Objects.requireNonNull(user).getDisplayName(),
+                                             user.getEmail(),
+                           "", // No restaurant selected yet
+                                             Objects.requireNonNull(user.getPhotoUrl()).toString(),
+                               "");
+
+            // Get db instance
+            FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
+            dbFirestore.collection("list_employees").add(workmate).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                @Override
+                public void onSuccess(DocumentReference documentReference) {
+                    // Store in SharedPreferences file
+                    editor.putString("id", documentReference.getId()).apply();
+                }
+            });
         }
     }
 }
