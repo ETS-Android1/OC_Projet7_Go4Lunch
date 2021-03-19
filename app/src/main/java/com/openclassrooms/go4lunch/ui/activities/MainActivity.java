@@ -38,10 +38,16 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
+import com.openclassrooms.go4lunch.di.DI;
+import com.openclassrooms.go4lunch.model.Workmate;
+import com.openclassrooms.go4lunch.repositories.PlacesRepository;
+import com.openclassrooms.go4lunch.repositories.WorkmatesRepository;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
 import com.openclassrooms.go4lunch.ui.fragments.OptionsFragment;
 import com.openclassrooms.go4lunch.ui.fragments.restaurants.ListViewFragment;
@@ -52,6 +58,7 @@ import com.openclassrooms.go4lunch.ui.fragments.workmates.WorkmatesFragment;
 import com.openclassrooms.go4lunch.receivers.NetworkBroadcastReceiver;
 import com.openclassrooms.go4lunch.utils.search.SearchTextWatcher;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
+import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
 
 /**
  * Main activity of the application.
@@ -94,8 +101,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
     }
 
-    // ViewModel
+    // ViewModels
     private PlacesViewModel placesViewModel;
+    private WorkmatesViewModel workmatesViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,15 +116,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeSearchEditTextListener();
         loadUserInfoInNavigationView();
         handleBottomNavigationItemsListeners();
+        // Broadcast Receiver initialization
         networkBroadcastReceiver = new NetworkBroadcastReceiver(this);
-        locationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        // View model to store list of restaurants
-        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
-        if (!Places.isInitialized()) Places.initialize(getApplicationContext(), BuildConfig.API_KEY);
         // To access Places API methods
+        if (!Places.isInitialized()) Places.initialize(getApplicationContext(), BuildConfig.API_KEY);
         placesClient = Places.createClient(this);
+        // To access user location
+        locationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        // Initialize child fragments
         initializeFragments();
-
+        // Initialize view models
+        initializeViewModels();
     }
 
     @Override
@@ -130,6 +140,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onPause() {
         super.onPause();
         unregisterReceiver(networkBroadcastReceiver);
+    }
+
+    private void initializeViewModels() {
+        // Places
+        placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
+        placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(this).restaurantDao(),
+                DI.provideDatabase(this).hoursDao(),
+                DI.provideDatabase(this).restaurantAndHoursDao(),
+                this,
+                placesClient,
+                locationClient,
+                this));
+
+        // Workmates
+        workmatesViewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
+        workmatesViewModel.setWorkmatesRepository(new WorkmatesRepository());
+        addListenerToDatabaseCollection();
+    }
+
+    /**
+     * This method is used to attach a listener to the database collection and updates the MutableLiveData
+     * listWorkmates every time an update in database is detected.
+     */
+    private void addListenerToDatabaseCollection() {
+        FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
+        CollectionReference collectionRef = dbFirestore.collection("list_employees");
+        collectionRef.addSnapshotListener((value, error) ->
+                // Update MutableLiveData
+                workmatesViewModel.getEmployeesInfoFromFirestoreDatabase());
     }
 
     private void initializeFragments() {
@@ -411,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     // Getter methods
-    public FusedLocationProviderClient getClient() { return this.locationClient; }
+    public FusedLocationProviderClient getLocationClient() { return this.locationClient; }
 
     public int getIndice() { return indice; }
 
@@ -422,4 +461,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public PlacesClient getPlacesClient() {
         return this.placesClient;
     }
+
+    public PlacesViewModel getPlacesViewModel() { return this.placesViewModel; }
+
+    public WorkmatesViewModel getWorkmatesViewModel() { return this.workmatesViewModel; }
 }

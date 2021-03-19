@@ -6,10 +6,8 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
 import android.util.Log;
-
 import androidx.annotation.RequiresPermission;
 import androidx.lifecycle.LiveData;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -68,7 +66,7 @@ public class PlacesRepository {
         this.listRestaurantsServices = new ListRestaurantsService();
         this.autocompleteService = new AutocompleteService(placesClient, locationClient, callback);
 
-        // Initialize daos
+        // Initialize DAOs
         this.restaurantDao = restaurantDao;
         this.hoursDao = hoursDao;
         this.restaurantAndHoursDao = restaurantAndHoursDao;
@@ -251,14 +249,13 @@ public class PlacesRepository {
     }
 
     // Other methods
-
     /**
      * This method is used to check the current user location and compare with the previous saved value,
      * to determine if a new search request is necessary or if data can be reloading from database.
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void getPlacesFromDatabaseOrRetrofitRequest(MainActivity activity, SharedPreferences sharedPrefLatLon, MapViewFragmentCallback callback) {
-        activity.getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+        activity.getLocationClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener(location -> {
                     double currentLatUserPosition;
                     double currentLonUserPosition;

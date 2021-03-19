@@ -35,16 +35,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterManager;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentMapViewBinding;
-import com.openclassrooms.go4lunch.di.DI;
 import com.openclassrooms.go4lunch.model.Restaurant;
-import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.ui.dialogs.GPSActivationDialog;
 import com.openclassrooms.go4lunch.receivers.GPSBroadcastReceiver;
 import com.openclassrooms.go4lunch.utils.mapping.RestaurantMarkerItem;
 import com.openclassrooms.go4lunch.utils.mapping.RestaurantRenderer;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
-import java.util.List;
+import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
+import java.util.ArrayList;
 
 /**
  * This fragment is used to allow user to interact with a Google Map, search for a restaurant
@@ -72,8 +71,10 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     // To handle markers cluster display on map
     private ClusterManager<RestaurantMarkerItem> clusterManager;
 
-    // ViewModel to wrap a LiveData containing the list of Restaurants
+    // ViewModels
     private PlacesViewModel placesViewModel;
+    private WorkmatesViewModel workmatesViewModel;
+
 
     // To store current user position and user position saved in previous session
     private SharedPreferences.Editor editor;
@@ -83,6 +84,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
 
     // To store next_page_token attribute value from Nearby Search API GET request
     private SharedPreferences[] sharedPrefNextPageToken;
+
+    private final ArrayList<Restaurant> listRestaurants = new ArrayList<>();
 
     // Listener of user position updates
     private final LocationListener locationListener = new LocationListener() {
@@ -118,14 +121,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class); // Initialize View Model
-        placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao(),
-                                                           DI.provideDatabase(getContext()).hoursDao(),
-                                                           DI.provideDatabase(getContext()).restaurantAndHoursDao(),
-                                                           getContext(),
-                                                           ((MainActivity) requireActivity()).getPlacesClient(),
-                                                           ((MainActivity) requireActivity()).getClient(),
-                                                           (MainActivity) requireActivity()));
+        placesViewModel = ((MainActivity) requireActivity()).getPlacesViewModel();
+        workmatesViewModel = ((MainActivity) requireActivity()).getWorkmatesViewModel();
     }
 
     @Override
@@ -137,6 +134,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         locationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
         connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -145,8 +143,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                 .findFragmentById(R.id.google_map);
         mapFragment.getMapAsync(this);
 
-        // Update map with Restaurant items markers
-        placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), this::displayMarkersInMap);
+        initializeViewModelsObservers();
 
         // Initialize SharedPreferences for user position
         String PREF_USER_POSITION = "pref_user_position";
@@ -184,9 +181,9 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void getPlacesFromDatabaseOrRetrofitRequest() {
         placesViewModel.getPlacesRepository().getPlacesFromDatabaseOrRetrofitRequest(
-                                                ((MainActivity) requireActivity()),
-                                                sharedPrefLatLon,
-                                        this);
+                ((MainActivity) requireActivity()),
+                sharedPrefLatLon,
+                this);
     }
 
     /**
@@ -199,12 +196,12 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                 == PackageManager.PERMISSION_GRANTED) {
             if (map != null) {
                 binding.fabLocation.setOnClickListener((View v) -> {
-                           if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { // GPS Activated
-                               centerCursorInCurrentLocation(true);
-                           } else { // GPS deactivated
-                               GPSActivationDialog dialog = new GPSActivationDialog(this);
-                               dialog.show(getParentFragmentManager(), GPSActivationDialog.TAG);
-                           }
+                            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { // GPS Activated
+                                centerCursorInCurrentLocation(true);
+                            } else { // GPS deactivated
+                                GPSActivationDialog dialog = new GPSActivationDialog(this);
+                                dialog.show(getParentFragmentManager(), GPSActivationDialog.TAG);
+                            }
                         }
                 );
             }
@@ -220,16 +217,16 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void centerCursorInCurrentLocation(boolean update) {
-        ((MainActivity) requireActivity()).getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+        ((MainActivity) requireActivity()).getLocationClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener((Location location) -> {
-                        // Update Camera
-                        CameraUpdate cameraUpdate = CameraUpdateFactory
-                                .newLatLngZoom(
-                                        new LatLng(location.getLatitude(),
-                                                location.getLongitude()), 18.0f);
-                        if (update) map.animateCamera(cameraUpdate);
-                        else map.moveCamera(cameraUpdate);
-                          }
+                            // Update Camera
+                            CameraUpdate cameraUpdate = CameraUpdateFactory
+                                    .newLatLngZoom(
+                                            new LatLng(location.getLatitude(),
+                                                    location.getLongitude()), 18.0f);
+                            if (update) map.animateCamera(cameraUpdate);
+                            else map.moveCamera(cameraUpdate);
+                        }
                 ).addOnFailureListener(Throwable::printStackTrace);
     }
 
@@ -241,7 +238,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @Override
     public void searchPlacesFromCurrentLocation() {
 
-        ((MainActivity) requireActivity()).getClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+        ((MainActivity) requireActivity()).getLocationClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener(location -> {
                     currentLatUserPosition = location.getLatitude();
                     currentLonUserPosition = location.getLongitude();
@@ -269,18 +266,60 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     public void activateGPS() { startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)); }
 
     /**
+     * This method initializes both PlacesViewModel and WorkmatesViewModel viewModel attributes, by
+     * adding observers.
+     */
+    private void initializeViewModelsObservers() {
+
+        // This observer check if MutableLiveData for list of Restaurants is updated,
+        // to update MapViewFragment listRestaurants attribute.
+        placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), list -> {
+            // Update list
+            listRestaurants.clear();
+            listRestaurants.addAll(list);
+            // Load workmates list from Firestore db
+            workmatesViewModel.getEmployeesInfoFromFirestoreDatabase();
+        });
+
+        // This observer check if MutableLiveData list of workmates is updated, to update the list
+        // MapViewFragment listRestaurants attribute with Restaurant selection status, and then
+        // displays correct markers on map.
+        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), listWorkmates -> {
+            if (listRestaurants.size() > 0) {
+                boolean found;
+                int i;
+
+                for (int j = 0; j < listRestaurants.size(); j++) {
+                    found = false;
+                    i = 0;
+                    while (i < listWorkmates.size() && !found) {
+                        if (listWorkmates.get(i).getRestaurantSelectedID().equals(listRestaurants.get(j).getPlaceId())) {
+                            found = true;
+                        }
+                        else i++;
+                        listRestaurants.get(j).setSelected(found);
+                    }
+                }
+                displayMarkersInMap();
+            }
+        });
+    }
+
+
+    /**
      * This method is used to update the map by displaying a custom marker for each detected restaurant aroung
      * user location.
-     * @param listRestaurants : list of detected restaurants.
      */
-    public void displayMarkersInMap(List<Restaurant> listRestaurants) {
+    private void displayMarkersInMap() {
         clusterManager.clearItems();
         if (listRestaurants != null) {
             for (int indice = 0; indice < listRestaurants.size(); indice++) {
                 RestaurantMarkerItem item = new RestaurantMarkerItem(
                         new LatLng(listRestaurants.get(indice).getLatitude(),
                                    listRestaurants.get(indice).getLongitude()),
-                                   listRestaurants.get(indice).getName(), null, false, indice);
+                        listRestaurants.get(indice).getName(), null, listRestaurants.get(indice).getSelected(), indice,
+                        listRestaurants.get(indice).getPlaceId());
+
                 clusterManager.addItem(item);
                 clusterManager.cluster();
             }

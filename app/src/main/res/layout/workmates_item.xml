@@ -14,8 +14,7 @@
         android:layout_marginStart="20dp"/>
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/name_workmate"
-        android:text="Scarlett is eating french (Le Zinc)"
+        android:id="@+id/text_workmate"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:layout_marginStart="20dp"

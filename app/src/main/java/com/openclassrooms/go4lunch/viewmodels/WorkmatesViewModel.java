@@ -20,7 +20,7 @@ public class WorkmatesViewModel extends ViewModel {
 
     public WorkmatesViewModel() { /* Empty constructor */ }
 
-    public MutableLiveData<List<Workmate>> getListEmployees() {
+    public MutableLiveData<List<Workmate>> getListWorkmates() {
         return listWorkmates;
     }
 

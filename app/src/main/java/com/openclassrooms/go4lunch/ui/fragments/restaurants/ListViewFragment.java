@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.DisplayMetrics;
@@ -17,12 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.openclassrooms.go4lunch.adapters.ListViewAdapter;
 import com.openclassrooms.go4lunch.databinding.FragmentListViewBinding;
-import com.openclassrooms.go4lunch.di.DI;
 import com.openclassrooms.go4lunch.model.Restaurant;
-import com.openclassrooms.go4lunch.repositories.PlacesRepository;
+import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
-
+import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +33,10 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     public final static String TAG = "TAG_LIST_VIEW_FRAGMENT";
     private FragmentListViewBinding binding;
     private ListViewAdapter adapter;
+    // ViewModels
     private PlacesViewModel placesViewModel;
+    private WorkmatesViewModel workmatesViewModel;
+
     private int numNextPageRequest;
 
     public ListViewFragment() { /* Empty public constructor */ }
@@ -47,29 +48,16 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class); // Initialize View Model
-        placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(getContext()).restaurantDao(),
-                                                           DI.provideDatabase(getContext()).hoursDao(),
-                                                           DI.provideDatabase(getContext()).restaurantAndHoursDao(),
-                                                           getContext(),
-                                                           ((MainActivity) requireActivity()).getPlacesClient(),
-                                                           ((MainActivity) requireActivity()).getClient(),
-                                                           (MainActivity) requireActivity()));
+        initializeViewModels();
     }
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentListViewBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+    private void initializeViewModels() {
+        placesViewModel = ((MainActivity) requireActivity()).getPlacesViewModel();
+        workmatesViewModel = ((MainActivity) requireActivity()).getWorkmatesViewModel();
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        numNextPageRequest = 0;
-
-        initializeRecyclerView();
-        // Add observer to placesViewModel
+    private void addObserversToViewModels() {
+        // PlaceViewModels
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), newListRestaurants -> {
             if (!adapter.getSwitchList()) { // If displayed list by adapter is list of restaurant
                 adapter.updateListRestaurants(newListRestaurants);
@@ -111,6 +99,29 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
             }
         });
 
+        // Workmates
+        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), new Observer<List<Workmate>>() {
+            @Override
+            public void onChanged(List<Workmate> listWorkmates) {
+                adapter.updateListWorkmates(listWorkmates);
+            }
+        });
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentListViewBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        numNextPageRequest = 0;
+
+        initializeRecyclerView();
+        addObserversToViewModels();
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
         Display display;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -133,7 +144,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         binding.recyclerViewList.setLayoutManager(layoutManager);
         // Initialize Adapter
-        adapter = new ListViewAdapter(((MainActivity) requireActivity()).getClient(),
+        adapter = new ListViewAdapter(((MainActivity) requireActivity()).getLocationClient(),
                                        getContext(),
                this);
         binding.recyclerViewList.setAdapter(adapter);

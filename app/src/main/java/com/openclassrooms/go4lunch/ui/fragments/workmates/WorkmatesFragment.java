@@ -4,20 +4,15 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.openclassrooms.go4lunch.adapters.WorkmatesAdapter;
 import com.openclassrooms.go4lunch.databinding.FragmentWorkmatesBinding;
-import com.openclassrooms.go4lunch.model.Workmate;
-import com.openclassrooms.go4lunch.repositories.WorkmatesRepository;
+import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
-import java.util.ArrayList;
 
 /**
  * Fragment used to display the list of workmates in a RecyclerView, using a
@@ -42,8 +37,7 @@ public class WorkmatesFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Initialize ViewModel
-        workmatesViewModel = new ViewModelProvider(requireActivity()).get(WorkmatesViewModel.class);
-        workmatesViewModel.setWorkmatesRepository(new WorkmatesRepository());
+        workmatesViewModel = ((MainActivity) requireActivity()).getWorkmatesViewModel();
     }
 
     @Override
@@ -58,7 +52,6 @@ public class WorkmatesFragment extends Fragment {
         workmatesViewModel.getEmployeesInfoFromFirestoreDatabase();
         initializeRecyclerView();
         addObserverToViewModel();
-        addListenerToDatabaseCollection();
     }
 
     /**
@@ -66,22 +59,10 @@ public class WorkmatesFragment extends Fragment {
      * adapter list when an update is detected.
      */
     private void addObserverToViewModel() {
-        workmatesViewModel.getListEmployees().observe(getViewLifecycleOwner(), list -> {
+        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), list -> {
             // Send to adapter
             adapter.updateList(list);
         });
-    }
-
-    /**
-     * This method is used to attach a listener to the database collection and updates the MutableLiveData
-     * listWorkmates every time an update is detected.
-     */
-    private void addListenerToDatabaseCollection() {
-        FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
-        CollectionReference collectionRef = dbFirestore.collection("list_employees");
-        collectionRef.addSnapshotListener((value, error) ->
-                // Update MutableLiveData
-                workmatesViewModel.getEmployeesInfoFromFirestoreDatabase());
     }
 
     /**
@@ -91,7 +72,7 @@ public class WorkmatesFragment extends Fragment {
         // Initialize LayoutManager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         // Initialize Adapter
-        adapter = new WorkmatesAdapter(getContext());
+        adapter = new WorkmatesAdapter(getContext(), true);
         // Initialize RecyclerView
         binding.recyclerViewWorkmates.setHasFixedSize(true);
         binding.recyclerViewWorkmates.setLayoutManager(layoutManager);

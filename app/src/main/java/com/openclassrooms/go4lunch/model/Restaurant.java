@@ -37,6 +37,8 @@ public class Restaurant {
 
     private int photoWidth;
 
+    private boolean selected;
+
     public Restaurant(@NonNull String placeId, @NonNull String name, @NonNull String address, double latitude, double longitude, double rating) {
         this.placeId = placeId;
         this.name = name;
@@ -44,6 +46,7 @@ public class Restaurant {
         this.longitude = longitude;
         this.latitude = latitude;
         this.rating = rating;
+        this.selected = false;
     }
 
     // Getter methods
@@ -77,6 +80,8 @@ public class Restaurant {
 
     public int getPhotoWidth() { return photoWidth; }
 
+    public boolean getSelected() { return selected; }
+
     // Setter methods
 
     public void setName(String name) {
@@ -100,4 +105,6 @@ public class Restaurant {
     public void setPhotoHeight(int photoHeight) { this.photoHeight = photoHeight; }
 
     public void setPhotoWidth(int photoWidth) { this.photoWidth = photoWidth; }
+
+    public void setSelected(boolean selected) { this.selected = selected; }
 }

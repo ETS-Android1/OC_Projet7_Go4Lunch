@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.model.Restaurant;
+import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
 import com.openclassrooms.go4lunch.utils.TimeComparator;
 import java.util.ArrayList;
@@ -38,6 +39,8 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private final ArrayList<Restaurant> listRestaurant = new ArrayList<>();
     private final ArrayList<Restaurant> listAutocomplete = new ArrayList<>();
+
+    private final ArrayList<Workmate> listWorkmates = new ArrayList<>();
 
     private boolean switchList = false; // If false : display list of Restaurant, else display list of Restaurant filtered
                                         // with autocomplete result
@@ -100,6 +103,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             // Photo
             displayRestaurantPhoto(((ViewHolderListView) holder), position);
+
+            // Number of workmates
+            displayNumberOfWorkmates(holder, position);
         }
         // Handle footer item display
         if (holder instanceof ViewHolderFooterListView) {
@@ -120,6 +126,13 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void updateListRestaurants(List<Restaurant> newList) {
         listRestaurant.clear();
         listRestaurant.addAll(newList);
+        notifyDataSetChanged();
+    }
+
+    public void updateListWorkmates(List<Workmate> newList) {
+        Log.i("LISTWORKMATE", "updateListWorkmates");
+        listWorkmates.clear();
+        listWorkmates.addAll(newList);
         notifyDataSetChanged();
     }
 
@@ -346,6 +359,17 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    private void displayNumberOfWorkmates(@NonNull RecyclerView.ViewHolder holder, int position) {
+        String restaurantId = listRestaurant.get(position).getPlaceId();
+        int nbWorkmates = 0;
+        for (int i = 0; i < listWorkmates.size(); i++) {
+            if (listWorkmates.get(i).getRestaurantSelectedID().equals(restaurantId))
+                nbWorkmates++;
+        }
+        String text = "(" + nbWorkmates + ")";
+        ((ViewHolderListView) holder).nbWorkmates.setText(text);
+    }
+
     /**
      * ViewHolder class to display a Restaurant item using ListViewAdapter.
      */
@@ -358,6 +382,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         private final ImageView photo;
         private final List<ImageView> rating;
         private final OnItemRestaurantClickListener onItemRestaurantClickListener;
+        private final TextView nbWorkmates;
 
         @SuppressLint("ClickableViewAccessibility")
         ViewHolderListView(View view, OnItemRestaurantClickListener onItemRestaurantClickListener) {
@@ -376,7 +401,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                    view.findViewById(R.id.note_star_3),
                                    view.findViewById(R.id.note_star_2),
                                    view.findViewById(R.id.note_star_1));
-
+            nbWorkmates = view.findViewById(R.id.nb_workmates);
             layout.setOnClickListener(this);
         }
 

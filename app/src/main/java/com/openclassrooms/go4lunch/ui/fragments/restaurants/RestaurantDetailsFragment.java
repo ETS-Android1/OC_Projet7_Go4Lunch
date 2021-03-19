@@ -9,7 +9,11 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,24 +22,37 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
+import com.openclassrooms.go4lunch.adapters.WorkmatesAdapter;
 import com.openclassrooms.go4lunch.databinding.FragmentRestaurantDetailsBinding;
 import com.openclassrooms.go4lunch.model.Restaurant;
+import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
+import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * Fragment used to display the information of a selected Restaurant.
  */
 public class RestaurantDetailsFragment extends Fragment {
+
     public final static String TAG = "TAG_RESTAURANT_DETAILS_FRAGMENT";
     private FragmentRestaurantDetailsBinding binding;
     private Restaurant restaurant;
     private boolean selected = false;
+    // ViewModels
     private PlacesViewModel placesViewModel;
+    private WorkmatesViewModel workmatesViewModel;
+    // Adapter to display the list of Workmates
+    private WorkmatesAdapter adapter;
 
     public RestaurantDetailsFragment() {/* Empty constructor */}
 
@@ -61,8 +78,9 @@ public class RestaurantDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initializeToolbar();
         initializeStatusBar();
+        initializeRecyclerView();
         int indiceRestaurant = ((MainActivity) requireActivity()).getIndice();
-        initializePlacesViewModel();
+        initializeViewModels();
         restaurant = Objects.requireNonNull(placesViewModel.getListRestaurants().getValue()).get(indiceRestaurant);
         initializeDetails();
         initializePhotoRestaurant();
@@ -79,6 +97,17 @@ public class RestaurantDetailsFragment extends Fragment {
             requireActivity().onBackPressed();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initializeRecyclerView() {
+        // Initialize LayoutMananger
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        // Initialize Adapter
+        adapter = new WorkmatesAdapter(getContext(), false);
+        // Initialize RecyclerView
+        binding.recyclerViewWorkmatesRestaurant.setHasFixedSize(true);
+        binding.recyclerViewWorkmatesRestaurant.setLayoutManager(layoutManager);
+        binding.recyclerViewWorkmatesRestaurant.setAdapter(adapter);
     }
 
     /**
@@ -123,12 +152,27 @@ public class RestaurantDetailsFragment extends Fragment {
     /**
      * This method initializes a PlaceViewModel instance and attaches an observer.
      */
-    private void initializePlacesViewModel() {
+    private void initializeViewModels() {
         placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), list -> {
             // Info available
             initializeDetails();
             initializePhotoRestaurant();
+        });
+
+        workmatesViewModel = new ViewModelProvider(requireActivity()).get(WorkmatesViewModel.class);
+        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), new Observer<List<Workmate>>() {
+            @Override
+            public void onChanged(List<Workmate> listWorkmates) {
+                ArrayList<Workmate> listFiltered = new ArrayList<>();
+                for (int i = 0; i < listWorkmates.size(); i++) {
+                    if (listWorkmates.get(i).getRestaurantSelectedID().equals(restaurant.getPlaceId())) {
+                        listFiltered.add(listWorkmates.get(i));
+                    }
+                    adapter.updateList(listFiltered);
+                }
+
+            }
         });
     }
 
