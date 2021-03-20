@@ -3,6 +3,8 @@ package com.openclassrooms.go4lunch.model;
 import android.net.Uri;
 import androidx.annotation.NonNull;
 
+import java.net.URI;
+
 /**
  * Model class which defines a restaurant, and containing all data retrieved from a Place API search,
  * or from the @{@link com.openclassrooms.go4lunch.database.Go4LunchDatabase} database instance.
@@ -27,7 +29,7 @@ public class Restaurant {
 
     private String phoneNumber;
 
-    private Uri websiteUri;
+    private String websiteUri;
 
     private double rating;
 
@@ -70,7 +72,7 @@ public class Restaurant {
 
     public String getPhoneNumber() { return phoneNumber; }
 
-    public Uri getWebsiteUri() { return websiteUri; }
+    public String getWebsiteUri() { return websiteUri; }
 
     public double getRating() { return rating; }
 
@@ -94,7 +96,7 @@ public class Restaurant {
 
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
-    public void setWebsiteUri(Uri websiteUri) { this.websiteUri = websiteUri; }
+    public void setWebsiteUri(String websiteUri) { this.websiteUri = websiteUri; }
 
     public void setRating(Double rating) {
         this.rating = rating;

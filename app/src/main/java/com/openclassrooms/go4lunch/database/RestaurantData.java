@@ -29,7 +29,7 @@ public class RestaurantData {
 
     @ColumnInfo(name = "phone_number") private final String phoneNumber;
 
-    @ColumnInfo(name = "website_uri") private final Uri websiteUri;
+    @ColumnInfo(name = "website_uri") private final String websiteUri;
 
     private double rating;
 
@@ -41,7 +41,7 @@ public class RestaurantData {
 
     public RestaurantData(@NonNull String placeId, @NonNull String name, @NonNull String address,
                           double latitude, double longitude, double rating,
-                          String phoneNumber, Uri websiteUri,
+                          String phoneNumber, String websiteUri,
                           String photoReference, int photoHeight, int photoWidth) {
         this.placeId = placeId;
         this.name = name;
@@ -73,7 +73,7 @@ public class RestaurantData {
 
     public String getPhoneNumber() { return phoneNumber; }
 
-    public Uri getWebsiteUri() { return websiteUri; }
+    public String getWebsiteUri() { return websiteUri; }
 
     public double getRating() { return rating; }
 

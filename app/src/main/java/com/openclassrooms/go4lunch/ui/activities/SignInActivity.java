@@ -19,6 +19,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.ActivitySignInBinding;
 import com.openclassrooms.go4lunch.model.Workmate;
+import com.openclassrooms.go4lunch.utils.AppInfo;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -116,7 +118,7 @@ public class SignInActivity extends AppCompatActivity {
      * information are not stored yet (first authentication).
      */
     private void addUserIdToFirestoreDatabase() {
-        SharedPreferences userIdPreferences = getSharedPreferences("user_id", MODE_PRIVATE);
+        SharedPreferences userIdPreferences = getSharedPreferences(AppInfo.FILE_USER_ID, MODE_PRIVATE);
         SharedPreferences.Editor editor = userIdPreferences.edit();
 
         String id = userIdPreferences.getString("id", null);

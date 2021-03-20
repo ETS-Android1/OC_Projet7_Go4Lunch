@@ -39,6 +39,8 @@ import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.ui.dialogs.GPSActivationDialog;
 import com.openclassrooms.go4lunch.receivers.GPSBroadcastReceiver;
+import com.openclassrooms.go4lunch.ui.fragments.restaurants.RestaurantDetailsFragment;
+import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.mapping.RestaurantMarkerItem;
 import com.openclassrooms.go4lunch.utils.mapping.RestaurantRenderer;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
@@ -146,8 +148,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         initializeViewModelsObservers();
 
         // Initialize SharedPreferences for user position
-        String PREF_USER_POSITION = "pref_user_position";
-        sharedPrefLatLon = requireContext().getSharedPreferences(PREF_USER_POSITION, Context.MODE_PRIVATE);
+        sharedPrefLatLon = requireContext().getSharedPreferences(AppInfo.FILE_PREF_USER_POSITION, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -353,7 +354,9 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      */
     private void handleClusterClickInteractions() {
         clusterManager.setOnClusterItemInfoWindowClickListener(item -> {
-            ((MainActivity) requireActivity()).addFragmentRestaurantDetails(item.getIndice());
+            Restaurant restaurantToDisplay = listRestaurants.get(item.getIndice());
+            ((MainActivity) requireActivity()).setRestaurantToDisplay(restaurantToDisplay);
+            ((MainActivity) requireActivity()).addFragment(RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG);
             ((MainActivity) requireActivity()).getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             ((MainActivity) requireActivity()).updateBottomBarStatusVisibility(View.GONE);
             ((MainActivity) requireActivity()).updateToolbarStatusVisibility(View.GONE);

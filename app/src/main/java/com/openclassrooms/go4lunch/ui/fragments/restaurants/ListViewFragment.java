@@ -182,7 +182,9 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
      */
     @Override
     public void onItemRestaurantClick(int position) {
-        ((MainActivity) requireActivity()).addFragmentRestaurantDetails(position);
+        Restaurant restaurantToDisplay = adapter.getListRestaurant().get(position);
+        ((MainActivity) requireActivity()).setRestaurantToDisplay(restaurantToDisplay);
+        ((MainActivity) requireActivity()).addFragment(RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG);
         ((MainActivity) requireActivity()).updateBottomBarStatusVisibility(View.GONE);
         ((MainActivity) requireActivity()).updateToolbarStatusVisibility(View.GONE);
     }

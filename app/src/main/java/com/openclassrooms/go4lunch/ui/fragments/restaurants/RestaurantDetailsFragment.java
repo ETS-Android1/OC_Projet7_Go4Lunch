@@ -1,7 +1,9 @@
 package com.openclassrooms.go4lunch.ui.fragments.restaurants;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Build;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.adapters.WorkmatesAdapter;
@@ -31,6 +34,7 @@ import com.openclassrooms.go4lunch.databinding.FragmentRestaurantDetailsBinding;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
+import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
@@ -48,12 +52,19 @@ public class RestaurantDetailsFragment extends Fragment {
     private FragmentRestaurantDetailsBinding binding;
     private Restaurant restaurant;
     private boolean selected = false;
+
     // ViewModels
     private PlacesViewModel placesViewModel;
     private WorkmatesViewModel workmatesViewModel;
+
     // Adapter to display the list of Workmates
     private WorkmatesAdapter adapter;
 
+    // SharedPreferences to save user restaurant choice
+    private SharedPreferences sharedPrefSelection;
+    private SharedPreferences.Editor editor;
+    private String savedRestaurantJSON;
+    private String KEY_SELECTED_RESTAURANT = "KEY_SELECTED_RESTAURANT";
     public RestaurantDetailsFragment() {/* Empty constructor */}
 
     public static RestaurantDetailsFragment newInstance() {
@@ -79,11 +90,11 @@ public class RestaurantDetailsFragment extends Fragment {
         initializeToolbar();
         initializeStatusBar();
         initializeRecyclerView();
-        int indiceRestaurant = ((MainActivity) requireActivity()).getIndice();
         initializeViewModels();
-        restaurant = Objects.requireNonNull(placesViewModel.getListRestaurants().getValue()).get(indiceRestaurant);
+        restaurant = ((MainActivity) requireActivity()).getRestaurantToDisplay();
         initializeDetails();
         initializePhotoRestaurant();
+        initializeSharedPreferences();
         updateFloatingActionButtonIconDisplay();
         handleFloatingButtonClicks();
         handleButtonsClicks();
@@ -97,6 +108,24 @@ public class RestaurantDetailsFragment extends Fragment {
             requireActivity().onBackPressed();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void initializeSharedPreferences() {
+        sharedPrefSelection = requireContext().getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
+        editor = sharedPrefSelection.edit();
+
+        // Check if a selection is saved in SharedPreferences
+        savedRestaurantJSON = sharedPrefSelection.getString(KEY_SELECTED_RESTAURANT, "");
+
+        if (!savedRestaurantJSON.equals("")) {
+            // If yes, deserialize the data
+            Gson gson = new Gson();
+            Restaurant restaurantSaved = gson.fromJson(savedRestaurantJSON, Restaurant.class);
+            // Compare to current restaurant displayed
+            if (restaurantSaved.getPlaceId().equals(restaurant.getPlaceId())) {
+                selected = true;
+            }
+        }
     }
 
     private void initializeRecyclerView() {
@@ -125,7 +154,7 @@ public class RestaurantDetailsFragment extends Fragment {
                         .getDrawable(R.drawable.ic_baseline_arrow_back_24dp_white));
         // Set margin
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.toolbarDetailsRestaurantFragment.getLayoutParams();
-        params.setMargins(0, ((MainActivity) requireActivity()).getStatusBarSize(), 0, 0);
+        params.setMargins(0, AppInfo.getStatusBarSize(requireContext()), 0, 0);
         binding.toolbarDetailsRestaurantFragment.setLayoutParams(params);
     }
 
@@ -207,6 +236,15 @@ public class RestaurantDetailsFragment extends Fragment {
         binding.fabSelect.setOnClickListener(v -> {
             selected = !selected;
             updateFloatingActionButtonIconDisplay();
+
+            if (selected) {
+                String restaurantJSONtoSave = new Gson().toJson(restaurant);
+                editor.putString(KEY_SELECTED_RESTAURANT, restaurantJSONtoSave);
+            }
+            else {
+                editor.putString(KEY_SELECTED_RESTAURANT, "");
+            }
+            editor.apply();
         });
     }
 
@@ -237,7 +275,7 @@ public class RestaurantDetailsFragment extends Fragment {
      */
     private void openWebSite() {
         if (restaurant.getWebsiteUri() != null) {
-            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(restaurant.getWebsiteUri().toString()));
+            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(restaurant.getWebsiteUri()));
             startActivity(webIntent);
         }
         else Toast.makeText(getContext(), "No website url available", Toast.LENGTH_SHORT).show();

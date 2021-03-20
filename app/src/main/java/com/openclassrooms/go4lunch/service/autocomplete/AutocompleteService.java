@@ -3,34 +3,25 @@ package com.openclassrooms.go4lunch.service.autocomplete;
 import android.Manifest;
 import android.location.Location;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
-
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
-import com.google.android.libraries.places.api.model.LocationRestriction;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.firebase.auth.FirebaseAuth;
-import com.openclassrooms.go4lunch.model.Restaurant;
-import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
 import com.openclassrooms.go4lunch.utils.GeometricUtils;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class AutocompleteService {

@@ -72,7 +72,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         }
         else {
             // Text
-            String text = listWorkmates.get(position).getName() + " is going";
+            String text = listWorkmates.get(position).getName() + " " + context.getResources().getString(R.string.is_going);
             holder.text.setText(text);
 
             // Photo

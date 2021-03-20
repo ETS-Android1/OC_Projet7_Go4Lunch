@@ -72,11 +72,9 @@ public class PlacesRepository {
         this.restaurantAndHoursDao = restaurantAndHoursDao;
 
         // Initialize parameters for SharedPreferences
-        String PREF_FIRST_NEXT_PAGE_TOKEN = "pref_first_next_page_token";
-        String PREF_SECOND_NEXT_PAGE_TOKEN = "pref_second_next_page_token";
         sharedPrefNextPageToken = new SharedPreferences[2];
-        sharedPrefNextPageToken[0] = context.getSharedPreferences(PREF_FIRST_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
-        sharedPrefNextPageToken[1] = context.getSharedPreferences(PREF_SECOND_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
+        sharedPrefNextPageToken[0] = context.getSharedPreferences(AppInfo.FILE_PREF_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
+        sharedPrefNextPageToken[1] = context.getSharedPreferences(AppInfo.FILE_PREF_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
 
         // Get context
         this.context = context;
@@ -150,7 +148,7 @@ public class PlacesRepository {
 
         for (int i = 0; i < listRestaurant.size(); i++) {
             DetailsResponse response = listRestaurantsServices.getPlacesDetails(listRestaurant.get(i).getPlaceId());
-            if (response.result.website != null) listRestaurant.get(i).setWebsiteUri(Uri.parse(response.result.website));
+            if (response.result.website != null) listRestaurant.get(i).setWebsiteUri(Uri.parse(response.result.website).toString());
             if (response.result.formatted_phone_number != null) listRestaurant.get(i).setPhoneNumber(response.result.formatted_phone_number);
 
             if (response.result.opening_hours != null) {

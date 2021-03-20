@@ -37,18 +37,20 @@ import java.util.List;
  */
 public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    // Lists
     private final ArrayList<Restaurant> listRestaurant = new ArrayList<>();
     private final ArrayList<Restaurant> listAutocomplete = new ArrayList<>();
-
     private final ArrayList<Workmate> listWorkmates = new ArrayList<>();
 
-    private boolean switchList = false; // If false : display list of Restaurant, else display list of Restaurant filtered
-                                        // with autocomplete result
+    // Parameter to determine which list to disply in RecyclerView
+    private final boolean switchList = false; // If false : display list of Restaurant
+                                        // else     : display list of Restaurant filtered with autocomplete result
 
+    // Selected list to display (listRestaurant or listAutocomplete)
     private ArrayList<Restaurant> listToDisplay = new ArrayList<>();
 
-
-    private final FusedLocationProviderClient client;
+    // To access user location
+    private final FusedLocationProviderClient locationClient;
     private final Context context;
     private final OnItemRestaurantClickListener onItemRestaurantClickListener;
 
@@ -59,9 +61,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     // ProgressBar visibility status value
     private int progressBarVisibilityStatus = View.INVISIBLE;
 
-    public ListViewAdapter(FusedLocationProviderClient client, Context context,
+    public ListViewAdapter(FusedLocationProviderClient locationClient, Context context,
                            OnItemRestaurantClickListener onItemRestaurantClickListener) {
-        this.client = client;
+        this.locationClient = locationClient;
         this.context = context;
         this.onItemRestaurantClickListener = onItemRestaurantClickListener;
         switchListToDisplay(false);
@@ -149,7 +151,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      */
     private void displayDistanceBetweenRestaurantAndUserLocation(@NonNull ViewHolderListView holder, int position) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            client.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+            locationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                     .addOnSuccessListener(location -> {
                         double userLatitude = location.getLatitude();
                         double userLongitude = location.getLongitude();
@@ -272,7 +274,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * @return : list of hours
      */
     private ArrayList<String> getClosingAndOpeningHoursForADay(ArrayList<String> hours, int currentDay,
-                                                     int position, boolean type) {
+                                                               int position, boolean type) {
         if (type) { // CLOSING HOURS
             switch (currentDay) {
                 case 1 : // SUNDAY
@@ -359,6 +361,11 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    /**
+     * This method displays the number of workmates going to a specified restaurant
+     * @param holder : holder containing the item view
+     * @param position : restaurant at the indice "position" in list
+     */
     private void displayNumberOfWorkmates(@NonNull RecyclerView.ViewHolder holder, int position) {
         String restaurantId = listRestaurant.get(position).getPlaceId();
         int nbWorkmates = 0;
@@ -433,9 +440,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemViewType(int position) {
-        if (isPositionItem(position)) {
-            return VIEW_ITEM;
-        }
+        if (isPositionItem(position)) return VIEW_ITEM;
         else return VIEW_FOOTER;
     }
 

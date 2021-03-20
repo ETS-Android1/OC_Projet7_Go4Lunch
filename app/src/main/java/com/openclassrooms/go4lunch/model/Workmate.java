@@ -6,10 +6,14 @@ package com.openclassrooms.go4lunch.model;
 public class Workmate {
 
     private String name;
+
     private String email;
+
     private String photoUrl;
+
     // ID of a selected restaurant
     private String restaurantSelectedID;
+
     // Name of a selected restaurant
     private String restaurantName;
 

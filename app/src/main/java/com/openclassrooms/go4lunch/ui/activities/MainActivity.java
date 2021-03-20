@@ -13,7 +13,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -40,12 +42,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
 import com.openclassrooms.go4lunch.di.DI;
-import com.openclassrooms.go4lunch.model.Workmate;
+import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.repositories.WorkmatesRepository;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
@@ -56,6 +59,7 @@ import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragment;
 import com.openclassrooms.go4lunch.ui.fragments.restaurants.RestaurantDetailsFragment;
 import com.openclassrooms.go4lunch.ui.fragments.workmates.WorkmatesFragment;
 import com.openclassrooms.go4lunch.receivers.NetworkBroadcastReceiver;
+import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.search.SearchTextWatcher;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
@@ -82,7 +86,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentManager fragmentManager;
 
     // Indice of the corresponding Restaurant object in the list
-    private int indice;
+    //private int indice;
+    private Restaurant restaurantToDisplay;
 
     // Place API client
     private PlacesClient placesClient;
@@ -110,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        // Initialize views
         initializeToolbar();
         initializeDrawerLayout();
         initializeNavigationView();
@@ -183,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(binding.toolbar);
         if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.toolbar.getLayoutParams();
-            params.setMargins(0, getStatusBarSize(), 0, 0);
+            params.setMargins(0, AppInfo.getStatusBarSize(this), 0, 0);
             binding.toolbar.setLayoutParams(params);
         }
     }
@@ -240,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.your_lunch_option:
-                Log.d("NAVIGATION", "Click R.id.your_lunch_option");
+                onClickYourLunchOptionIcon();
                 break;
             case R.id.settings_options:
                 Log.d("NAVIGATION", "Click R.id.settings_options");
@@ -252,6 +258,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    /**
+     * This method handles click interaction of "Your lunch" icon, by displaying the RestaurantDetailsFragment
+     * with user Restaurant selection, otherwise a Toast is displayed.
+     */
+    private void onClickYourLunchOptionIcon() {
+        String KEY_SELECTED_RESTAURANT = "KEY_SELECTED_RESTAURANT";
+        SharedPreferences sharedPrefSelection = getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
+        String savedRestaurantJSON = sharedPrefSelection.getString(KEY_SELECTED_RESTAURANT, "");
+        if (!savedRestaurantJSON.equals("")) {
+            Gson gson = new Gson();
+            setRestaurantToDisplay(gson.fromJson(savedRestaurantJSON, Restaurant.class));
+            addFragment(RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG);
+            getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            updateBottomBarStatusVisibility(View.GONE);
+            updateToolbarStatusVisibility(View.GONE);
+        }
+        else {
+            Toast.makeText(this, getResources().getString(R.string.toast_your_lunch), Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -303,13 +330,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void addFragment(Fragment fragment, String TAG) {
         fragmentManager.beginTransaction().add(R.id.fragment_container_view, fragment, TAG).commit();
-    }
-
-    public void addFragmentRestaurantDetails(int indiceRestaurant) {
-        indice = indiceRestaurant;
-        fragmentManager.beginTransaction().add(R.id.fragment_restaurant_details_container_view,
-                new RestaurantDetailsFragment(),
-                RestaurantDetailsFragment.TAG).commit();
     }
 
     public void removeFragment(Fragment fragment) { fragmentManager.beginTransaction().remove(fragment).commit(); }
@@ -365,9 +385,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.i("PERFORMAUTOCOMPLETE", "MainActivity provideSearchQuery : " + query);
             placesViewModel.performAutocompleteRequest(query, getApplicationContext());
         }
-        else {
-            Toast.makeText(getApplicationContext(), "GPS not enabled", Toast.LENGTH_SHORT).show();
-        }
+        else Toast.makeText(getApplicationContext(), "GPS not enabled", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -441,18 +459,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public int getStatusBarSize() {
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        int statusBarSize = 0;
-        statusBarSize = getResources().getDimensionPixelSize(resourceId);
-        return statusBarSize;
-    }
-
-
     // Getter methods
     public FusedLocationProviderClient getLocationClient() { return this.locationClient; }
 
-    public int getIndice() { return indice; }
+    public Restaurant getRestaurantToDisplay() { return restaurantToDisplay; }
 
     public DrawerLayout getDrawerLayout() {
         return binding.drawerLayout;
@@ -465,4 +475,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public PlacesViewModel getPlacesViewModel() { return this.placesViewModel; }
 
     public WorkmatesViewModel getWorkmatesViewModel() { return this.workmatesViewModel; }
+
+    // Setter methods
+    public void setRestaurantToDisplay(Restaurant restaurantToDisplay) { this.restaurantToDisplay = restaurantToDisplay; }
 }
