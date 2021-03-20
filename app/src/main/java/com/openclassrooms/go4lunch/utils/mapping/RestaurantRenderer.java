@@ -74,6 +74,6 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
      */
     @Override
     protected int getColor(int clusterSize) {
-        return context.getResources().getColor(R.color.dark_orange);
+        return context.getResources().getColor(R.color.grey_50);
     }
 }

@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,7 +22,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +32,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentMapViewBinding;
@@ -45,6 +48,8 @@ import com.openclassrooms.go4lunch.utils.mapping.RestaurantMarkerItem;
 import com.openclassrooms.go4lunch.utils.mapping.RestaurantRenderer;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -77,7 +82,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     private PlacesViewModel placesViewModel;
     private WorkmatesViewModel workmatesViewModel;
 
-
     // To store current user position and user position saved in previous session
     private SharedPreferences.Editor editor;
     private SharedPreferences sharedPrefLatLon;
@@ -87,6 +91,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     // To store next_page_token attribute value from Nearby Search API GET request
     private SharedPreferences[] sharedPrefNextPageToken;
 
+    // To get "cluster" option status
+    private SharedPreferences sharedPrefClusterOption;
     private final ArrayList<Restaurant> listRestaurants = new ArrayList<>();
 
     // Listener of user position updates
@@ -95,7 +101,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         public void onLocationChanged(@NonNull Location location) {
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-
                 editor = sharedPrefNextPageToken[0].edit();
                 editor.clear();
                 editor = sharedPrefNextPageToken[1].edit();
@@ -136,19 +141,15 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        // Initialization
         locationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
         connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
         gpsBroadcastReceiver = new GPSBroadcastReceiver(this);
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
-                .findFragmentById(R.id.google_map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         mapFragment.getMapAsync(this);
-
         initializeViewModelsObservers();
-
-        // Initialize SharedPreferences for user position
         sharedPrefLatLon = requireContext().getSharedPreferences(AppInfo.FILE_PREF_USER_POSITION, Context.MODE_PRIVATE);
+        sharedPrefClusterOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
     }
 
     @Override
@@ -271,7 +272,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      * adding observers.
      */
     private void initializeViewModelsObservers() {
-
         // This observer check if MutableLiveData for list of Restaurants is updated,
         // to update MapViewFragment listRestaurants attribute.
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), list -> {
@@ -294,37 +294,68 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                     found = false;
                     i = 0;
                     while (i < listWorkmates.size() && !found) {
-                        if (listWorkmates.get(i).getRestaurantSelectedID().equals(listRestaurants.get(j).getPlaceId())) {
+                        if (listWorkmates.get(i).getRestaurantSelectedID().equals(listRestaurants.get(j).getPlaceId()))
                             found = true;
-                        }
                         else i++;
                         listRestaurants.get(j).setSelected(found);
                     }
                 }
-                displayMarkersInMap();
+                checkDisplayOptions();
             }
         });
     }
 
 
     /**
-     * This method is used to update the map by displaying a custom marker for each detected restaurant aroung
+     * This method is used to update the map by displaying custom markers in clusters for all detected restaurants around
+     * user location.
+     */
+    private void displayMarkersWithClustersInMap() {
+        for (int indice = 0; indice < listRestaurants.size(); indice++) {
+            RestaurantMarkerItem item = new RestaurantMarkerItem(
+                    new LatLng(listRestaurants.get(indice).getLatitude(),
+                               listRestaurants.get(indice).getLongitude()),
+                    listRestaurants.get(indice).getName(), null, listRestaurants.get(indice).getSelected(), indice,
+                    listRestaurants.get(indice).getPlaceId());
+            clusterManager.addItem(item);
+            clusterManager.cluster();
+        }
+    }
+
+    /**
+     * This method is used to update the map by displaying a custom marker for all detected restaurants around
      * user location.
      */
     private void displayMarkersInMap() {
-        clusterManager.clearItems();
-        if (listRestaurants != null) {
+        AssetManager assetManager = requireContext().getAssets();
+        try {
             for (int indice = 0; indice < listRestaurants.size(); indice++) {
-                RestaurantMarkerItem item = new RestaurantMarkerItem(
-                        new LatLng(listRestaurants.get(indice).getLatitude(),
-                                   listRestaurants.get(indice).getLongitude()),
-                        listRestaurants.get(indice).getName(), null, listRestaurants.get(indice).getSelected(), indice,
-                        listRestaurants.get(indice).getPlaceId());
-
-                clusterManager.addItem(item);
-                clusterManager.cluster();
+                // Define options
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(new LatLng(listRestaurants.get(indice).getLatitude(),
+                                listRestaurants.get(indice).getLongitude()))
+                        .title(listRestaurants.get(indice).getName());
+                // Define icon
+                InputStream inputStream;
+                if (listRestaurants.get(indice).getSelected())
+                    inputStream = assetManager.open("icon_resto_loc_selected.png");
+                else inputStream = assetManager.open("icon_resto_loc.png");
+                // Update map with new marker
+                map.addMarker(markerOptions).setIcon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeStream(inputStream)));
             }
-        }
+        } catch (IOException exception) { exception.printStackTrace(); }
+    }
+
+    /**
+     * This method checks the "Cluster" option value saved by user, to apply the associated display method
+     * for markers.
+     */
+    public void checkDisplayOptions() {
+        clusterManager.clearItems();
+        map.clear();
+        boolean clusterOption = sharedPrefClusterOption.getBoolean("cluster_option", false);
+        if (clusterOption) displayMarkersWithClustersInMap();
+        else displayMarkersInMap();
     }
 
     @Override
@@ -340,9 +371,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             // Initialize current position + search for places
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 centerCursorInCurrentLocation(false);
-                if (connectivityManager.getActiveNetworkInfo() != null) {
+                if (connectivityManager.getActiveNetworkInfo() != null)
                     getPlacesFromDatabaseOrRetrofitRequest();
-                }
             }
             // Enable click interactions on cluster items window
             handleClusterClickInteractions();
@@ -362,9 +392,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             ((MainActivity) requireActivity()).updateToolbarStatusVisibility(View.GONE);
         });
         clusterManager.setOnClusterClickListener(cluster -> {
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(cluster.getPosition().latitude, cluster.getPosition().longitude)
-                    ,15.0f);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(cluster.getPosition().latitude,
+                                                                                     cluster.getPosition().longitude),15.0f);
             map.animateCamera(cameraUpdate);
             return true;
         });

@@ -14,6 +14,9 @@ public class AppInfo {
     public static final String FILE_PREF_FIRST_RUN = "FILE_REFS_FIRST_RUN";
     public static final String FILE_PREF_SELECTED_RESTAURANT = "FILE_PREF_SELECTED_RESTAURANT";
 
+    // SharedPreferences Options files
+    public static final String FILE_OPTIONS = "FILE_OPTIONS";
+
     /**
      * Method used to check if user launch the app for the first time
      * @param context : context of the view

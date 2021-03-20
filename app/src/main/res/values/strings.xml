@@ -49,6 +49,13 @@
     <string name="text_access_settings_app">To be able to use Go4Lunch, you need to authorize location access.\n\nClick on app Settings > Authorizations</string>
     <string name="button_access_settings_app">Open Settings</string>
 
+    <!-- fragment_options -->
+    <string name="map_option_title">Map</string>
+    <string name="map_option_text">Display clusters on map</string>
+    <string name="account_option_title">Account</string>
+    <string name="account_option_text">Delete user account</string>
+    <string name="account_option_text_delete">Delete</string>
+
     <!-- ListViewAdapter -->
     <string name="closing_soon">Closing soon</string>
     <string name="open_until">Open until</string>

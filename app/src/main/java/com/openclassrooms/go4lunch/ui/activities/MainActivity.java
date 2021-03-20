@@ -52,7 +52,7 @@ import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.repositories.WorkmatesRepository;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
-import com.openclassrooms.go4lunch.ui.fragments.OptionsFragment;
+import com.openclassrooms.go4lunch.ui.fragments.options.OptionsFragment;
 import com.openclassrooms.go4lunch.ui.fragments.restaurants.ListViewFragment;
 import com.openclassrooms.go4lunch.ui.fragments.permission.LocationPermissionFragment;
 import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragment;
@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 onClickYourLunchOptionIcon();
                 break;
             case R.id.settings_options:
-                Log.d("NAVIGATION", "Click R.id.settings_options");
+                onClickOptionsIcon();
                 break;
             case R.id.logout_options:
                 LogoutDialog dialog = new LogoutDialog(this);
@@ -279,6 +279,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else {
             Toast.makeText(this, getResources().getString(R.string.toast_your_lunch), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void onClickOptionsIcon() {
+        addFragment(optionsFragment, OptionsFragment.TAG);
+        updateBottomBarStatusVisibility(View.GONE);
     }
 
     /**
@@ -346,13 +351,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else {
             // Close RestaurantDetailsFragment if displayed
             Fragment fragment = fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG);
-            if (fragment!= null) {
+            if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG)!= null) {
                 if (fragment.isVisible()) {
                     removeFragment(fragment);
                     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     updateToolbarStatusVisibility(View.VISIBLE);
                     updateBottomBarStatusVisibility(View.VISIBLE);
                 }
+            }
+            else if (optionsFragment.isVisible()) {
+                removeFragment(optionsFragment);
+                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                updateToolbarStatusVisibility(View.VISIBLE);
+                updateBottomBarStatusVisibility(View.VISIBLE);
+                mapViewFragment.checkDisplayOptions(); // Apply options updates
             }
             else {
                 // Close app
