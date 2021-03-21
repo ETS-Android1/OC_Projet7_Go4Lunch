@@ -32,9 +32,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterManager;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentMapViewBinding;
@@ -48,8 +46,6 @@ import com.openclassrooms.go4lunch.utils.mapping.RestaurantMarkerItem;
 import com.openclassrooms.go4lunch.utils.mapping.RestaurantRenderer;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 /**
@@ -146,7 +142,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         gpsBroadcastReceiver = new GPSBroadcastReceiver(this);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
-        mapFragment.getMapAsync(this);
+        if (mapFragment != null) { mapFragment.getMapAsync(this); }
         initializeViewModelsObservers();
         sharedPrefLatLon = requireContext().getSharedPreferences(AppInfo.FILE_PREF_USER_POSITION, Context.MODE_PRIVATE);
         sharedPrefClusterOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
@@ -219,6 +215,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void centerCursorInCurrentLocation(boolean update) {
+        // TODO() : check cancellation token (must not be null)
         ((MainActivity) requireActivity()).getLocationClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener((Location location) -> {
                             // Update Camera
@@ -239,7 +236,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     @Override
     public void searchPlacesFromCurrentLocation() {
-
         ((MainActivity) requireActivity()).getLocationClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener(location -> {
                     currentLatUserPosition = location.getLatitude();
@@ -300,7 +296,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                         listRestaurants.get(j).setSelected(found);
                     }
                 }
-                checkDisplayOptions();
+                updateRestaurantRenderer();
             }
         });
     }
@@ -311,6 +307,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      * user location.
      */
     private void displayMarkersWithClustersInMap() {
+        clusterManager.clearItems();
+        map.clear();
         for (int indice = 0; indice < listRestaurants.size(); indice++) {
             RestaurantMarkerItem item = new RestaurantMarkerItem(
                     new LatLng(listRestaurants.get(indice).getLatitude(),
@@ -322,40 +320,10 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         }
     }
 
-    /**
-     * This method is used to update the map by displaying a custom marker for all detected restaurants around
-     * user location.
-     */
-    private void displayMarkersInMap() {
-        AssetManager assetManager = requireContext().getAssets();
-        try {
-            for (int indice = 0; indice < listRestaurants.size(); indice++) {
-                // Define options
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(new LatLng(listRestaurants.get(indice).getLatitude(),
-                                listRestaurants.get(indice).getLongitude()))
-                        .title(listRestaurants.get(indice).getName());
-                // Define icon
-                InputStream inputStream;
-                if (listRestaurants.get(indice).getSelected())
-                    inputStream = assetManager.open("icon_resto_loc_selected.png");
-                else inputStream = assetManager.open("icon_resto_loc.png");
-                // Update map with new marker
-                map.addMarker(markerOptions).setIcon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeStream(inputStream)));
-            }
-        } catch (IOException exception) { exception.printStackTrace(); }
-    }
-
-    /**
-     * This method checks the "Cluster" option value saved by user, to apply the associated display method
-     * for markers.
-     */
-    public void checkDisplayOptions() {
-        clusterManager.clearItems();
-        map.clear();
+    public void updateRestaurantRenderer() {
         boolean clusterOption = sharedPrefClusterOption.getBoolean("cluster_option", false);
-        if (clusterOption) displayMarkersWithClustersInMap();
-        else displayMarkersInMap();
+        ((RestaurantRenderer) clusterManager.getRenderer()).setClusterActivation(clusterOption);
+        displayMarkersWithClustersInMap();
     }
 
     @Override
@@ -423,8 +391,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         restaurantRenderer.setMinClusterSize(10);
         clusterManager.setRenderer(restaurantRenderer);
         // Set listener for marker clicks
-        map.setOnCameraIdleListener(clusterManager);
-        map.setOnMarkerClickListener(clusterManager);
+         map.setOnCameraIdleListener(clusterManager);
+         map.setOnMarkerClickListener(clusterManager);
     }
 
     /**

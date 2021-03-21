@@ -9,6 +9,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.openclassrooms.go4lunch.R;
@@ -22,11 +23,13 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
 
     private final Context context;
     private final AssetManager assetManager;
+    private boolean clusterActivation;
 
     public RestaurantRenderer(Context context, GoogleMap map, ClusterManager<RestaurantMarkerItem> clusterManager) {
         super(context, map, clusterManager);
         this.context = context;
         assetManager = context.getAssets();
+        this.clusterActivation = true;
     }
 
     /**
@@ -75,5 +78,22 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
     @Override
     protected int getColor(int clusterSize) {
         return context.getResources().getColor(R.color.grey_50);
+    }
+
+    /**
+     * This method is used to determine whether markers must be displayed with cluster or not.
+     * @param cluster : cluster
+     * @return : boolean value
+     */
+    @Override
+    protected boolean shouldRenderAsCluster(@NonNull Cluster<RestaurantMarkerItem> cluster) {
+        if (clusterActivation) return super.shouldRenderAsCluster(cluster);
+        else return false;
+
+    }
+
+    // Setter
+    public void setClusterActivation(boolean clusterActivation) {
+        this.clusterActivation = clusterActivation;
     }
 }

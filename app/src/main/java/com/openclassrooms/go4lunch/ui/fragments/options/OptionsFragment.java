@@ -12,7 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.openclassrooms.go4lunch.databinding.FragmentOptionsBinding;
 import com.openclassrooms.go4lunch.ui.dialogs.DeleteAccountDialog;
 import com.openclassrooms.go4lunch.utils.AppInfo;
@@ -53,6 +56,13 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
 
         sharedPrefClusterOption = getContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
         editor = sharedPrefClusterOption.edit();
+
+        initializeSwitchDisplay();
+    }
+
+    private void initializeSwitchDisplay() {
+        boolean checked = sharedPrefClusterOption.getBoolean("cluster_option", false);
+        binding.switchOptionCluster.setChecked(checked);
     }
 
     private void handleClickOnDeleteButton() {
@@ -78,5 +88,10 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     @Override
     public void confirmDeleteUser() {
         // TODO("Not implemented yet)
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            user.delete();
+            Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_SHORT).show();
+        }
     }
 }

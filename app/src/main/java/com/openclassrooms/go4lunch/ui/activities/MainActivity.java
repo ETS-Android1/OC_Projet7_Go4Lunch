@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 updateToolbarStatusVisibility(View.VISIBLE);
                 updateBottomBarStatusVisibility(View.VISIBLE);
-                mapViewFragment.checkDisplayOptions(); // Apply options updates
+                mapViewFragment.updateRestaurantRenderer(); // Apply options updates
             }
             else {
                 // Close app
