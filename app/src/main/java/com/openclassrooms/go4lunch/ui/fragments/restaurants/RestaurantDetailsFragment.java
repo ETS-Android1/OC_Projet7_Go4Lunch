@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.openclassrooms.go4lunch.BuildConfig;
@@ -236,13 +238,28 @@ public class RestaurantDetailsFragment extends Fragment {
         binding.fabSelect.setOnClickListener(v -> {
             selected = !selected;
             updateFloatingActionButtonIconDisplay();
+            // Init SharedPreferences
+            SharedPreferences sharedPrefFirestoreUserId = requireContext().getSharedPreferences(
+                    AppInfo.FILE_FIRESTORE_USER_ID,
+                    Context.MODE_PRIVATE);
+            String firestoreDocumentId = sharedPrefFirestoreUserId.getString("firestore_user_id", null);
+            // Get Document in Firestora collection
+            FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
+            DocumentReference documentRef = dbFirestore.collection("list_employees").document(firestoreDocumentId);
 
             if (selected) {
+                // Update SharedPreferences
                 String restaurantJSONtoSave = new Gson().toJson(restaurant);
                 editor.putString(KEY_SELECTED_RESTAURANT, restaurantJSONtoSave);
+                // Update Firestore database
+                documentRef.update("restaurantName", restaurant.getName());
+                documentRef.update("restaurantSelectedID", restaurant.getPlaceId());
+
             }
             else {
                 editor.putString(KEY_SELECTED_RESTAURANT, "");
+                documentRef.update("restaurantName", "");
+                documentRef.update("restaurantSelectedID", "");
             }
             editor.apply();
         });

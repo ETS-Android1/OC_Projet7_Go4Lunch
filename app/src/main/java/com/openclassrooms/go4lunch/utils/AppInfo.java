@@ -9,7 +9,7 @@ public class AppInfo {
 
     // SharedPreferences name files
     public static final String FILE_PREF_NEXT_PAGE_TOKEN = "FILE_PREF_NEXT_PAGE_TOKEN";
-    public static final String FILE_USER_ID = "FILE_USER_ID";
+    public static final String FILE_FIRESTORE_USER_ID = "FILE_FIRESTORE_USER_ID";
     public static final String FILE_PREF_USER_POSITION = "FILE_PREF_USER_POSITION";
     public static final String FILE_PREF_FIRST_RUN = "FILE_REFS_FIRST_RUN";
     public static final String FILE_PREF_SELECTED_RESTAURANT = "FILE_PREF_SELECTED_RESTAURANT";

@@ -1,21 +1,31 @@
 package com.openclassrooms.go4lunch.ui.activities;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.ActivitySignInBinding;
 import com.openclassrooms.go4lunch.model.Workmate;
@@ -118,30 +128,40 @@ public class SignInActivity extends AppCompatActivity {
      * information are not stored yet (first authentication).
      */
     private void addUserIdToFirestoreDatabase() {
-        SharedPreferences userIdPreferences = getSharedPreferences(AppInfo.FILE_USER_ID, MODE_PRIVATE);
-        SharedPreferences.Editor editor = userIdPreferences.edit();
+      FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+      FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
 
-        String id = userIdPreferences.getString("id", null);
-
-        if (id == null) { // If id does not exist, user data not stored in db yet
-            // Get user
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            // Create new data object to store in dn
-            Workmate workmate = new Workmate(Objects.requireNonNull(user).getDisplayName(),
-                                             user.getEmail(),
-                           "", // No restaurant selected yet
-                                             Objects.requireNonNull(user.getPhotoUrl()).toString(),
-                               "");
-
-            // Get db instance
-            FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
-            dbFirestore.collection("list_employees").add(workmate).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                @Override
-                public void onSuccess(DocumentReference documentReference) {
-                    // Store in SharedPreferences file
-                    editor.putString("id", documentReference.getId()).apply();
-                }
-            });
-        }
+      CollectionReference collectionRef = dbFirestore.collection("list_employees");
+      try {
+          // Query to check if a Document with associated user information exists in database collection
+          Query query = collectionRef.whereEqualTo("email", Objects.requireNonNull(user).getEmail()).limit(1);
+          query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+              @Override
+              public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                  if (task.isSuccessful()) {
+                      if (task.getResult().size() == 0) { // User does not exist yet in db
+                          // Create a new data object
+                          Workmate workmate = new Workmate(user.getDisplayName(),
+                                  user.getEmail(),
+                                  "",
+                                  Objects.requireNonNull(user.getPhotoUrl()).toString(),
+                                  "");
+                          // Store in db
+                          collectionRef.add(workmate);
+                      }
+                      else {
+                          SharedPreferences sharedPrefFirestoreUserId = getSharedPreferences(
+                                                                            AppInfo.FILE_FIRESTORE_USER_ID,
+                                                                            Context.MODE_PRIVATE);
+                          SharedPreferences.Editor editor = sharedPrefFirestoreUserId.edit();
+                          editor.putString("firestore_user_id", task.getResult().getDocuments().get(0).getId());
+                          editor.apply();
+                      }
+                  }
+              }
+          });
+      } catch (NullPointerException exception) {
+          exception.printStackTrace();
+      }
     }
 }
