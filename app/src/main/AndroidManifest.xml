@@ -20,6 +20,9 @@
         android:supportsRtl="true"
         android:screenOrientation="portrait"
         android:theme="@style/Theme.Go4Lunch">
+
+        <receiver android:name=".receivers.AlarmBroadcastReceiver" />
+
         <!-- Maps -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"

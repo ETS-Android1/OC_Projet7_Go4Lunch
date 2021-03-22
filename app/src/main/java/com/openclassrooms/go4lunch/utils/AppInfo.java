@@ -17,13 +17,23 @@ public class AppInfo {
     // SharedPreferences Options files
     public static final String FILE_OPTIONS = "FILE_OPTIONS";
 
+    // SharedPreferences keys
+    public static final String PREF_VERSION_CODE_KEY = "version_code";
+    public static final String PREF_FIRST_NEXT_PAGE_TOKEN_KEY = "first_next_page_token";
+    public static final String PREF_SECOND_NEXT_PAGE_TOKEN_KEY = "second_next_page_token";
+    public static final String PREF_OLD_LAT_POSITION_KEY = "old_lat_position";
+    public static final String PREF_OLD_LON_POSITION_KEY = "old_lon_position";
+    public static final String PREF_SELECTED_RESTAURANT_KEY = "selected_restaurant";
+    public static final String PREF_CLUSTER_OPTION_KEY = "cluster_option";
+    public static final String PREF_ALARM_OPTION_STATUS_KEY = "alarm_option_status";
+    public static final String PREF_FIRESTORE_USER_ID_KEY = "firestore_user_id";
+
     /**
      * Method used to check if user launch the app for the first time
      * @param context : context of the view
      * @return : boolean value
      */
     public static boolean checkIfFirstRunApp(Context context) {
-        final String PREF_VERSION_CODE_KEY = "version_code";
 
         // Get current version code
         int currentVersionCode = BuildConfig.VERSION_CODE;

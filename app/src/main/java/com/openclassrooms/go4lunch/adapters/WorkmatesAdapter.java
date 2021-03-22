@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.model.Workmate;
-import com.openclassrooms.go4lunch.utils.CustomComparator;
+import com.openclassrooms.go4lunch.utils.CustomComparators;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -110,7 +110,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
     }
 
     public void updateList(List<Workmate> newList) {
-        Collections.sort(newList, new CustomComparator.WorkmateAZComparator());
+        Collections.sort(newList, new CustomComparators.WorkmateAZComparator());
         listWorkmates.clear();
         listWorkmates.addAll(newList);
         notifyDataSetChanged();

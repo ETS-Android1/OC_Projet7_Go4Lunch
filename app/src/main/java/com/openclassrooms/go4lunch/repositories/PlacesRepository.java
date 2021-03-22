@@ -100,7 +100,7 @@ public class PlacesRepository {
             // Save next page token
             if (response.next_page_token != null) {
                 editor = sharedPrefNextPageToken[0].edit();
-                editor.putString("first_next_page_token", response.next_page_token).apply();
+                editor.putString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY, response.next_page_token).apply();
             }
         }
         callback.onPlacesAvailable(listRestaurantsServices.getListRestaurants());
@@ -108,7 +108,7 @@ public class PlacesRepository {
 
     public void getNextPlacesNearby(ServicePlacesCallback callback, List<Restaurant> listRestaurants, int numNextPageToken) throws IOException {
         String nextPage_Token;
-        nextPage_Token = sharedPrefNextPageToken[numNextPageToken].getString("first_next_page_token", null);
+        nextPage_Token = sharedPrefNextPageToken[numNextPageToken].getString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY, null);
         PlaceResponse response = listRestaurantsServices.getNextPlacesNearby(nextPage_Token);
 
         for (int i = 0; i < response.results.size(); i++) {
@@ -123,11 +123,11 @@ public class PlacesRepository {
                 switch (numNextPageToken) {
                     case 0:
                         editor = sharedPrefNextPageToken[0].edit();
-                        editor.putString("first_next_page_token", response.next_page_token).apply();
+                        editor.putString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY, response.next_page_token).apply();
                         break;
                     case 1:
                         editor = sharedPrefNextPageToken[1].edit();
-                        editor.putString("second_next_page_token", response.next_page_token).apply();
+                        editor.putString(AppInfo.PREF_SECOND_NEXT_PAGE_TOKEN_KEY, response.next_page_token).apply();
                         break;
                 }
             }
@@ -269,8 +269,8 @@ public class PlacesRepository {
                     }
                     else {
                         // Get previous location
-                        savedLatUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong("old_lat_position", Double.doubleToRawLongBits(currentLatUserPosition)));
-                        savedLonUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong("old_lon_position", Double.doubleToRawLongBits(currentLonUserPosition)));
+                        savedLatUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, Double.doubleToRawLongBits(currentLatUserPosition)));
+                        savedLonUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, Double.doubleToRawLongBits(currentLonUserPosition)));
                         // Check distance
                         float[] result = new float[1];
                         Location.distanceBetween(currentLatUserPosition, currentLonUserPosition, savedLatUserPosition, savedLonUserPosition, result);

@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,7 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -37,6 +34,7 @@ import com.google.maps.android.clustering.ClusterManager;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentMapViewBinding;
 import com.openclassrooms.go4lunch.model.Restaurant;
+import com.openclassrooms.go4lunch.notifications.NotificationHandler;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.ui.dialogs.GPSActivationDialog;
 import com.openclassrooms.go4lunch.receivers.GPSBroadcastReceiver;
@@ -90,6 +88,9 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     // To get "cluster" option status
     private SharedPreferences sharedPrefClusterOption;
     private final ArrayList<Restaurant> listRestaurants = new ArrayList<>();
+
+    // Handle notification action
+    private NotificationHandler notificationHandler;
 
     // Listener of user position updates
     private final LocationListener locationListener = new LocationListener() {
@@ -146,6 +147,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         initializeViewModelsObservers();
         sharedPrefLatLon = requireContext().getSharedPreferences(AppInfo.FILE_PREF_USER_POSITION, Context.MODE_PRIVATE);
         sharedPrefClusterOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
+        // Check if app was launched after notification click
+        NotificationHandler.getActionFromNotification(getActivity());
     }
 
     @Override
@@ -354,10 +357,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         clusterManager.setOnClusterItemInfoWindowClickListener(item -> {
             Restaurant restaurantToDisplay = listRestaurants.get(item.getIndice());
             ((MainActivity) requireActivity()).setRestaurantToDisplay(restaurantToDisplay);
-            ((MainActivity) requireActivity()).addFragment(RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG);
-            ((MainActivity) requireActivity()).getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            ((MainActivity) requireActivity()).updateBottomBarStatusVisibility(View.GONE);
-            ((MainActivity) requireActivity()).updateToolbarStatusVisibility(View.GONE);
+            ((MainActivity) requireActivity()).displayRestaurantDetailsFragment();
         });
         clusterManager.setOnClusterClickListener(cluster -> {
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(cluster.getPosition().latitude,

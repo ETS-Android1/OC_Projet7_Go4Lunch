@@ -15,7 +15,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
@@ -35,12 +33,12 @@ import com.openclassrooms.go4lunch.adapters.WorkmatesAdapter;
 import com.openclassrooms.go4lunch.databinding.FragmentRestaurantDetailsBinding;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.model.Workmate;
+import com.openclassrooms.go4lunch.notifications.NotificationHandler;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -66,7 +64,7 @@ public class RestaurantDetailsFragment extends Fragment {
     private SharedPreferences sharedPrefSelection;
     private SharedPreferences.Editor editor;
     private String savedRestaurantJSON;
-    private String KEY_SELECTED_RESTAURANT = "KEY_SELECTED_RESTAURANT";
+
     public RestaurantDetailsFragment() {/* Empty constructor */}
 
     public static RestaurantDetailsFragment newInstance() {
@@ -117,7 +115,7 @@ public class RestaurantDetailsFragment extends Fragment {
         editor = sharedPrefSelection.edit();
 
         // Check if a selection is saved in SharedPreferences
-        savedRestaurantJSON = sharedPrefSelection.getString(KEY_SELECTED_RESTAURANT, "");
+        savedRestaurantJSON = sharedPrefSelection.getString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
 
         if (!savedRestaurantJSON.equals("")) {
             // If yes, deserialize the data
@@ -242,22 +240,22 @@ public class RestaurantDetailsFragment extends Fragment {
             SharedPreferences sharedPrefFirestoreUserId = requireContext().getSharedPreferences(
                     AppInfo.FILE_FIRESTORE_USER_ID,
                     Context.MODE_PRIVATE);
-            String firestoreDocumentId = sharedPrefFirestoreUserId.getString("firestore_user_id", null);
-            // Get Document in Firestora collection
+            String firestoreDocumentId = sharedPrefFirestoreUserId.getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, null);
+            // Get Document in Firestore collection
             FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
             DocumentReference documentRef = dbFirestore.collection("list_employees").document(firestoreDocumentId);
 
             if (selected) {
                 // Update SharedPreferences
                 String restaurantJSONtoSave = new Gson().toJson(restaurant);
-                editor.putString(KEY_SELECTED_RESTAURANT, restaurantJSONtoSave);
+                editor.putString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, restaurantJSONtoSave);
                 // Update Firestore database
                 documentRef.update("restaurantName", restaurant.getName());
                 documentRef.update("restaurantSelectedID", restaurant.getPlaceId());
 
             }
             else {
-                editor.putString(KEY_SELECTED_RESTAURANT, "");
+                editor.putString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
                 documentRef.update("restaurantName", "");
                 documentRef.update("restaurantSelectedID", "");
             }

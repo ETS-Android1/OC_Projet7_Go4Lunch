@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationBuilderWithBuilderAccessor;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
@@ -49,6 +50,7 @@ import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
 import com.openclassrooms.go4lunch.di.DI;
 import com.openclassrooms.go4lunch.model.Restaurant;
+import com.openclassrooms.go4lunch.notifications.NotificationHandler;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.repositories.WorkmatesRepository;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
@@ -86,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentManager fragmentManager;
 
     // Indice of the corresponding Restaurant object in the list
-    //private int indice;
     private Restaurant restaurantToDisplay;
 
     // Place API client
@@ -133,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeFragments();
         // Initialize view models
         initializeViewModels();
+
     }
 
     @Override
@@ -213,16 +215,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void loadUserInfoInNavigationView() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
         View header = binding.navigationView.getHeaderView(0);
-
         TextView userName = header.findViewById(R.id.user_name);
         TextView userEmail = header.findViewById(R.id.user_email);
         ImageView userAvatar = header.findViewById(R.id.user_avatar);
         try {
             userName.setText(user.getDisplayName());
             userEmail.setText(user.getEmail());
-
             Glide.with(this).load(user.getPhotoUrl())
                     .apply(RequestOptions.circleCropTransform())
                     .into(userAvatar);
@@ -265,24 +264,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * with user Restaurant selection, otherwise a Toast is displayed.
      */
     private void onClickYourLunchOptionIcon() {
-        String KEY_SELECTED_RESTAURANT = "KEY_SELECTED_RESTAURANT";
         SharedPreferences sharedPrefSelection = getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
-        String savedRestaurantJSON = sharedPrefSelection.getString(KEY_SELECTED_RESTAURANT, "");
+        String savedRestaurantJSON = sharedPrefSelection.getString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
         if (!savedRestaurantJSON.equals("")) {
             Gson gson = new Gson();
             setRestaurantToDisplay(gson.fromJson(savedRestaurantJSON, Restaurant.class));
-            addFragment(RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG);
+            fragmentManager.beginTransaction()
+                    .add(R.id.fragment_container_view, RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG).commit();
             getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             updateBottomBarStatusVisibility(View.GONE);
             updateToolbarStatusVisibility(View.GONE);
         }
-        else {
-            Toast.makeText(this, getResources().getString(R.string.toast_your_lunch), Toast.LENGTH_SHORT).show();
-        }
+        else Toast.makeText(this, getResources().getString(R.string.toast_your_lunch), Toast.LENGTH_SHORT).show();
     }
 
     private void onClickOptionsIcon() {
-        addFragment(optionsFragment, OptionsFragment.TAG);
+        fragmentManager.beginTransaction()
+                .add(R.id.fragment_container_view, optionsFragment, OptionsFragment.TAG).commit();
         updateBottomBarStatusVisibility(View.GONE);
     }
 
@@ -298,30 +296,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         case R.id.map: // Map View Fragment
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null)
                                 if (listViewFragment.isVisible())
-                                    hideFragment(listViewFragment);
+                                    fragmentManager.beginTransaction().hide(listViewFragment).commit();
 
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) != null)
                                 if (workmatesFragment.isVisible())
-                                    hideFragment(workmatesFragment);
+                                    fragmentManager.beginTransaction().hide(workmatesFragment).commit();
                             break;
                         case R.id.list: // List View Fragment
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) != null)
                                 if (workmatesFragment.isVisible())
-                                    hideFragment(workmatesFragment);
+                                    fragmentManager.beginTransaction().hide(workmatesFragment).commit();
 
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) == null)
-                                addFragment(listViewFragment, ListViewFragment.TAG);
-                            else showFragment(listViewFragment);
+                                fragmentManager.beginTransaction()
+                                        .add(R.id.fragment_container_view, listViewFragment, ListViewFragment.TAG).commit();
+                            else fragmentManager.beginTransaction().show(listViewFragment).commit();
                             break;
 
                         case R.id.workmates: // Workmates Fragment
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null)
                                 if (listViewFragment.isVisible())
-                                    hideFragment(listViewFragment);
+                                    fragmentManager.beginTransaction().hide(listViewFragment).commit();
 
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) == null)
-                                addFragment(workmatesFragment, WorkmatesFragment.TAG);
-                            else showFragment(workmatesFragment);
+                                fragmentManager.beginTransaction()
+                                        .add(R.id.fragment_container_view, workmatesFragment, WorkmatesFragment.TAG).commit();
+                            else fragmentManager.beginTransaction().show(workmatesFragment).commit();
                             break;
                     }
                     return false;
@@ -329,15 +329,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         );
     }
 
-    private void hideFragment(Fragment fragment) { fragmentManager.beginTransaction().hide(fragment).commit(); }
-
-    private void showFragment(Fragment fragment) { fragmentManager.beginTransaction().show(fragment).commit(); }
-
-    public void addFragment(Fragment fragment, String TAG) {
-        fragmentManager.beginTransaction().add(R.id.fragment_container_view, fragment, TAG).commit();
+    public void displayRestaurantDetailsFragment() {
+        fragmentManager.beginTransaction().add(R.id.fragment_container_view,
+                RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG).commit();
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        updateBottomBarStatusVisibility(View.GONE);
+        updateToolbarStatusVisibility(View.GONE);
     }
-
-    public void removeFragment(Fragment fragment) { fragmentManager.beginTransaction().remove(fragment).commit(); }
 
     @Override
     public void onBackPressed() {
@@ -353,14 +351,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Fragment fragment = fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG);
             if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG)!= null) {
                 if (fragment.isVisible()) {
-                    removeFragment(fragment);
+                    fragmentManager.beginTransaction().remove(fragment).commit();
                     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     updateToolbarStatusVisibility(View.VISIBLE);
                     updateBottomBarStatusVisibility(View.VISIBLE);
                 }
             }
             else if (optionsFragment.isVisible()) {
-                removeFragment(optionsFragment);
+                fragmentManager.beginTransaction().remove(optionsFragment).commit();
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 updateToolbarStatusVisibility(View.VISIBLE);
                 updateBottomBarStatusVisibility(View.VISIBLE);
@@ -423,8 +421,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void updateBottomBarStatusVisibility(int visibility) { binding.bottomNavigationBar.setVisibility(visibility); }
 
-    public void updateToolbarStatusVisibility(int visibility) {
-        binding.toolbar.setVisibility(visibility); }
+    public void updateToolbarStatusVisibility(int visibility) { binding.toolbar.setVisibility(visibility); }
 
     /**
      * This method is used to check if location permission is granted.
@@ -476,13 +473,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public Restaurant getRestaurantToDisplay() { return restaurantToDisplay; }
 
-    public DrawerLayout getDrawerLayout() {
-        return binding.drawerLayout;
-    }
-
-    public PlacesClient getPlacesClient() {
-        return this.placesClient;
-    }
+    public DrawerLayout getDrawerLayout() { return binding.drawerLayout; }
 
     public PlacesViewModel getPlacesViewModel() { return this.placesViewModel; }
 

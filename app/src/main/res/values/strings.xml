@@ -52,6 +52,10 @@
     <!-- fragment_options -->
     <string name="map_option_title">Map</string>
     <string name="map_option_text">Display clusters on map</string>
+    <string name="alarm_option_title">Alarm</string>
+    <string name="alarm_option_activated_text">Alarm activated</string>
+    <string name="alarm_option_deactivated_text">Alarm deactivated</string>
+
     <string name="account_option_title">Account</string>
     <string name="account_option_text">Delete user account</string>
     <string name="account_option_text_delete">Delete</string>
@@ -104,4 +108,9 @@
     <string name="no_decision">has\'t decided yet</string>
     <string name="is_eating_at">is eating at</string>
     <string name="is_going">is going</string>
+
+    <!-- OptionsFragment -->
+    <string name="toast_alarm_activated_today">Alarm at 12:00</string>
+    <string name="toast_alarm_activated_tomorrow">Alarm tomorrow at 12:00</string>
+    <string name="toast_alarm_deactivated">Alarm deactivated</string>
 </resources>

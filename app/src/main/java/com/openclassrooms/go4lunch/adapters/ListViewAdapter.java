@@ -25,8 +25,9 @@ import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.model.Workmate;
+import com.openclassrooms.go4lunch.utils.CustomComparators;
 import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
-import com.openclassrooms.go4lunch.utils.TimeComparator;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -191,16 +192,16 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             int openingHour = Integer.parseInt(openingHours.get(0).substring(0,2));
             int openingMinutes = Integer.parseInt(openingHours.get(0).substring(2,4));
             // Update text
-            if (TimeComparator.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) >= 0) { // CLOSED
+            if (CustomComparators.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) >= 0) { // CLOSED
                 holder.hour.setText(context.getResources().getString(R.string.closed));
             }
             else {
-                if (TimeComparator.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) > -60) { // CLOSED SOON
+                if (CustomComparators.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) > -60) { // CLOSED SOON
                     holder.hour.setText(context.getResources().getString(R.string.closing_soon));
                     colorText = true;
                 }
                 else {
-                    if (TimeComparator.getTimeDiff(currentHour, currentMinutes, openingHour, openingMinutes) > 0) { // OPEN UNTIL
+                    if (CustomComparators.getTimeDiff(currentHour, currentMinutes, openingHour, openingMinutes) > 0) { // OPEN UNTIL
                         String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(0).substring(0,2)
                                 + ":" + closingHours.get(0).substring(2,4);
                         holder.hour.setText(text);
@@ -222,12 +223,12 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             int secondOpeningHour = Integer.parseInt(openingHours.get(1).substring(0,2));
             int secondOpeningMinutes = Integer.parseInt(openingHours.get(1).substring(2,4));
             // Update text
-            if (TimeComparator.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) < 0) { // CLOSED (NOT OPENING YET)
+            if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) < 0) { // CLOSED (NOT OPENING YET)
                 holder.hour.setText(context.getResources().getString(R.string.closed));
             }
-            else if (TimeComparator.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) >= 0 &&
-                    TimeComparator.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) < 0) {
-                    if (TimeComparator.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) > -60) { // CLOSING SOON
+            else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) >= 0 &&
+                    CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) < 0) {
+                    if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) > -60) { // CLOSING SOON
                         holder.hour.setText(context.getResources().getString(R.string.closing_soon));
                         colorText = true;
                     }
@@ -237,13 +238,13 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         holder.hour.setText(text);
                     }
             }
-            else if (TimeComparator.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) >= 0 &&
-                     TimeComparator.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) < 0) {  // CLOSED (NOT OPENING YET)
+            else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) >= 0 &&
+                    CustomComparators.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) < 0) {  // CLOSED (NOT OPENING YET)
                     holder.hour.setText(context.getResources().getString(R.string.closed));
             }
-            else if (TimeComparator.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) >= 0 &&
-                     TimeComparator.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingMinutes) < 0) {
-                if (TimeComparator.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingHour) > -60) { // CLOSING SOON
+            else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) >= 0 &&
+                    CustomComparators.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingMinutes) < 0) {
+                if (CustomComparators.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingHour) > -60) { // CLOSING SOON
                     holder.hour.setText(context.getResources().getString(R.string.closed));
                     colorText = true;
                 }
