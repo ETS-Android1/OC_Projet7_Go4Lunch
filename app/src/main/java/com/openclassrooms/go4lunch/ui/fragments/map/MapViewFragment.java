@@ -20,6 +20,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,9 +83,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     private double currentLatUserPosition;
     private double currentLonUserPosition;
 
-    // To store next_page_token attribute value from Nearby Search API GET request
-    private SharedPreferences[] sharedPrefNextPageToken;
-
     // To get "cluster" option status
     private SharedPreferences sharedPrefClusterOption;
     private final ArrayList<Restaurant> listRestaurants = new ArrayList<>();
@@ -98,10 +96,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         public void onLocationChanged(@NonNull Location location) {
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-                editor = sharedPrefNextPageToken[0].edit();
-                editor.clear();
-                editor = sharedPrefNextPageToken[1].edit();
-                editor.clear();
                 searchPlacesFromCurrentLocation();
             }
         }
@@ -175,8 +169,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
 
         // Save position
         editor = sharedPrefLatLon.edit();
-        editor.putLong("old_lat_position", Double.doubleToRawLongBits(currentLatUserPosition)).apply();
-        editor.putLong("old_lon_position", Double.doubleToRawLongBits(currentLonUserPosition)).apply();
+        editor.putLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, Double.doubleToRawLongBits(currentLatUserPosition)).apply();
+        editor.putLong(AppInfo.PREF_OLD_LON_POSITION_KEY, Double.doubleToRawLongBits(currentLonUserPosition)).apply();
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -232,6 +226,17 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                 ).addOnFailureListener(Throwable::printStackTrace);
     }
 
+
+    /**
+     * This method is used to initialize cursor position at old user position, if latitude and longitude have been
+     * stored in SharedPreferences file.
+     */
+    public void centerCursorInOldPosition() {
+        LatLng oldLatLng = new LatLng(Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, 0L)),
+                                   Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, 0L)));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(oldLatLng.latitude, oldLatLng.longitude), 18.0f));
+    }
 
     /**
      * This method is to launch a places search to detect all restaurants around user location in a defined radius.
@@ -339,11 +344,15 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             handleFloatingActionButtonListener();
             // Initialize map cluster manager
             initializeClusterManager();
-            // Initialize current position + search for places
+            // Initialize cursor position + search for places
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                centerCursorInCurrentLocation(false);
-                if (connectivityManager.getActiveNetworkInfo() != null)
-                    getPlacesFromDatabaseOrRetrofitRequest();
+
+                if (sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, 0L) != 0L &&
+                    sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, 0L) != 0L)
+                    centerCursorInOldPosition();
+                else centerCursorInCurrentLocation(false);
+
+                if (connectivityManager.getActiveNetworkInfo() != null) getPlacesFromDatabaseOrRetrofitRequest();
             }
             // Enable click interactions on cluster items window
             handleClusterClickInteractions();
