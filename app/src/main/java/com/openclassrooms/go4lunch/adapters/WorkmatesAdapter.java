@@ -64,7 +64,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
                     String url = listWorkmates.get(position).getPhotoUrl();
                     Glide.with(context)
                             .load(url)
-                            .centerCrop()
+                            .circleCrop()
                             .override(holder.photo.getWidth(), holder.photo.getHeight())
                             .into(holder.photo);
                 }
@@ -81,7 +81,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
                     String url = listWorkmates.get(position).getPhotoUrl();
                     Glide.with(context)
                             .load(url)
-                            .centerCrop()
+                            .circleCrop()
                             .override(holder.photo.getWidth(), holder.photo.getHeight())
                             .into(holder.photo);
                 }

@@ -31,6 +31,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.maps.android.clustering.ClusterManager;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentMapViewBinding;
@@ -46,6 +51,10 @@ import com.openclassrooms.go4lunch.utils.mapping.RestaurantRenderer;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This fragment is used to allow user to interact with a Google Map, search for a restaurant
@@ -168,6 +177,11 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         }
 
         // Save position
+        saveCurrentPosition();
+    }
+
+    private void saveCurrentPosition() {
+        // Save position
         editor = sharedPrefLatLon.edit();
         editor.putLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, Double.doubleToRawLongBits(currentLatUserPosition)).apply();
         editor.putLong(AppInfo.PREF_OLD_LON_POSITION_KEY, Double.doubleToRawLongBits(currentLonUserPosition)).apply();
@@ -215,6 +229,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         // TODO() : check cancellation token (must not be null)
         ((MainActivity) requireActivity()).getLocationClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener((Location location) -> {
+                    currentLonUserPosition = location.getLongitude();
+                    currentLatUserPosition = location.getLatitude();
                             // Update Camera
                             CameraUpdate cameraUpdate = CameraUpdateFactory
                                     .newLatLngZoom(
@@ -233,7 +249,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      */
     public void centerCursorInOldPosition() {
         LatLng oldLatLng = new LatLng(Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, 0L)),
-                                   Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, 0L)));
+                                      Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, 0L)));
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                         new LatLng(oldLatLng.latitude, oldLatLng.longitude), 18.0f));
     }
@@ -350,6 +366,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                 if (sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, 0L) != 0L &&
                     sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, 0L) != 0L)
                     centerCursorInOldPosition();
+
                 else centerCursorInCurrentLocation(false);
 
                 if (connectivityManager.getActiveNetworkInfo() != null) getPlacesFromDatabaseOrRetrofitRequest();

@@ -15,7 +15,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,8 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
@@ -33,7 +30,6 @@ import com.openclassrooms.go4lunch.adapters.WorkmatesAdapter;
 import com.openclassrooms.go4lunch.databinding.FragmentRestaurantDetailsBinding;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.model.Workmate;
-import com.openclassrooms.go4lunch.notifications.NotificationHandler;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
@@ -65,6 +61,14 @@ public class RestaurantDetailsFragment extends Fragment {
     private SharedPreferences.Editor editor;
     private String savedRestaurantJSON;
 
+    // Parameters to handle the list of liked restaurants for the current user
+    private boolean likeStatus = false;
+    private boolean alreadyInDatabase = false;
+    List<String> listLikedRestaurants = new ArrayList<>();
+
+    // Document id of the current user in Firestore database
+    private String documentID;
+
     public RestaurantDetailsFragment() {/* Empty constructor */}
 
     public static RestaurantDetailsFragment newInstance() {
@@ -74,7 +78,7 @@ public class RestaurantDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true); // TODO : Utile ?
     }
 
     @Override
@@ -87,11 +91,13 @@ public class RestaurantDetailsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initDocumentReferenceId();
         initializeToolbar();
         initializeStatusBar();
         initializeRecyclerView();
         initializeViewModels();
         restaurant = ((MainActivity) requireActivity()).getRestaurantToDisplay();
+        checkIfRestaurantWasLiked();
         initializeDetails();
         initializePhotoRestaurant();
         initializeSharedPreferences();
@@ -108,6 +114,12 @@ public class RestaurantDetailsFragment extends Fragment {
             requireActivity().onBackPressed();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void initDocumentReferenceId() {
+        SharedPreferences sharedPrefFirestoreUserId = requireContext().getSharedPreferences(AppInfo.FILE_FIRESTORE_USER_ID,
+                Context.MODE_PRIVATE);
+        documentID = sharedPrefFirestoreUserId.getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, "");
     }
 
     public void initializeSharedPreferences() {
@@ -129,7 +141,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     private void initializeRecyclerView() {
-        // Initialize LayoutMananger
+        // Initialize LayoutManager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         // Initialize Adapter
         adapter = new WorkmatesAdapter(getContext(), false);
@@ -241,23 +253,21 @@ public class RestaurantDetailsFragment extends Fragment {
                     AppInfo.FILE_FIRESTORE_USER_ID,
                     Context.MODE_PRIVATE);
             String firestoreDocumentId = sharedPrefFirestoreUserId.getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, null);
-            // Get Document in Firestore collection
-            FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
-            DocumentReference documentRef = dbFirestore.collection("list_employees").document(firestoreDocumentId);
 
             if (selected) {
                 // Update SharedPreferences
                 String restaurantJSONtoSave = new Gson().toJson(restaurant);
                 editor.putString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, restaurantJSONtoSave);
                 // Update Firestore database
-                documentRef.update("restaurantName", restaurant.getName());
-                documentRef.update("restaurantSelectedID", restaurant.getPlaceId());
-
+                workmatesViewModel.updateDocumentReferenceCurrentUser(firestoreDocumentId,
+                                                                      restaurant.getName(),
+                                                                      restaurant.getPlaceId());
             }
             else {
                 editor.putString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
-                documentRef.update("restaurantName", "");
-                documentRef.update("restaurantSelectedID", "");
+                workmatesViewModel.updateDocumentReferenceCurrentUser(firestoreDocumentId,
+                                                                    "",
+                                                                    "");
             }
             editor.apply();
         });
@@ -269,7 +279,12 @@ public class RestaurantDetailsFragment extends Fragment {
     @SuppressLint("ClickableViewAccessibility")
     private void handleButtonsClicks() {
         binding.buttonCall.setOnClickListener(v -> launchCallIntent());
-        binding.buttonLike.setOnClickListener(v -> { });
+
+        binding.buttonLike.setOnClickListener(v -> {
+            likeStatus = !likeStatus;
+            updateLikeButtonDisplay();
+        });
+
         binding.buttonWebsite.setOnClickListener(v -> openWebSite());
     }
 
@@ -296,4 +311,50 @@ public class RestaurantDetailsFragment extends Fragment {
         else Toast.makeText(getContext(), "No website url available", Toast.LENGTH_SHORT).show();
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void updateLikeButtonDisplay() {
+        if (likeStatus)
+            binding.buttonLike.setCompoundDrawablesWithIntrinsicBounds(null,
+                    getContext().getResources().getDrawable(R.drawable.ic_baseline_star_24dp_orange), null, null);
+        else
+            binding.buttonLike.setCompoundDrawablesWithIntrinsicBounds(null,
+                    getContext().getResources().getDrawable(R.drawable.ic_baseline_star_border_24dp_orange), null, null);
+    }
+
+    /**
+     * This method gets the list of liked restaurants by current user.
+     */
+    private void checkIfRestaurantWasLiked() {
+        if (!documentID.equals("")) {
+            workmatesViewModel.getDocumentReferenceCurrentUser(documentID).get().addOnSuccessListener(documentSnapshot -> {
+                // Get list of restaurant liked by user
+                listLikedRestaurants = (List<String>) documentSnapshot.get("liked");
+                // Check if list contains the current restaurant
+                int j = 0;
+                while (j < listLikedRestaurants.size() && !likeStatus) {
+                    if (listLikedRestaurants.get(j).equals(restaurant.getPlaceId())) {
+                        likeStatus = true;
+                        alreadyInDatabase = true;
+                    }
+                    else j++;
+                }
+                // Update button status
+                updateLikeButtonDisplay();
+            });
+        }
+    }
+
+    /**
+     * This method updates the list of liked restaurants and send it to the WorkmatesService to update
+     * the Firestore database.
+     */
+    public void updateFirestoreWithLikeStatus() {
+        // Update list of liked restaurant for the current user
+        if (alreadyInDatabase && !likeStatus) // The restaurant was initially liked and is now disliked by user
+            listLikedRestaurants.remove(restaurant.getPlaceId());
+        if (!alreadyInDatabase && likeStatus) // The restaurant was initially not liked and is now liked by user.
+            listLikedRestaurants.add(restaurant.getPlaceId());
+        // Send list the BDD
+        workmatesViewModel.updateCurrentUserListOfLikedRestaurant(documentID, listLikedRestaurants);
+    }
 }

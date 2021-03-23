@@ -189,7 +189,7 @@
                 android:text="@string/like"
                 android:textStyle="bold"
                 android:textColor="@color/orange"
-                android:drawableTop="@drawable/ic_baseline_star_24dp_orange"
+                android:drawableTop="@drawable/ic_baseline_star_border_24dp_orange"
                 android:gravity="center"
                 android:paddingTop="15dp"
                 android:paddingBottom="15dp"

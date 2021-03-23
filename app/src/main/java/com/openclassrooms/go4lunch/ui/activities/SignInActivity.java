@@ -131,7 +131,7 @@ public class SignInActivity extends AppCompatActivity {
       FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
       FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
 
-      CollectionReference collectionRef = dbFirestore.collection("list_employees");
+      CollectionReference collectionRef = dbFirestore.collection(AppInfo.ROOT_COLLECTION_ID);
       try {
           // Query to check if a Document with associated user information exists in database collection
           Query query = collectionRef.whereEqualTo("email", Objects.requireNonNull(user).getEmail()).limit(1);
@@ -154,7 +154,7 @@ public class SignInActivity extends AppCompatActivity {
                                                                             AppInfo.FILE_FIRESTORE_USER_ID,
                                                                             Context.MODE_PRIVATE);
                           SharedPreferences.Editor editor = sharedPrefFirestoreUserId.edit();
-                          editor.putString("firestore_user_id", task.getResult().getDocuments().get(0).getId());
+                          editor.putString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, task.getResult().getDocuments().get(0).getId());
                           editor.apply();
                       }
                   }

@@ -3,10 +3,13 @@ package com.openclassrooms.go4lunch.service.workmates;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.openclassrooms.go4lunch.model.Workmate;
+import com.openclassrooms.go4lunch.utils.AppInfo;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ListWorkmatesService {
@@ -15,7 +18,7 @@ public class ListWorkmatesService {
 
         ArrayList<Workmate> list = new ArrayList<>();
         FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
-        CollectionReference collectionRef = dbFirestore.collection("list_employees");
+        CollectionReference collectionRef = dbFirestore.collection(AppInfo.ROOT_COLLECTION_ID);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -42,5 +45,21 @@ public class ListWorkmatesService {
                 }
             }
         }).addOnFailureListener(Throwable::printStackTrace);
+    }
+
+    public DocumentReference getDocumentReferenceCurrentUser(String documentCurrentUserId) {
+        // Get Document in Firestore collection
+        return FirebaseFirestore.getInstance().collection(AppInfo.ROOT_COLLECTION_ID)
+                                              .document(documentCurrentUserId);
+    }
+
+    public void updateDocumentReferenceCurrentUser(String restaurantName, String restaurantId, String documentCurrentUserId) {
+        DocumentReference documentReference = getDocumentReferenceCurrentUser(documentCurrentUserId);
+        documentReference.update("restaurantName", restaurantName);
+        documentReference.update("restaurantSelectedID", restaurantId);
+    }
+
+    public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId, List<String> listLikedRestaurants) {
+        getDocumentReferenceCurrentUser(documentCurrentUserId).update("liked", listLikedRestaurants);
     }
 }

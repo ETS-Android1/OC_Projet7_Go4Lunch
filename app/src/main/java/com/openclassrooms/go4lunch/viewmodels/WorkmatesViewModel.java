@@ -2,6 +2,7 @@ package com.openclassrooms.go4lunch.viewmodels;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import com.google.firebase.firestore.DocumentReference;
 import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.repositories.WorkmatesRepository;
 import java.util.List;
@@ -34,5 +35,21 @@ public class WorkmatesViewModel extends ViewModel {
      */
     public void getEmployeesInfoFromFirestoreDatabase() {
         workmatesRepository.getEmployeesInfoFromFirestoreDatabase(listWorkmates::postValue);
+    }
+
+    public DocumentReference getDocumentReferenceCurrentUser(String documentCurrentUserId) {
+        return workmatesRepository.getDocumentReferenceCurrentUser(documentCurrentUserId);
+    }
+
+    public void updateDocumentReferenceCurrentUser(String restaurantName,
+                                                   String restaurantId,
+                                                   String documentCurrentUserId) {
+        workmatesRepository.updateDocumentReferenceCurrentUser(restaurantName,
+                                                               restaurantId,
+                                                               documentCurrentUserId);
+    }
+
+    public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId, List<String> listLikedRestaurants) {
+        workmatesRepository.updateCurrentUserListOfLikedRestaurant(documentCurrentUserId, listLikedRestaurants);
     }
 }

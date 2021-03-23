@@ -351,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Fragment fragment = fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG);
             if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG)!= null) {
                 if (fragment.isVisible()) {
+                    ((RestaurantDetailsFragment) fragment).updateFirestoreWithLikeStatus();
                     fragmentManager.beginTransaction().remove(fragment).commit();
                     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     updateToolbarStatusVisibility(View.VISIBLE);

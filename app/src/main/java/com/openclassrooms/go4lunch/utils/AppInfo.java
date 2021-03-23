@@ -7,6 +7,9 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class AppInfo {
 
+    // Root collection id in Firestore
+    public static final String ROOT_COLLECTION_ID = "list_employees";
+
     // SharedPreferences name files
     public static final String FILE_PREF_NEXT_PAGE_TOKEN = "FILE_PREF_NEXT_PAGE_TOKEN";
     public static final String FILE_FIRESTORE_USER_ID = "FILE_FIRESTORE_USER_ID";
