@@ -33,11 +33,15 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     public final static String TAG = "TAG_LIST_VIEW_FRAGMENT";
     private FragmentListViewBinding binding;
     private ListViewAdapter adapter;
+
     // ViewModels
     private PlacesViewModel placesViewModel;
     private WorkmatesViewModel workmatesViewModel;
 
     private int numNextPageRequest;
+
+    // Autocomplete Activation status
+    private boolean autocompleteActivation = false;
 
     public ListViewFragment() { /* Empty public constructor */ }
 
@@ -59,33 +63,29 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     private void addObserversToViewModels() {
         // PlaceViewModels
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), newListRestaurants -> {
-            if (!adapter.getSwitchList()) { // If displayed list by adapter is list of restaurant
                 adapter.updateListRestaurants(newListRestaurants);
+                adapter.updateListRestaurantsBackup();
                 // Update background text
                 updateTextBackgroundDisplay(newListRestaurants.size() <= 0);
                 // Hide circular progress bar when loading is over
                 adapter.updateVisibilityProgressBarStatus(View.INVISIBLE);
-            }
+            List<Restaurant> currentList = adapter.getListRestaurant();
         });
 
         placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
             @Override
-            public void onChanged(List<String> newListIdAutocomplete) {
-                Log.i("PERFORMAUTOCOMPLETE", "ListViewFragment onChanged size : " + newListIdAutocomplete.size());
-                if (newListIdAutocomplete.size() == 0) {
-                    // Adapter affiche list restaurants
-                    adapter.switchListToDisplay(false);
-                }
-                else {
-                    List<Restaurant> currentList = adapter.getListRestaurant();
+            public void onChanged(List<String> autocompleteListRestaurantIds) {
+                    if (autocompleteListRestaurantIds.size() == 0) autocompleteActivation = false;
+                    else autocompleteActivation = true;
+
+                    List<Restaurant> currentList = adapter.getListRestaurantBackup();
                     List<Restaurant> newListRestaurantsAutocomplete = new ArrayList<>();
                     boolean found = false;
                     int index = 0;
-                    Log.i("PERFORMAUTOCOMPLETE", "ListViewFragment onChanged else : " + newListIdAutocomplete.size());
-                    // Get list of Restaurants to display after autocomplete operation
-                    for (int i = 0; i < newListIdAutocomplete.size(); i++) {
+
+                    for (int i = 0; i < autocompleteListRestaurantIds.size(); i++) {
                         while (index < currentList.size() && !found) {
-                            if (currentList.get(index).getPlaceId().equals(newListIdAutocomplete.get(i))) {
+                            if (currentList.get(index).getPlaceId().equals(autocompleteListRestaurantIds.get(i))) {
                                 found = true;
                                 newListRestaurantsAutocomplete.add(currentList.get(index));
                             }
@@ -93,9 +93,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
                         }
                     }
                     // Send to adapter
-                    adapter.updateListAutocomplete(newListRestaurantsAutocomplete);
-                    adapter.switchListToDisplay(true);
-                }
+                    adapter.updateListRestaurants(newListRestaurantsAutocomplete);
             }
         });
 
@@ -155,15 +153,17 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 // If end of RecyclerView list
-                if (numNextPageRequest < 1) { // Search Nearby API can only returns 2 others pages of locations
-                    if (!recyclerView.canScrollVertically(1)) {
-                        // Get next places available to display
-                        ArrayList<Restaurant> listToUpdate = new ArrayList<>();
-                        listToUpdate.addAll(adapter.getListRestaurant());
-                        placesViewModel.getNextPlacesNearby(listToUpdate, numNextPageRequest);
-                        numNextPageRequest++;
-                        // Display circular progress bar
-                        adapter.updateVisibilityProgressBarStatus(View.VISIBLE);
+                if (!autocompleteActivation) { // Only if autocomplete is not activated
+                    if (numNextPageRequest < 1) { // Search Nearby API can only returns 2 others pages of locations
+                        if (!recyclerView.canScrollVertically(1)) {
+                            // Get next places available to display
+                            ArrayList<Restaurant> listToUpdate = new ArrayList<>();
+                            listToUpdate.addAll(adapter.getListRestaurant());
+                            placesViewModel.getNextPlacesNearby(listToUpdate, numNextPageRequest);
+                            numNextPageRequest++;
+                            // Display circular progress bar
+                            adapter.updateVisibilityProgressBarStatus(View.VISIBLE);
+                        }
                     }
                 }
             }
@@ -194,5 +194,9 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     public void updateTextBackgroundDisplay(boolean status) {
         if (status) binding.noRestaurantNearby.setVisibility(View.VISIBLE);
         else binding.noRestaurantNearby.setVisibility(View.INVISIBLE);
+    }
+
+    public void restoreListRestaurants() {
+        adapter.restoreListRestaurants();
     }
 }

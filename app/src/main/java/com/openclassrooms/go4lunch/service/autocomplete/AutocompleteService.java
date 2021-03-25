@@ -29,80 +29,61 @@ public class AutocompleteService {
     private PlacesClient placesClient;
     private FusedLocationProviderClient locationClient;
     private AutocompleteSessionToken token;
-    private MainActivityCallback callback;
 
-    public AutocompleteService(PlacesClient placesClient, FusedLocationProviderClient locationClient, MainActivityCallback callback) {
+    public AutocompleteService(PlacesClient placesClient, FusedLocationProviderClient locationClient) {
         this.placesClient = placesClient;
         this.locationClient = locationClient;
         this.token = AutocompleteSessionToken.newInstance();
-        this.callback = callback;
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void performAutocompleteRequest(String query, ServiceAutocompleteCallback callback) {
+        Log.i("PERFORMAUTOCOMPLETE", "AutocompleteService request ");
         Log.i("PERFORMAUTOCOMPLETE", "AutocompleteService : " + query);
         locationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
-                .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Get current location
-                        double currentLat = location.getLongitude();
-                        double currentLon = location.getLongitude();
+                .addOnSuccessListener(location -> {
+                    // Get current location
+                    double currentLat = location.getLatitude();
+                    double currentLon = location.getLongitude();
 
-                        // Define location restrictions
-                        RectangularBounds bounds = RectangularBounds.newInstance(
-                                // Southwest point
-                                GeometricUtils.getCoordinate(currentLat, currentLon, -500, -500),
-                                // Northeast point
-                                GeometricUtils.getCoordinate(currentLat, currentLon, 500, 500)
-                        );
+                    // Define location restrictions
+                    RectangularBounds bounds = RectangularBounds.newInstance(
+                            GeometricUtils.getCoordinate(currentLat, currentLon, -500L, -500L),  // Southwest point
+                            GeometricUtils.getCoordinate(currentLat, currentLon, 500L, 500L) // Northeast point
+                    );
 
-                        // Build Autocomplete request
-                        FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
-                                .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                                .setLocationBias(bounds)
-                                .setOrigin(new LatLng(currentLat, currentLon))
-                                .setCountry("FR")
-                                .setSessionToken(token)
-                                .setQuery(query)
-                                .build();
+                    // Build Autocomplete request
+                    FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
+                            .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                            .setLocationRestriction(bounds)
+                            .setOrigin(new LatLng(currentLat, currentLon))
+                            .setCountry("FR")
+                            .setSessionToken(token)
+                            .setQuery(query)
+                            .build();
 
-                        // Initialize list to contains "Restaurant" results
-                        List<String> autocompleteRestaurantIdList = new ArrayList<>();
+                    // Initialize list to contains "Restaurant" results
+                    List<String> autocompleteRestaurantIdList = new ArrayList<>();
 
-                        // Get results
-                        placesClient.findAutocompletePredictions(request).addOnSuccessListener(new OnSuccessListener<FindAutocompletePredictionsResponse>() {
-                            @Override
-                            public void onSuccess(FindAutocompletePredictionsResponse response) {
-                                // Extract Restaurants Id from response
-                                for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
-                                    List<Place.Type> types = prediction.getPlaceTypes();
-                                    boolean found = false;
-                                    int index = 0;
+                    // Get results
+                    placesClient.findAutocompletePredictions(request).addOnSuccessListener(response -> {
+                        // Extract Restaurants Id from response
+                        for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
+                            List<Place.Type> types = prediction.getPlaceTypes();
+                            boolean found = false;
+                            int index = 0;
 
-                                    while (index < types.size() && !found) {
-                                        if (types.get(index) == Place.Type.RESTAURANT) found = true;
-                                        else index++;
-                                    }
-                                    if (found) { // Place is a Restaurant
-                                        autocompleteRestaurantIdList.add(prediction.getPlaceId());
-                                    }
-                                }
-                                // Send list back to MainActivity
-                                callback.getAutocompleteResults(autocompleteRestaurantIdList);
+                            while (index < types.size() && !found) {
+                                if (types.get(index) == Place.Type.RESTAURANT) found = true;
+                                else index++;
                             }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                exception.printStackTrace();
-                                if (exception instanceof ApiException) {
-                                    ApiException apiException = (ApiException) exception;
-                                    Log.e("ERROR_AUTOCOMPLETE", "Place not found : " + apiException.getStatusCode());
-                                }
+                            if (found) { // Place is a Restaurant
+                                autocompleteRestaurantIdList.add(prediction.getPlaceId());
                             }
-                        });
-
-                    }
+                        }
+                        // Send list back to MainActivity
+                        callback.getAutocompleteResults(autocompleteRestaurantIdList);
+                    }).addOnFailureListener(Throwable::printStackTrace);
                 });
     }
 }

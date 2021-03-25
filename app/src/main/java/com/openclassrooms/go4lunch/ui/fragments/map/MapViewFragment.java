@@ -19,6 +19,7 @@ import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,11 +32,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.maps.android.clustering.ClusterManager;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentMapViewBinding;
@@ -44,17 +40,15 @@ import com.openclassrooms.go4lunch.notifications.NotificationHandler;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.ui.dialogs.GPSActivationDialog;
 import com.openclassrooms.go4lunch.receivers.GPSBroadcastReceiver;
-import com.openclassrooms.go4lunch.ui.fragments.restaurants.RestaurantDetailsFragment;
 import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.mapping.RestaurantMarkerItem;
 import com.openclassrooms.go4lunch.utils.mapping.RestaurantRenderer;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This fragment is used to allow user to interact with a Google Map, search for a restaurant
@@ -96,8 +90,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     private SharedPreferences sharedPrefClusterOption;
     private final ArrayList<Restaurant> listRestaurants = new ArrayList<>();
 
-    // Handle notification action
-    private NotificationHandler notificationHandler;
+    // Autocomplete Activation status
+    private boolean autocompleteActivation = false;
 
     // Listener of user position updates
     private final LocationListener locationListener = new LocationListener() {
@@ -105,7 +99,14 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         public void onLocationChanged(@NonNull Location location) {
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
-                searchPlacesFromCurrentLocation();
+                // Search new locations only if autocomplete is not activated
+                if (!autocompleteActivation) {
+                    searchPlacesFromCurrentLocation();
+                    // Save new location
+                    currentLatUserPosition = location.getLatitude();
+                    currentLonUserPosition = location.getLongitude();
+                    saveCurrentPosition();
+                }
             }
         }
 
@@ -169,15 +170,11 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     public void onPause() {
         super.onPause();
         requireActivity().unregisterReceiver(gpsBroadcastReceiver);
-
         // Stop location listener when app goes on background
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             locationManager.removeUpdates(locationListener);
         }
-
-        // Save position
-        saveCurrentPosition();
     }
 
     private void saveCurrentPosition() {
@@ -233,11 +230,11 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                     currentLatUserPosition = location.getLatitude();
                             // Update Camera
                             CameraUpdate cameraUpdate = CameraUpdateFactory
-                                    .newLatLngZoom(
-                                            new LatLng(location.getLatitude(),
-                                                    location.getLongitude()), 18.0f);
+                                    .newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 18.0f);
                             if (update) map.animateCamera(cameraUpdate);
                             else map.moveCamera(cameraUpdate);
+                            // Save location
+                            saveCurrentPosition();
                         }
                 ).addOnFailureListener(Throwable::printStackTrace);
     }
@@ -278,7 +275,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         if (status) {
             binding.fabLocation.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_gps_fixed_24dp_dark_grey));
             binding.fabLocation.setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.dark_grey)));
-        } else {
+        }
+        else {
             binding.fabLocation.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_gps_off_24dp_red));
             binding.fabLocation.setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.red)));
         }
@@ -292,24 +290,46 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      * adding observers.
      */
     private void initializeViewModelsObservers() {
-        // This observer check if MutableLiveData for list of Restaurants is updated,
-        // to update MapViewFragment listRestaurants attribute.
+        // Check if list of Restaurants have been updated
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), list -> {
-            // Update list
             listRestaurants.clear();
             listRestaurants.addAll(list);
             // Load workmates list from Firestore db
             workmatesViewModel.getEmployeesInfoFromFirestoreDatabase();
         });
 
-        // This observer check if MutableLiveData list of workmates is updated, to update the list
-        // MapViewFragment listRestaurants attribute with Restaurant selection status, and then
-        // displays correct markers on map.
+        placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
+            @Override
+            public void onChanged(List<String> autocompleteListRestaurantIds) {
+                if (autocompleteListRestaurantIds.size() == 0) {
+                    autocompleteActivation = false;
+                }
+                else {
+                    autocompleteActivation = true;
+                    List<Restaurant> autocompleteListRestaurant = new ArrayList<>();
+                    boolean found = false;
+                    int j = 0;
+                    for (int i = 0; i < autocompleteListRestaurantIds.size(); i++) {
+                        while (j < listRestaurants.size() && !found) {
+                            if (autocompleteListRestaurantIds.get(i).equals(listRestaurants.get(j).getPlaceId()))
+                                found = true;
+                            else j++;
+                        }
+                        if (found) autocompleteListRestaurant.add(listRestaurants.get(j));
+                    }
+
+                    // Update map with marker, after updating RestaurantRenderer
+                    updateRestaurantRenderer(autocompleteListRestaurant);
+                }
+            }
+        });
+
+
+        // Check if workmates have done any updates in their restaurant selection
         workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), listWorkmates -> {
             if (listRestaurants.size() > 0) {
                 boolean found;
                 int i;
-
                 for (int j = 0; j < listRestaurants.size(); j++) {
                     found = false;
                     i = 0;
@@ -320,7 +340,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                         listRestaurants.get(j).setSelected(found);
                     }
                 }
-                updateRestaurantRenderer();
+                // Update map with marker, after updating RestaurantRenderer
+                updateRestaurantRenderer(listRestaurants);
             }
         });
     }
@@ -330,24 +351,24 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      * This method is used to update the map by displaying custom markers in clusters for all detected restaurants around
      * user location.
      */
-    private void displayMarkersWithClustersInMap() {
+    private void displayMarkersWithClustersInMap(List<Restaurant> list) {
         clusterManager.clearItems();
         map.clear();
-        for (int indice = 0; indice < listRestaurants.size(); indice++) {
+        for (int indice = 0; indice < list.size(); indice++) {
             RestaurantMarkerItem item = new RestaurantMarkerItem(
-                    new LatLng(listRestaurants.get(indice).getLatitude(),
-                               listRestaurants.get(indice).getLongitude()),
-                    listRestaurants.get(indice).getName(), null, listRestaurants.get(indice).getSelected(), indice,
-                    listRestaurants.get(indice).getPlaceId());
+                    new LatLng(list.get(indice).getLatitude(),
+                            list.get(indice).getLongitude()),
+                    list.get(indice).getName(), null, list.get(indice).getSelected(), indice,
+                    list.get(indice).getPlaceId());
             clusterManager.addItem(item);
             clusterManager.cluster();
         }
     }
 
-    public void updateRestaurantRenderer() {
+    public void updateRestaurantRenderer(List<Restaurant> list) {
         boolean clusterOption = sharedPrefClusterOption.getBoolean("cluster_option", false);
         ((RestaurantRenderer) clusterManager.getRenderer()).setClusterActivation(clusterOption);
-        displayMarkersWithClustersInMap();
+        displayMarkersWithClustersInMap(list);
     }
 
     @Override
@@ -362,13 +383,10 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             initializeClusterManager();
             // Initialize cursor position + search for places
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
                 if (sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, 0L) != 0L &&
                     sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, 0L) != 0L)
                     centerCursorInOldPosition();
-
                 else centerCursorInCurrentLocation(false);
-
                 if (connectivityManager.getActiveNetworkInfo() != null) getPlacesFromDatabaseOrRetrofitRequest();
             }
             // Enable click interactions on cluster items window
@@ -430,5 +448,13 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         placesViewModel.getPlacesRepository().loadAllRestaurantsWithHours()
                 .observe(getViewLifecycleOwner(), restaurantAndHoursData
                         -> placesViewModel.restoreData(restaurantAndHoursData));
+    }
+
+    public void restoreBackupMarkersOnMap() {
+        updateRestaurantRenderer(listRestaurants);
+    }
+
+    public ArrayList<Restaurant> getListRestaurants() {
+        return listRestaurants;
     }
 }

@@ -27,7 +27,6 @@ import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.utils.CustomComparators;
 import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,15 +39,8 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     // Lists
     private final ArrayList<Restaurant> listRestaurant = new ArrayList<>();
-    private final ArrayList<Restaurant> listAutocomplete = new ArrayList<>();
+    private final ArrayList<Restaurant> listRestaurantBackup = new ArrayList<>();
     private final ArrayList<Workmate> listWorkmates = new ArrayList<>();
-
-    // Parameter to determine which list to disply in RecyclerView
-    private final boolean switchList = false; // If false : display list of Restaurant
-                                        // else     : display list of Restaurant filtered with autocomplete result
-
-    // Selected list to display (listRestaurant or listAutocomplete)
-    private ArrayList<Restaurant> listToDisplay = new ArrayList<>();
 
     // To access user location
     private final FusedLocationProviderClient locationClient;
@@ -67,7 +59,6 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.locationClient = locationClient;
         this.context = context;
         this.onItemRestaurantClickListener = onItemRestaurantClickListener;
-        switchListToDisplay(false);
     }
 
     @NonNull
@@ -87,22 +78,24 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         // Handle item display
+       // Log.i("PERFORMAUTOCOMPLETE", "onBindViewHolder");
         if (holder instanceof ViewHolderListView) {
+        //    Log.i("PERFORMAUTOCOMPLETE", "ViewHolderListView");
             // Name
-            ((ViewHolderListView) holder).name.setText(listToDisplay.get(position).getName());
+            ((ViewHolderListView) holder).name.setText(listRestaurant.get(position).getName());
 
             // Address
-            ((ViewHolderListView) holder).address.setText(listToDisplay.get(position).getAddress());
+            ((ViewHolderListView) holder).address.setText(listRestaurant.get(position).getAddress());
 
             // Distance between restaurant location and user location
             displayDistanceBetweenRestaurantAndUserLocation(((ViewHolderListView) holder), position);
 
             // Rating
             RatingDisplayHandler.displayRating(((ViewHolderListView) holder).rating.get(0), ((ViewHolderListView) holder).rating.get(1), ((ViewHolderListView) holder).rating.get(2),
-                    ((ViewHolderListView) holder).rating.get(3), ((ViewHolderListView) holder).rating.get(4), listToDisplay.get(position).getRating(), context);
+                    ((ViewHolderListView) holder).rating.get(3), ((ViewHolderListView) holder).rating.get(4), listRestaurant.get(position).getRating(), context);
 
             // Closing hours
-            if (listToDisplay.get(position).getOpeningAndClosingHours() != null) displayOpenHours(((ViewHolderListView) holder),position);
+            if (listRestaurant.get(position).getOpeningAndClosingHours() != null) displayOpenHours(((ViewHolderListView) holder),position);
 
             // Photo
             displayRestaurantPhoto(((ViewHolderListView) holder), position);
@@ -119,7 +112,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemCount() {
-        return listToDisplay.size();
+        return listRestaurant.size();
     }
 
     /**
@@ -127,8 +120,21 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * user location.
      */
     public void updateListRestaurants(List<Restaurant> newList) {
+        Log.i("PERFORMAUTOCOMPLETE", "updateListRestaurants newList : " + newList.size());
         listRestaurant.clear();
         listRestaurant.addAll(newList);
+        Log.i("PERFORMAUTOCOMPLETE", "updateListRestaurants listRestaurant " + listRestaurant.size());
+        notifyDataSetChanged();
+    }
+
+    public void updateListRestaurantsBackup() {
+        listRestaurantBackup.addAll(listRestaurant);
+    }
+
+    public void restoreListRestaurants() {
+        Log.i("PERFORMAUTOCOMPLETE", "PERFORMAUTOCOMPLETE");
+        listRestaurant.clear();
+        listRestaurant.addAll(listRestaurantBackup);
         notifyDataSetChanged();
     }
 
@@ -139,11 +145,6 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
-    public void updateListAutocomplete(List<Restaurant> newList) {
-        Log.i("PERFORMAUTOCOMPLETE", "updateListAutocomplete ListViewAdapter : " + newList.size());
-        listAutocomplete.clear();
-        listAutocomplete.addAll(newList);
-    }
     /**
      * This method is used to display the distance between user location and a restaurant location
      * in each recyclerview item.
@@ -154,15 +155,19 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                     .addOnSuccessListener(location -> {
-                        double userLatitude = location.getLatitude();
-                        double userLongitude = location.getLongitude();
-                        double restaurantLatitude = listToDisplay.get(position).getLatitude();
-                        double restaurantLongitude = listToDisplay.get(position).getLongitude();
-                        float[] result = new float[1];
-                        Location.distanceBetween(userLatitude, userLongitude, restaurantLatitude, restaurantLongitude, result);
+                        try {
+                            double userLatitude = location.getLatitude();
+                            double userLongitude = location.getLongitude();
+                            double restaurantLatitude = listRestaurant.get(position).getLatitude();
+                            double restaurantLongitude = listRestaurant.get(position).getLongitude();
+                            float[] result = new float[1];
+                            Location.distanceBetween(userLatitude, userLongitude, restaurantLatitude, restaurantLongitude, result);
 
-                        String distance = ((int) result[0]) + " m";
-                        holder.distance.setText(distance);
+                            String distance = ((int) result[0]) + " m";
+                            holder.distance.setText(distance);
+                        } catch (IndexOutOfBoundsException exception) {
+                            exception.printStackTrace();
+                        }
                     }).addOnFailureListener(Throwable::printStackTrace);
         }
     }
@@ -279,41 +284,41 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (type) { // CLOSING HOURS
             switch (currentDay) {
                 case 1 : // SUNDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getSundayClosingHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getSundayClosingHours();
                     break;
                 case 2: // MONDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getMondayClosingHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getMondayClosingHours();
                     break;
                 case 3: // TUESDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getTuesdayClosingHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getTuesdayClosingHours();
                     break;
                 case 4: // WEDNESDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getWednesdayClosingHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getWednesdayClosingHours();
                     break;
                 case 5: // THURSDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getThursdayClosingHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getThursdayClosingHours();
                     break;
                 case 6: // FRIDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getFridayClosingHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getFridayClosingHours();
                     break;
                 case 7 : // SATURDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getSaturdayClosingHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getSaturdayClosingHours();
                     break;
             }
         }
         else { // OPENING HOURS
             switch (currentDay) {
                 case 1 : // SUNDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getSundayOpeningHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getSundayOpeningHours();
                     break;
                 case 2: // MONDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getMondayOpeningHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getMondayOpeningHours();
                     break;
                 case 3: // TUESDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getTuesdayOpeningHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getTuesdayOpeningHours();
                     break;
                 case 4: // WEDNESDAY
-                    hours = listToDisplay.get(position).getOpeningAndClosingHours().getWednesdayOpeningHours();
+                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getWednesdayOpeningHours();
                     break;
                 case 5: // THURSDAY
                     hours = listRestaurant.get(position).getOpeningAndClosingHours().getThursdayOpeningHours();
@@ -348,10 +353,10 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      */
     @SuppressLint("UseCompatLoadingForDrawables")
     private void displayRestaurantPhoto(@NonNull ViewHolderListView holder, int position) {
-        if (listToDisplay.get(position).getPhotoReference() != null) {
+        if (listRestaurant.get(position).getPhotoReference() != null) {
             Glide.with(context)
                     .load("https://maps.googleapis.com/maps/api/place/photo?&maxwidth=400&maxheight=400&photo_reference="
-                            + listToDisplay.get(position).getPhotoReference() + "&key=" + BuildConfig.API_KEY)
+                            + listRestaurant.get(position).getPhotoReference() + "&key=" + BuildConfig.API_KEY)
                              .centerCrop()
                     .override(holder.photo.getWidth(), holder.photo.getHeight())
                     .into(holder.photo);
@@ -446,26 +451,12 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     private boolean isPositionItem(int position) {
-        return position < getItemCount()-1; // last position
+        if (getItemCount() == 1) return true;
+        else return position < getItemCount()-1; // last position
     }
 
     public void updateVisibilityProgressBarStatus(int visibility) {
         progressBarVisibilityStatus = visibility;
-        notifyDataSetChanged();
-    }
-
-    public void switchListToDisplay(boolean switchList) {
-
-        if (!switchList) {
-            listToDisplay = listRestaurant;
-        }
-        else {
-            Log.i("PERFORMAUTOCOMPLETE", "switchListToDisplay else ListViewAdapter : " + listToDisplay.size());
-            listToDisplay = listAutocomplete;
-            Log.i("PERFORMAUTOCOMPLETE", "switchListToDisplay ListViewAdapter : " + listToDisplay.get(0).getName());
-        }
-        Log.i("PERFORMAUTOCOMPLETE", "switchListToDisplay ListViewAdapter : " + listToDisplay.size());
-
         notifyDataSetChanged();
     }
 
@@ -474,7 +465,5 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return listRestaurant;
     }
 
-    public List<Restaurant> getListAutocomplete() { return listAutocomplete; }
-
-    public boolean getSwitchList() { return switchList; }
+    public List<Restaurant> getListRestaurantBackup() { return listRestaurantBackup; }
 }

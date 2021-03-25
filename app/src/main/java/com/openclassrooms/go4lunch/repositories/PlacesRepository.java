@@ -60,11 +60,10 @@ public class PlacesRepository {
                             RestaurantAndHoursDao restaurantAndHoursDao,
                             Context context,
                             PlacesClient placesClient,
-                            FusedLocationProviderClient locationClient,
-                            MainActivityCallback callback) {
+                            FusedLocationProviderClient locationClient) {
         // Initialize services
         this.listRestaurantsServices = new ListRestaurantsService();
-        this.autocompleteService = new AutocompleteService(placesClient, locationClient, callback);
+        this.autocompleteService = new AutocompleteService(placesClient, locationClient);
 
         // Initialize DAOs
         this.restaurantDao = restaurantDao;

@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -134,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeFragments();
         // Initialize view models
         initializeViewModels();
-
     }
 
     @Override
@@ -158,8 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 DI.provideDatabase(this).restaurantAndHoursDao(),
                 this,
                 placesClient,
-                locationClient,
-                this));
+                locationClient));
 
         // Workmates
         workmatesViewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
@@ -173,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void addListenerToDatabaseCollection() {
         FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
-        CollectionReference collectionRef = dbFirestore.collection("list_employees");
+        CollectionReference collectionRef = dbFirestore.collection(AppInfo.ROOT_COLLECTION_ID);
         collectionRef.addSnapshotListener((value, error) ->
                 // Update MutableLiveData
                 workmatesViewModel.getEmployeesInfoFromFirestoreDatabase());
@@ -269,8 +268,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (!savedRestaurantJSON.equals("")) {
             Gson gson = new Gson();
             setRestaurantToDisplay(gson.fromJson(savedRestaurantJSON, Restaurant.class));
-            fragmentManager.beginTransaction()
-                    .add(R.id.fragment_container_view, RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG).commit();
+
+            Fragment fragment = fragmentManager.findFragmentByTag(OptionsFragment.TAG);
+            if (fragment != null) {
+                if (fragment.isVisible()) {
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container_view, RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG).commit();
+                }
+             }
+            else {
+                fragmentManager.beginTransaction()
+                        .add(R.id.fragment_container_view, RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG).commit();
+            }
             getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             updateBottomBarStatusVisibility(View.GONE);
             updateToolbarStatusVisibility(View.GONE);
@@ -279,9 +288,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void onClickOptionsIcon() {
-        fragmentManager.beginTransaction()
-                .add(R.id.fragment_container_view, optionsFragment, OptionsFragment.TAG).commit();
+        Fragment fragment = fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG);
+        if (fragment != null) {
+            if (fragment.isVisible()) {
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container_view, optionsFragment, OptionsFragment.TAG).commit();
+            }
+        }
+        else {
+            fragmentManager.beginTransaction()
+                    .add(R.id.fragment_container_view, optionsFragment, OptionsFragment.TAG).commit();
+        }
+        getDrawerLayout().setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         updateBottomBarStatusVisibility(View.GONE);
+        updateToolbarStatusVisibility(View.GONE);
     }
 
     /**
@@ -343,8 +363,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Close DrawerLayout if displayed
             binding.drawerLayout.closeDrawer(GravityCompat.START);
         else if (binding.textInputLayoutAutocomplete.getVisibility() == View.VISIBLE){
-            // Hide search field if displayed
+            //  Clear and hide search field if displayed
+            binding.textInputEditAutocomplete.getText().clear();
             binding.textInputLayoutAutocomplete.setVisibility(View.GONE);
+            // Restore list to display
+            listViewFragment.restoreListRestaurants();
+            // Restore markers on map
+            mapViewFragment.restoreBackupMarkersOnMap();
         }
         else {
             // Close RestaurantDetailsFragment if displayed
@@ -363,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 updateToolbarStatusVisibility(View.VISIBLE);
                 updateBottomBarStatusVisibility(View.VISIBLE);
-                mapViewFragment.updateRestaurantRenderer(); // Apply options updates
+                mapViewFragment.updateRestaurantRenderer(mapViewFragment.getListRestaurants()); // Apply options updates
             }
             else {
                 // Close app
@@ -393,8 +418,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void provideSearchQuery(String query) {
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            Log.i("PERFORMAUTOCOMPLETE", "MainActivity provideSearchQuery : " + query);
-            placesViewModel.performAutocompleteRequest(query, getApplicationContext());
+            Log.i("PERFORMAUTOCOMPLETE", "SearchTextWatcher : " + query);
+            if (query.length() == 0) {
+                binding.textInputEditAutocomplete.getText().clear();
+                mapViewFragment.restoreBackupMarkersOnMap();
+                Fragment fragment = fragmentManager.findFragmentByTag(listViewFragment.TAG);
+                if (fragment != null) {
+                    if (listViewFragment.isVisible()) listViewFragment.restoreListRestaurants();
+                }
+            }
+            else placesViewModel.performAutocompleteRequest(query, getApplicationContext());
         }
         else Toast.makeText(getApplicationContext(), "GPS not enabled", Toast.LENGTH_SHORT).show();
     }
