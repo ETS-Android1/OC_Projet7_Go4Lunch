@@ -24,6 +24,7 @@
 
     <!-- STYLE SIGN-IN ACTIVITY -->
     <style name="LoginTheme" parent="Theme.Go4Lunch">
+        <item name="android:textColor">#FFFFFF</item>
         <item name="android:windowBackground">@drawable/auth_ui_background</item>
         <item name="colorPrimaryVariant">#00000000</item>
         <item name="android:windowDisablePreview">true</item>
@@ -59,6 +60,10 @@
 
     <style name="MaterialButtonThemeFacebook" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="colorPrimary">@color/blue_facebook_btn</item>
+    </style>
+
+    <style name="MaterialButtonThemeTwitter" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="colorPrimary">@color/blue_twitter_btn</item>
     </style>
 
     <style name="MaterialButtonThemeSignIn" parent="Widget.MaterialComponents.Button.OutlinedButton">

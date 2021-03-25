@@ -1,5 +1,8 @@
 package com.openclassrooms.go4lunch.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Model class which defines an employees.
  */
@@ -17,12 +20,15 @@ public class Workmate {
     // Name of a selected restaurant
     private String restaurantName;
 
+    private List<String> liked;
+
     public Workmate(String name, String email, String restaurantSelectedID, String photoUrl, String restaurantName) {
         this.name = name;
         this.email = email;
         this.photoUrl = photoUrl;
         this.restaurantSelectedID = restaurantSelectedID;
         this.restaurantName = restaurantName;
+        this.liked = new ArrayList<>();
     }
 
     // Getter methods
@@ -35,6 +41,10 @@ public class Workmate {
     public String getPhotoUrl() { return photoUrl; }
 
     public String getRestaurantName() { return restaurantName; }
+
+    public List<String> getLiked() {
+        return liked;
+    }
 
     // Setter methods
     public void setName(String name) { this.name = name; }
@@ -50,4 +60,9 @@ public class Workmate {
     public void setRestaurantName(String restaurantName) {
         this.restaurantName = restaurantName;
     }
+
+    public void setLiked(List<String> liked) {
+        this.liked = liked;
+    }
 }
+

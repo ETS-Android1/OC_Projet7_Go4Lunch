@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -259,15 +260,15 @@ public class RestaurantDetailsFragment extends Fragment {
                 String restaurantJSONtoSave = new Gson().toJson(restaurant);
                 editor.putString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, restaurantJSONtoSave);
                 // Update Firestore database
-                workmatesViewModel.updateDocumentReferenceCurrentUser(firestoreDocumentId,
-                                                                      restaurant.getName(),
-                                                                      restaurant.getPlaceId());
+                workmatesViewModel.updateDocumentReferenceCurrentUser(restaurant.getName(),
+                                                                      restaurant.getPlaceId(),
+                                                                      firestoreDocumentId);
             }
             else {
                 editor.putString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
-                workmatesViewModel.updateDocumentReferenceCurrentUser(firestoreDocumentId,
+                workmatesViewModel.updateDocumentReferenceCurrentUser("",
                                                                     "",
-                                                                    "");
+                                                                     firestoreDocumentId);
             }
             editor.apply();
         });

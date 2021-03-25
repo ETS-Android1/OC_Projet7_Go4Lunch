@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,10 +82,10 @@ public class LocationPermissionFragment extends Fragment {
                     }
                     else { // If user checked Checkbox "Don't ask again"
                         if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) { // If "Do not ask again" checkbox has been checked
-                        //    requireActivity().getSupportFragmentManager().beginTransaction()
-                        //            .replace(R.id.fragment_container_view, AccessSettingsAppFragment.newInstance(),
-                        //                    AccessSettingsAppFragment.TAG)
-                        //            .commit();
+                            requireActivity().getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment_container_view, AccessSettingsAppFragment.newInstance(),
+                                            AccessSettingsAppFragment.TAG)
+                                    .commit();
                         }
                         else { // Others request permission
                             ActivityCompat.requestPermissions(requireActivity(), new String[] {

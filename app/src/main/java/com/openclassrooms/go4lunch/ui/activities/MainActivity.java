@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationBuilderWithBuilderAccessor;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
@@ -21,7 +20,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,7 +49,6 @@ import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
 import com.openclassrooms.go4lunch.di.DI;
 import com.openclassrooms.go4lunch.model.Restaurant;
-import com.openclassrooms.go4lunch.notifications.NotificationHandler;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.repositories.WorkmatesRepository;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
@@ -162,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Workmates
         workmatesViewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
-        workmatesViewModel.setWorkmatesRepository(new WorkmatesRepository());
+        workmatesViewModel.setWorkmatesRepository(new WorkmatesRepository(this));
         addListenerToDatabaseCollection();
     }
 
@@ -212,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * This methods updates the Navigation View header with user information
      */
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void loadUserInfoInNavigationView() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         View header = binding.navigationView.getHeaderView(0);
@@ -221,9 +219,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         try {
             userName.setText(user.getDisplayName());
             userEmail.setText(user.getEmail());
-            Glide.with(this).load(user.getPhotoUrl())
-                    .apply(RequestOptions.circleCropTransform())
-                    .into(userAvatar);
+            if (user.getPhotoUrl() != null ) {
+                Glide.with(this).load(user.getPhotoUrl())
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(userAvatar);
+            }
+            else userAvatar.setImageDrawable(getResources().getDrawable(R.drawable.user_default_icon));
         } catch (NullPointerException exception) { exception.printStackTrace(); }
     }
 
@@ -405,9 +406,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @Override
     public void logoutUser() {
-        AuthUI.getInstance().delete(this)
+        AuthUI.getInstance().signOut(this)
                 .addOnFailureListener(this, exception -> finish())
                 .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));
+      /*  AuthUI.getInstance().delete(this)
+                .addOnFailureListener(this, exception -> finish())
+                .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));*/
     }
 
     /**
@@ -422,9 +426,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (query.length() == 0) {
                 binding.textInputEditAutocomplete.getText().clear();
                 mapViewFragment.restoreBackupMarkersOnMap();
-                Fragment fragment = fragmentManager.findFragmentByTag(listViewFragment.TAG);
+                Fragment fragment = fragmentManager.findFragmentByTag(ListViewFragment.TAG);
                 if (fragment != null) {
-                    if (listViewFragment.isVisible()) listViewFragment.restoreListRestaurants();
+                        listViewFragment.restoreListRestaurants();
                 }
             }
             else placesViewModel.performAutocompleteRequest(query, getApplicationContext());

@@ -23,6 +23,7 @@
     <color name="grey_50">#808080</color>
     <color name="grey_20">#323232</color>
 
-    <color name="blue_facebook_btn">#3b5999</color>
+    <color name="blue_facebook_btn">#3B5999</color>
+    <color name="blue_twitter_btn">#1DA1F3</color>
     <color name="grey_color_txt_google_btn">#757575</color>
 </resources>

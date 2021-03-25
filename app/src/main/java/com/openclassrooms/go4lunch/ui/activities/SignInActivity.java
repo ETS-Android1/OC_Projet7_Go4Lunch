@@ -1,36 +1,26 @@
 package com.openclassrooms.go4lunch.ui.activities;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import com.firebase.ui.auth.AuthMethodPickerLayout;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.ActivitySignInBinding;
 import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.utils.AppInfo;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -49,7 +39,9 @@ public class SignInActivity extends AppCompatActivity {
     // Authentication providers
     private static final List<AuthUI.IdpConfig> providers = Arrays.asList(
             new AuthUI.IdpConfig.GoogleBuilder().build(),
-            new AuthUI.IdpConfig.FacebookBuilder().build()
+            new AuthUI.IdpConfig.FacebookBuilder().build(),
+            new AuthUI.IdpConfig.TwitterBuilder().build(),
+            new AuthUI.IdpConfig.EmailBuilder().build()
     );
 
     @Override
@@ -72,7 +64,9 @@ public class SignInActivity extends AppCompatActivity {
     private void handleConnexionButtonListener() {
         AuthMethodPickerLayout layout = new AuthMethodPickerLayout.Builder(R.layout.authentication_layout)
                 .setGoogleButtonId(R.id.google_auth_btn)
-                .setFacebookButtonId(R.id.facebook_auth_btn).build();
+                .setFacebookButtonId(R.id.facebook_auth_btn)
+                .setTwitterButtonId(R.id.twitter_auth_btn)
+                .setEmailButtonId(R.id.email_auth_btn).build();
 
         binding.buttonConnexion.setOnClickListener((View v) -> {
                     startActivityForResult(
@@ -88,6 +82,7 @@ public class SignInActivity extends AppCompatActivity {
                     overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 }
         );
+
     }
 
     /**
@@ -135,28 +130,27 @@ public class SignInActivity extends AppCompatActivity {
       try {
           // Query to check if a Document with associated user information exists in database collection
           Query query = collectionRef.whereEqualTo("email", Objects.requireNonNull(user).getEmail()).limit(1);
-          query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-              @Override
-              public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                  if (task.isSuccessful()) {
-                      if (task.getResult().size() == 0) { // User does not exist yet in db
-                          // Create a new data object
-                          Workmate workmate = new Workmate(user.getDisplayName(),
-                                  user.getEmail(),
-                                  "",
-                                  Objects.requireNonNull(user.getPhotoUrl()).toString(),
-                                  "");
-                          // Store in db
-                          collectionRef.add(workmate);
-                      }
-                      else {
+          query.get().addOnCompleteListener(task -> {
+              if (task.isSuccessful()) {
+                  if (task.getResult().size() == 0) { // User does not exist yet in db
+                      // Create a new data object
+                      String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null;
+                      Workmate workmate = new Workmate(user.getDisplayName(),
+                              user.getEmail(),
+                              "",
+                              photoUrl,
+                              "");
+
+                      // Get ID of the DocumentReference after workmate has been added to database
+                      // Then store value in SharedPreferences file
+                      collectionRef.add(workmate).addOnCompleteListener(task1 -> {
                           SharedPreferences sharedPrefFirestoreUserId = getSharedPreferences(
-                                                                            AppInfo.FILE_FIRESTORE_USER_ID,
-                                                                            Context.MODE_PRIVATE);
+                                  AppInfo.FILE_FIRESTORE_USER_ID,
+                                  Context.MODE_PRIVATE);
                           SharedPreferences.Editor editor = sharedPrefFirestoreUserId.edit();
-                          editor.putString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, task.getResult().getDocuments().get(0).getId());
+                          editor.putString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, task1.getResult().getId());
                           editor.apply();
-                      }
+                      });
                   }
               }
           });

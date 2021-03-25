@@ -1,9 +1,9 @@
 package com.openclassrooms.go4lunch.repositories;
 
+import android.content.Context;
 import com.google.firebase.firestore.DocumentReference;
 import com.openclassrooms.go4lunch.service.workmates.ListWorkmatesService;
 import com.openclassrooms.go4lunch.service.workmates.ServiceWorkmatesCallback;
-
 import java.util.List;
 
 /**
@@ -11,10 +11,10 @@ import java.util.List;
  */
 public class WorkmatesRepository {
 
-    public ListWorkmatesService listWorkmatesService;
+    private final ListWorkmatesService listWorkmatesService;
 
-    public WorkmatesRepository() {
-        this.listWorkmatesService = new ListWorkmatesService();
+    public WorkmatesRepository(Context context) {
+        this.listWorkmatesService = new ListWorkmatesService(context);
     }
 
     /**
