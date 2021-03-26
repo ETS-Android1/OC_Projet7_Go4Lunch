@@ -3,9 +3,11 @@ package com.openclassrooms.go4lunch.utils.search;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-
 import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
 
+/**
+ * This class is used to detect any change in EditText field of the autocomplete toolbar, and provide queries.
+ */
 public class SearchTextWatcher implements TextWatcher {
 
     private MainActivityCallback callback;

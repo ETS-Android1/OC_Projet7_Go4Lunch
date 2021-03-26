@@ -17,6 +17,7 @@ import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentLocationPermissionBinding;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragment;
+import com.openclassrooms.go4lunch.utils.AppInfo;
 
 /**
  * This fragment is used to display the UI interface with with the user can authorize the
@@ -42,7 +43,7 @@ public class LocationPermissionFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentLocationPermissionBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -60,9 +61,9 @@ public class LocationPermissionFragment extends Fragment {
      */
     private void initializeNbPermissionRequests() {
         SharedPreferences nbPermissionRequestSaved = getContext()
-                .getSharedPreferences("nb_permission_requests", Context.MODE_PRIVATE);
+                .getSharedPreferences(AppInfo.FILE_PREF_NB_PERMISSION_REQUESTS, Context.MODE_PRIVATE);
         editor = nbPermissionRequestSaved.edit();
-        nbRequests = nbPermissionRequestSaved.getInt("nb_permission_requests", 0);
+        nbRequests = nbPermissionRequestSaved.getInt(AppInfo.PREF_NB_PERMISSION_REQUESTS, 0);
     }
 
     /**
@@ -72,7 +73,7 @@ public class LocationPermissionFragment extends Fragment {
         binding.buttonPermissionLocation.setOnClickListener((View v) -> {
                     // Update number of sent requests
                     nbRequests++;
-                    editor.putInt("nb_permission_requests", nbRequests);
+                    editor.putInt(AppInfo.PREF_NB_PERMISSION_REQUESTS, nbRequests);
                     editor.apply();
 
                     if (nbRequests <= 1) { // First request permission
@@ -104,7 +105,7 @@ public class LocationPermissionFragment extends Fragment {
             if (permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) && grantResults[0]
                     == PackageManager.PERMISSION_GRANTED) {
                 // Reset number of requests
-                editor.putInt("nb_permission_requests", 0);
+                editor.putInt(AppInfo.PREF_NB_PERMISSION_REQUESTS, 0);
                 editor.apply();
                 // Let user access the bottom bar navigation fragments
                 requireActivity().getSupportFragmentManager().beginTransaction()

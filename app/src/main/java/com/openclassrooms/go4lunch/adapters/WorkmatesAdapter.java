@@ -9,13 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.model.Workmate;
-import com.openclassrooms.go4lunch.utils.CustomComparators;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,57 +41,64 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolderWorkmates holder, int position) {
-        if (typeOfList) {
-            // Text
-            String text = "";
-            if (listWorkmates.get(position).getRestaurantName() != null) {
-                if (listWorkmates.get(position).getRestaurantName().length() == 0) {
-                    text = listWorkmates.get(position).getName() + " " + context.getResources().getString(R.string.no_decision);
-                    holder.text.setText(text);
-                    displayStyleTextView(holder.text, R.color.light_grey, Typeface.ITALIC);
-                }
-                else {
-                    text = listWorkmates.get(position).getName() + " " + context.getResources().getString(R.string.is_eating_at) + " "
-                            + listWorkmates.get(position).getRestaurantName();
-                    holder.text.setText(text);
-                    displayStyleTextView(holder.text, R.color.black, Typeface.NORMAL);
-                }
-            }
-            // Photo
-            if (listWorkmates.get(position).getPhotoUrl() != null) {
-                if (listWorkmates.get(position).getPhotoUrl().length() != 0) {
-                    String url = listWorkmates.get(position).getPhotoUrl();
-                    Glide.with(context)
-                            .load(url)
-                            .circleCrop()
-                            .override(holder.photo.getWidth(), holder.photo.getHeight())
-                            .into(holder.photo);
-                }
-            }
-        }
-        else {
-            // Text
-            String text = listWorkmates.get(position).getName() + " " + context.getResources().getString(R.string.is_going);
-            holder.text.setText(text);
 
-            // Photo
-            if (listWorkmates.get(position).getPhotoUrl() != null) {
-                if (listWorkmates.get(position).getPhotoUrl().length() != 0) {
-                    String url = listWorkmates.get(position).getPhotoUrl();
-                    Glide.with(context)
-                            .load(url)
-                            .circleCrop()
-                            .override(holder.photo.getWidth(), holder.photo.getHeight())
-                            .into(holder.photo);
-                }
-            }
-        }
+        // Display text
+        displayText(holder.text, position);
+
+        // Display icon
+        Glide.with(context).clear(holder.photo); // Cancel any pending loads
+        loadUserIcon(holder.photo, listWorkmates.get(position).getPhotoUrl());
+
     }
 
     @Override
     public int getItemCount() {
         return listWorkmates.size();
     }
+
+    private void displayText(TextView textView, int position) {
+        if (typeOfList) {
+            // Text
+            String text;
+            if (listWorkmates.get(position).getRestaurantName() != null) {
+                if (listWorkmates.get(position).getRestaurantName().length() == 0) {
+                    text = listWorkmates.get(position).getName() + " " + context.getResources().getString(R.string.no_decision);
+                    textView.setText(text);
+                    displayStyleTextView(textView, R.color.light_grey, Typeface.ITALIC);
+                }
+                else {
+                    text = listWorkmates.get(position).getName() + " " + context.getResources().getString(R.string.is_eating_at) + " "
+                            + listWorkmates.get(position).getRestaurantName();
+                    textView.setText(text);
+                    displayStyleTextView(textView, R.color.black, Typeface.NORMAL);
+                }
+            }
+        }
+        else {
+            // Text
+            String text = listWorkmates.get(position).getName() + " " + context.getResources().getString(R.string.is_going);
+            textView.setText(text);
+        }
+    }
+
+    private void loadUserIcon(ImageView icon, String url) {
+        if (url != null) {
+            if (!url.isEmpty()) {
+                Glide.with(context)
+                        .load(url)
+                        .circleCrop()
+                        .override(icon.getWidth(), icon.getHeight())
+                        .into(icon);
+            }
+            else {
+                icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.user_default_icon, null));
+            }
+        }
+        else {
+            icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.user_default_icon, null));
+        }
+    }
+
 
     /**
      * ViewHolder class to display employee information using WorkmatesAdapter.
@@ -110,7 +116,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
     }
 
     public void updateList(List<Workmate> newList) {
-        Collections.sort(newList, new CustomComparators.WorkmateAZComparator());
+
         listWorkmates.clear();
         listWorkmates.addAll(newList);
         notifyDataSetChanged();

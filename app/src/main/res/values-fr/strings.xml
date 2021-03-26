@@ -1,0 +1,128 @@
+<resources>
+    <string name="app_name">Go4Lunch</string>
+
+    <!-- Bottom navigation bar -->
+    <string name="icon_map_view">Carte</string>
+    <string name="icon_list_view">Liste</string>
+    <string name="icon_workmates">Collègues</string>
+
+    <!-- SignInActivity -->
+    <string name="snack_bar_auth_cancelled">Authentification annulée</string>
+    <string name="snack_bar_error_no_network">Authentification échouée - Pas de réseau</string>
+    <string name="snack_bar_error_unknown">Authentification échouée - Erreur inconnue</string>
+
+    <!-- MainActivity menu -->
+    <string name="icon_search">Rechercher</string>
+    <string name="snack_bar_logout">Se déconnecter</string>
+    <string name="snack_bar_account_deleted">Compte supprimé</string>
+    <string name="toast_your_lunch">Pas de restaurant sélectionné</string>
+
+    <!-- Navigation Drawer -->s
+    <string name="icon_your_lunch">TON RESTO</string>
+    <string name="icon_settings">OPTIONS</string>
+    <string name="icon_logout">SE DÉCONNECTER</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!--<string name="facebook_application_id">723552471635167</string>
+    <string name="fb_login_protocol_scheme">fb723552471635167</string>-->
+
+    <!-- LogoutDialog -->
+    <string name="title_logout_dialog">Se déconnecter</string>
+    <string name="message_logout_dialog">Voulez-vous vous déconnecter ?</string>
+    <string name="positive_btn_logout_dialog">Oui</string>
+    <string name="negative_btn_logout_dialog">Annuler</string>
+
+    <!-- GPSActivationDialog -->
+    <string name="title_gps_activation_dialog">Activation GPS</string>
+    <string name="message_gps_activation_dialog">Cette application a besoin d\'activer le GPS de votre téléphone.</string>
+    <string name="positive_gps_activation_dialog">Activer</string>
+    <string name="negative_gps_activation_dialog">Anuler</string>
+
+    <!-- fragment_location_permission -->
+    <string name="title_location">Activer la localisation</string>
+    <string name="text_location">Go4Lunch a besoin d\'accéder à la localisation de votre appareil.</string>
+    <string name="button_location_activation">Activer la localisation</string>
+    <string name="content_description_location_icon">Icône de localisation</string>
+
+    <!-- fragment_access_settings_app -->
+    <string name="title_access_settings_app">Oups</string>
+    <string name="text_access_settings_app">Pour pouvoir utiliser Go4Lunch, vous devez autoriser l\'accès à la localisation de l\'appareil.\n\Cliquez sur Options d\'applications > Autorisations</string>
+    <string name="button_access_settings_app">Ouvrir les options</string>
+
+    <!-- fragment_options -->
+    <string name="map_option_title">Map</string>
+    <string name="map_option_text">Afficher les cluster sur la map</string>
+    <string name="alarm_option_title">Alarme</string>
+    <string name="alarm_option_activated_text">Alarme activée</string>
+    <string name="alarm_option_deactivated_text">Alarme désactivée</string>
+
+    <string name="account_option_title">Compte</string>
+    <string name="account_option_text">Supprimer compte utilisateur</string>
+    <string name="account_option_text_delete">Supprimer</string>
+
+    <!-- ListViewAdapter -->
+    <string name="closing_soon">Ferme bientôt</string>
+    <string name="open_until">Ouvert jusqu\'à</string>
+    <string name="closed">Fermé</string>
+
+    <!-- fragment_map_view.xml -->
+    <string name="content_description_fab_location">Bouton pour centrer le curseur de la map à la position courante de l\'utilisateur</string>
+
+    <!-- fragment_restaurant_details.xml -->
+    <string name="call">APPELER</string>
+    <string name="like">LIKE</string>
+    <string name="website">WEBSITE</string>
+    <string name="content_description_restaurant_img">Photo du restaurant</string>
+    <string name="content_description_no_restaurant_photo_icon">Icône précisant qu\'aucune photo du restaurant n\'est disponible</string>
+    <string name="content_description_selection_fab">Bouton pour marquer le restaurant comme sélectionné</string>
+
+    <!-- list_view_item.xml -->
+    <string name="schedules_unavailable">Horaires indisponibles</string>
+    <string name="content_description_rating">Note du restaurant</string>
+    <string name="content_description_icon_restaurant">Photo du restaurant</string>
+    <string name="content_description_no_restaurant_icon">Icône précisant qu\'aucune photo du restaurant n\'est disponible</string>
+
+    <!-- fragment_list_view.xml -->
+    <string name="no_restaurants_nearby">Pas de restaurants à proximité</string>
+
+    <!-- activity_sign_in.xml -->
+    <string name="title_sign_in_page">Go4Lunch</string>
+    <string name="subtitle_sign_in_page">Find a nice restaurant and invite your co-workers for lunch!</string>
+
+    <!-- authentication_layout.xml -->
+    <string name="authentication_btn_sign_in">Se connecter</string>
+    <string name="authentication_btn_google">Se connecter avec Google</string>
+    <string name="authentication_btn_facebook">Se connecter avec Facebook</string>
+    <string name="authentication_btn_twitter">Se connecter avec Twitter</string>
+    <string name="authentication_btn_email">Se connecter avec son email</string>
+
+    <!-- activity_main.xml -->
+    <string name="no_network_detected">Aucun réseau détecté</string>
+
+    <!-- activity_sign_in.xml/activity_main.xml -->
+    <string name="content_description_logo">Go4Lunch application logo</string>
+
+    <!-- main_activity_nav_header.xml -->
+    <string name="nav_header_title">Go4Lunch</string>
+    <string name="content_description_user_icon">Icône du compte utilisateur</string>
+
+    <!-- WorkmatesAdapter -->
+    <string name="no_decision">n\'a pas encore décidé</string>
+    <string name="is_eating_at">mange à</string>
+    <string name="is_going">y va</string>
+
+    <!-- OptionsFragment -->
+    <string name="toast_alarm_activated_today">Alarme prévue à 12:00</string>
+    <string name="toast_alarm_activated_tomorrow">Alarm prévue demain à 12:00</string>
+    <string name="toast_alarm_deactivated">Alarme désactivée</string>
+
+    <!-- NotificationHandler -->
+    <string name="notification_reservation">- Réservation à</string>
+
+    <!-- DeleteAccountDialog -->
+    <string name="delete_account_dialog_title">Supprimer compte</string>
+    <string name="delete_account_dialog_text">Cette action supprimera définitivement ce compte et ses données associées. Confirmer ?</string>
+    <string name="delete_account_dialog_positive_btn">Confirmer</string>
+    <string name="delete_account_dialog_negative_btn">Annuler</string>
+</resources>

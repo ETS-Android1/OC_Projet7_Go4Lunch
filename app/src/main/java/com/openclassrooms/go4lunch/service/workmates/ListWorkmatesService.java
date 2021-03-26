@@ -3,42 +3,41 @@ package com.openclassrooms.go4lunch.service.workmates;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.utils.AppInfo;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import com.openclassrooms.go4lunch.utils.CustomComparators;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Service class to access the list of workmates stored in Firestore database
+ */
 public class ListWorkmatesService {
 
-    private Context context;
+    private final Context context;
 
     public ListWorkmatesService(Context context) {
         this.context = context;
     }
+
+    /**
+     * This method is used to retrieve a list of workmates from Firestore database
+     * @param callback
+     */
     public void getEmployeesInfoFromFirestoreDatabase(ServiceWorkmatesCallback callback) {
 
         ArrayList<Workmate> list = new ArrayList<>();
         FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = dbFirestore.collection(AppInfo.ROOT_COLLECTION_ID);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         SharedPreferences sharedPrefUserId = context.getSharedPreferences(AppInfo.FILE_FIRESTORE_USER_ID, Context.MODE_PRIVATE);
         String userId = sharedPrefUserId.getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, null);
-        Log.i("USERID", "User Id  :" + userId);
-
         // Retrieve all employees information
         collectionRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -57,6 +56,7 @@ public class ListWorkmatesService {
                             }
                         }
                         // Send to ViewModel
+                        Collections.sort(list, new CustomComparators.WorkmateAZComparator());
                         callback.onWorkmatesAvailable(list);
                     } catch (NullPointerException exception) {
                         exception.printStackTrace();
@@ -66,19 +66,35 @@ public class ListWorkmatesService {
         }).addOnFailureListener(Throwable::printStackTrace);
     }
 
+    /**
+     * This method is used to retrieve the DocumentReference object associated with the user
+     * documentReference id
+     * @param documentCurrentUserId : id of the document in collection
+     * @return : DocumentReference
+     */
     public DocumentReference getDocumentReferenceCurrentUser(String documentCurrentUserId) {
         // Get Document in Firestore collection
         return FirebaseFirestore.getInstance().collection(AppInfo.ROOT_COLLECTION_ID)
                                               .document(documentCurrentUserId);
     }
 
+    /**
+     * This method is used to update the fields "restaurantId" et "restaurantName" of a document in collection
+     * @param restaurantName : new value for the field "restaurantName"
+     * @param restaurantId : new value for the field "restaurantId"
+     * @param documentCurrentUserId : id of the document in collection
+     */
     public void updateDocumentReferenceCurrentUser(String restaurantName, String restaurantId, String documentCurrentUserId) {
-        Log.i("REFERENCEDOCUMENT", "Service :" + documentCurrentUserId);
         DocumentReference documentReference = getDocumentReferenceCurrentUser(documentCurrentUserId);
         documentReference.update("restaurantName", restaurantName);
         documentReference.update("restaurantSelectedID", restaurantId);
     }
 
+    /**
+     * This method is used to update the field "liked" of a document in collection
+     * @param documentCurrentUserId : new value for the field "liked"
+     * @param listLikedRestaurants : id of the document in collection
+     */
     public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId, List<String> listLikedRestaurants) {
         getDocumentReferenceCurrentUser(documentCurrentUserId).update("liked", listLikedRestaurants);
     }

@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,7 +62,7 @@ public class WorkmatesFragment extends Fragment {
     private void addObserverToViewModel() {
         workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), list -> {
             // Send to adapter
-            adapter.updateList(list);
+               adapter.updateList(list);
         });
     }
 

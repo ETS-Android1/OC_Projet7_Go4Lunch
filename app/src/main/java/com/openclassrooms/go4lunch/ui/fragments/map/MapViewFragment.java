@@ -19,7 +19,6 @@ import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,8 +44,6 @@ import com.openclassrooms.go4lunch.utils.mapping.RestaurantMarkerItem;
 import com.openclassrooms.go4lunch.utils.mapping.RestaurantRenderer;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -298,29 +295,26 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             workmatesViewModel.getEmployeesInfoFromFirestoreDatabase();
         });
 
-        placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
-            @Override
-            public void onChanged(List<String> autocompleteListRestaurantIds) {
-                if (autocompleteListRestaurantIds.size() == 0) {
-                    autocompleteActivation = false;
-                }
-                else {
-                    autocompleteActivation = true;
-                    List<Restaurant> autocompleteListRestaurant = new ArrayList<>();
-                    boolean found = false;
-                    int j = 0;
-                    for (int i = 0; i < autocompleteListRestaurantIds.size(); i++) {
-                        while (j < listRestaurants.size() && !found) {
-                            if (autocompleteListRestaurantIds.get(i).equals(listRestaurants.get(j).getPlaceId()))
-                                found = true;
-                            else j++;
-                        }
-                        if (found) autocompleteListRestaurant.add(listRestaurants.get(j));
+        placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), autocompleteListRestaurantIds -> {
+            if (autocompleteListRestaurantIds.size() == 0) {
+                autocompleteActivation = false;
+            }
+            else {
+                autocompleteActivation = true;
+                List<Restaurant> autocompleteListRestaurant = new ArrayList<>();
+                boolean found = false;
+                int j = 0;
+                for (int i = 0; i < autocompleteListRestaurantIds.size(); i++) {
+                    while (j < listRestaurants.size() && !found) {
+                        if (autocompleteListRestaurantIds.get(i).equals(listRestaurants.get(j).getPlaceId()))
+                            found = true;
+                        else j++;
                     }
-
-                    // Update map with marker, after updating RestaurantRenderer
-                    updateRestaurantRenderer(autocompleteListRestaurant);
+                    if (found) autocompleteListRestaurant.add(listRestaurants.get(j));
                 }
+
+                // Update map with marker, after updating RestaurantRenderer
+                updateRestaurantRenderer(autocompleteListRestaurant);
             }
         });
 

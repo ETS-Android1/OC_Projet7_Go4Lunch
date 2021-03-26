@@ -1,17 +1,12 @@
 package com.openclassrooms.go4lunch.model;
 
-import android.net.Uri;
 import androidx.annotation.NonNull;
-
-import java.net.URI;
 
 /**
  * Model class which defines a restaurant, and containing all data retrieved from a Place API search,
  * or from the @{@link com.openclassrooms.go4lunch.database.Go4LunchDatabase} database instance.
  */
 public class Restaurant {
-
-    private int itemId;
 
     private final String placeId;
 
@@ -52,12 +47,12 @@ public class Restaurant {
     }
 
     // Getter methods
-    public int getItemId() { return itemId; }
-
     public String getPlaceId() { return placeId; }
 
+    @NonNull
     public String getName() { return name; }
 
+    @NonNull
     public String getAddress() { return address; }
 
     public OpeningAndClosingHours getOpeningAndClosingHours() { return openingAndClosingHours; }
@@ -86,7 +81,7 @@ public class Restaurant {
 
     // Setter methods
 
-    public void setName(String name) {
+    public void setName(@NonNull String name) {
         this.name = name;
     }
 

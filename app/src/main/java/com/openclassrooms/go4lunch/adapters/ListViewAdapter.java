@@ -78,9 +78,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         // Handle item display
-       // Log.i("PERFORMAUTOCOMPLETE", "onBindViewHolder");
         if (holder instanceof ViewHolderListView) {
-        //    Log.i("PERFORMAUTOCOMPLETE", "ViewHolderListView");
             // Name
             ((ViewHolderListView) holder).name.setText(listRestaurant.get(position).getName());
 
@@ -250,7 +248,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) >= 0 &&
                     CustomComparators.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingMinutes) < 0) {
                 if (CustomComparators.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingHour) > -60) { // CLOSING SOON
-                    holder.hour.setText(context.getResources().getString(R.string.closed));
+                    holder.hour.setText(context.getResources().getString(R.string.closing_soon));
                     colorText = true;
                 }
                 else { // OPEN UNTIL

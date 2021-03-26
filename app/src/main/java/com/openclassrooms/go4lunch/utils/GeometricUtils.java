@@ -2,6 +2,9 @@ package com.openclassrooms.go4lunch.utils;
 
 import com.google.android.gms.maps.model.LatLng;
 
+/**
+ * Class providing coordinates point, defined by a LatLng object.
+ */
 public class GeometricUtils {
 
     public static double EARTH_RADIUS = 6371000.0;

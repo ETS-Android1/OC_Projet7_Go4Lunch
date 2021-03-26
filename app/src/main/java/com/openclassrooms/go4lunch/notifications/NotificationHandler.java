@@ -16,6 +16,9 @@ import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.utils.AppInfo;
 
+/**
+ * This class is used to launch notifications to user
+ */
 public class NotificationHandler {
 
     private final Context context;
@@ -38,9 +41,11 @@ public class NotificationHandler {
         if (!savedRestaurantJSON.equals("")) {
             Gson gson = new Gson();
             Restaurant restaurant = gson.fromJson(savedRestaurantJSON, Restaurant.class);
-            String title = context.getResources().getString(R.string.app_name) + " - Reservation at "
+            String title = context.getResources().getString(R.string.app_name) + " " +
+                    context.getResources().getString(R.string.notification_reservation) + " "
                     + restaurant.getName();
             String text = restaurant.getAddress();
+
             // Build notification
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNELID)
                     .setSmallIcon(R.drawable.ic_launcher_background)

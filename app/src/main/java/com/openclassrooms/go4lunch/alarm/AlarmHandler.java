@@ -7,10 +7,13 @@ import android.content.Intent;
 import com.openclassrooms.go4lunch.receivers.AlarmBroadcastReceiver;
 import java.util.Calendar;
 
+/**
+ * This class is used to handle the AlarmManager and activate/deactivate an alarm.
+ */
 public class AlarmHandler {
 
-    private Context context;
-    private AlarmManager alarmManager;
+    private final Context context;
+    private final AlarmManager alarmManager;
 
     public AlarmHandler(Context context) {
         this.context = context;
@@ -23,7 +26,6 @@ public class AlarmHandler {
     public void startAlarm(Calendar calendarAlarm) {
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent, 0);
-
 
         // If hour of the day has already passed, schedule for next day
         if (Calendar.getInstance().getTimeInMillis() - calendarAlarm.getTimeInMillis() > 0)

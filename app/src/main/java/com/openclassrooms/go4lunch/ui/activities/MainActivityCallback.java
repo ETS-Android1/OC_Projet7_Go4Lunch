@@ -1,13 +1,20 @@
 package com.openclassrooms.go4lunch.ui.activities;
 
-import java.util.List;
-
 /**
  * Callback interface to {@link MainActivity} activity
  */
 public interface MainActivityCallback {
-    void getPlacesFroMDatabaseOrRetrofitInMapViewFragment();
-    void logoutUser();
+    // From NetworkBroadcastReceiver
     void updateNetworkInfoBarDisplay(boolean status);
+    void getPlacesFroMDatabaseOrRetrofitInMapViewFragment();
+
+    // From SearchTextWatcher
     void provideSearchQuery(String query);
+
+    // From LogoutDialog
+    void logoutUser();
+
+    // From AuthenticationService
+    void updateUIAfterRequestCompleted(boolean operation);
+    void exitApplicationAfterError();
 }

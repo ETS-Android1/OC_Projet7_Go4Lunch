@@ -3,8 +3,6 @@ package com.openclassrooms.go4lunch.receivers;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
-
 import com.openclassrooms.go4lunch.notifications.NotificationHandler;
 
 /**

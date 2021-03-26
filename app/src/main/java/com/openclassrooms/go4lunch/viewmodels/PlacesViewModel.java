@@ -60,7 +60,6 @@ public class PlacesViewModel extends ViewModel {
     }
 
     // Methods to access PlacesRepository -> ListRestaurantsService methods
-
     /**
      * This method is used to access the findPlacesNearby() method of the @{@link PlacesRepository } repository class.
      * @param location : Info location of the user

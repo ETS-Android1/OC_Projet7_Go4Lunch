@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 import com.openclassrooms.go4lunch.BuildConfig;
 import static android.content.Context.MODE_PRIVATE;
 
+/**
+ * This class contains static values for the Go4Lunch application, and method to check app configuration.
+ */
 public class AppInfo {
 
     // Root collection id in Firestore
@@ -16,6 +19,7 @@ public class AppInfo {
     public static final String FILE_PREF_USER_POSITION = "FILE_PREF_USER_POSITION";
     public static final String FILE_PREF_FIRST_RUN = "FILE_REFS_FIRST_RUN";
     public static final String FILE_PREF_SELECTED_RESTAURANT = "FILE_PREF_SELECTED_RESTAURANT";
+    public static final String FILE_PREF_NB_PERMISSION_REQUESTS = "FILE_PREF_NB_PERMISSION_REQUEST";
 
     // SharedPreferences Options files
     public static final String FILE_OPTIONS = "FILE_OPTIONS";
@@ -30,6 +34,7 @@ public class AppInfo {
     public static final String PREF_CLUSTER_OPTION_KEY = "cluster_option";
     public static final String PREF_ALARM_OPTION_STATUS_KEY = "alarm_option_status";
     public static final String PREF_FIRESTORE_USER_ID_KEY = "firestore_user_id";
+    public static final String PREF_NB_PERMISSION_REQUESTS = "nb_permission_requests";
 
     /**
      * Method used to check if user launch the app for the first time

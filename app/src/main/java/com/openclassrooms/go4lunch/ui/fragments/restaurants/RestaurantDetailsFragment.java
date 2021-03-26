@@ -33,10 +33,12 @@ import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.utils.AppInfo;
+import com.openclassrooms.go4lunch.utils.CustomComparators;
 import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -203,18 +205,14 @@ public class RestaurantDetailsFragment extends Fragment {
         });
 
         workmatesViewModel = new ViewModelProvider(requireActivity()).get(WorkmatesViewModel.class);
-        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), new Observer<List<Workmate>>() {
-            @Override
-            public void onChanged(List<Workmate> listWorkmates) {
-                ArrayList<Workmate> listFiltered = new ArrayList<>();
-                for (int i = 0; i < listWorkmates.size(); i++) {
-                    if (listWorkmates.get(i).getRestaurantSelectedID().equals(restaurant.getPlaceId())) {
-                        listFiltered.add(listWorkmates.get(i));
-                    }
-                    adapter.updateList(listFiltered);
+        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), listWorkmates -> {
+            ArrayList<Workmate> listFiltered = new ArrayList<>();
+            for (int i = 0; i < listWorkmates.size(); i++) {
+                if (listWorkmates.get(i).getRestaurantSelectedID().equals(restaurant.getPlaceId())) {
+                    listFiltered.add(listWorkmates.get(i));
                 }
-
             }
+             adapter.updateList(listFiltered);
         });
     }
 
@@ -329,7 +327,7 @@ public class RestaurantDetailsFragment extends Fragment {
         if (!documentID.equals("")) {
             workmatesViewModel.getDocumentReferenceCurrentUser(documentID).get().addOnSuccessListener(documentSnapshot -> {
                 // Get list of restaurant liked by user
-                listLikedRestaurants = (List<String>) documentSnapshot.get("liked");
+                listLikedRestaurants = (List<String>) documentSnapshot.get("liked"); // TODO() : Check cast
                 // Check if list contains the current restaurant
                 int j = 0;
                 while (j < listLikedRestaurants.size() && !likeStatus) {

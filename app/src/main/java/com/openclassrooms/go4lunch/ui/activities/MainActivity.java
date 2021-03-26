@@ -30,10 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationView;
@@ -51,6 +49,7 @@ import com.openclassrooms.go4lunch.di.DI;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
 import com.openclassrooms.go4lunch.repositories.WorkmatesRepository;
+import com.openclassrooms.go4lunch.service.authentication.AuthenticationService;
 import com.openclassrooms.go4lunch.ui.dialogs.LogoutDialog;
 import com.openclassrooms.go4lunch.ui.fragments.options.OptionsFragment;
 import com.openclassrooms.go4lunch.ui.fragments.restaurants.ListViewFragment;
@@ -72,9 +71,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ActivityMainBinding binding;
     private boolean initialize = false;
 
-    // For Sign out firebase operation
-    private static final int SIGN_OUT = 10;
-
     // Receiver
     private NetworkBroadcastReceiver networkBroadcastReceiver; // To catch Network status changed event
 
@@ -93,17 +89,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Location client
     private FusedLocationProviderClient locationClient; // To get current user position
-
-    // OnSuccess listener for logout operation
-    private OnSuccessListener<Void> updateUIAfterRequestCompleted(final int request) {
-        return aVoid -> {
-            if (request == SIGN_OUT) {
-                Snackbar.make(binding.drawerLayout, R.string.snack_bar_logout, Snackbar.LENGTH_SHORT).show();
-                finish();
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-            }
-        };
-    }
 
     // ViewModels
     private PlacesViewModel placesViewModel;
@@ -368,7 +353,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             binding.textInputEditAutocomplete.getText().clear();
             binding.textInputLayoutAutocomplete.setVisibility(View.GONE);
             // Restore list to display
-            listViewFragment.restoreListRestaurants();
+            Fragment fragment = fragmentManager.findFragmentByTag(ListViewFragment.TAG);
+            if (fragment != null) listViewFragment.restoreListRestaurants();
             // Restore markers on map
             mapViewFragment.restoreBackupMarkersOnMap();
         }
@@ -406,13 +392,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @Override
     public void logoutUser() {
-        AuthUI.getInstance().signOut(this)
-                .addOnFailureListener(this, exception -> finish())
-                .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));
-      /*  AuthUI.getInstance().delete(this)
-                .addOnFailureListener(this, exception -> finish())
-                .addOnSuccessListener(this, updateUIAfterRequestCompleted(SIGN_OUT));*/
+        AuthenticationService.logoutUser(this, this);
     }
+
+    @Override
+    public void exitApplicationAfterError() { finish(); }
 
     /**
      * MainActivityCallback interface implementation :
@@ -434,6 +418,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             else placesViewModel.performAutocompleteRequest(query, getApplicationContext());
         }
         else Toast.makeText(getApplicationContext(), "GPS not enabled", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void updateUIAfterRequestCompleted(boolean operation) {
+        if (operation) // Logout
+            Snackbar.make(binding.drawerLayout, R.string.snack_bar_logout, Snackbar.LENGTH_SHORT).show();
+        else // Delete account
+            Snackbar.make(binding.drawerLayout, R.string.snack_bar_account_deleted, Snackbar.LENGTH_SHORT).show();
+        finish();
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
     /**

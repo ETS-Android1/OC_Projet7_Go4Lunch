@@ -3,6 +3,9 @@ package com.openclassrooms.go4lunch.utils;
 import com.openclassrooms.go4lunch.model.Workmate;
 import java.util.Comparator;
 
+/**
+ * Contains comparators
+ */
 public class CustomComparators {
 
     /**
@@ -15,6 +18,14 @@ public class CustomComparators {
         }
     }
 
+    /**
+     * Comparator to check the time difference between two hours.
+     * @param startHour : hours start hour
+     * @param startMinutes : minutes start hour
+     * @param endHour : hours end hour
+     * @param endMinutes : minutes end hour
+     * @return : difference
+     */
     public static int getTimeDiff(int startHour, int startMinutes, int endHour, int endMinutes) {
         int startTime = startHour*60 + startMinutes;
         int endTime = endHour*60 + endMinutes;

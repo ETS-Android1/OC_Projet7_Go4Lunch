@@ -43,13 +43,4 @@ public class RestaurantMarkerItem implements ClusterItem {
     public int getIndice() {
         return indice;
     }
-
-    public String getRestaurantId() {
-        return restaurantId;
-    }
-
-    // Setter methods
-    public void setType(boolean type) {
-        this.type = type;
-    }
 }

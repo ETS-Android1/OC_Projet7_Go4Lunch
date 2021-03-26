@@ -69,41 +69,32 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
                 updateTextBackgroundDisplay(newListRestaurants.size() <= 0);
                 // Hide circular progress bar when loading is over
                 adapter.updateVisibilityProgressBarStatus(View.INVISIBLE);
-            List<Restaurant> currentList = adapter.getListRestaurant();
         });
 
-        placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
-            @Override
-            public void onChanged(List<String> autocompleteListRestaurantIds) {
-                    if (autocompleteListRestaurantIds.size() == 0) autocompleteActivation = false;
-                    else autocompleteActivation = true;
+        placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), autocompleteListRestaurantIds -> {
+                if (autocompleteListRestaurantIds.size() == 0) autocompleteActivation = false;
+                else autocompleteActivation = true;
 
-                    List<Restaurant> currentList = adapter.getListRestaurantBackup();
-                    List<Restaurant> newListRestaurantsAutocomplete = new ArrayList<>();
-                    boolean found = false;
-                    int index = 0;
+                List<Restaurant> currentList = adapter.getListRestaurantBackup();
+                List<Restaurant> newListRestaurantsAutocomplete = new ArrayList<>();
+                boolean found = false;
+                int index = 0;
 
-                    for (int i = 0; i < autocompleteListRestaurantIds.size(); i++) {
-                        while (index < currentList.size() && !found) {
-                            if (currentList.get(index).getPlaceId().equals(autocompleteListRestaurantIds.get(i))) {
-                                found = true;
-                                newListRestaurantsAutocomplete.add(currentList.get(index));
-                            }
-                            else index++;
+                for (int i = 0; i < autocompleteListRestaurantIds.size(); i++) {
+                    while (index < currentList.size() && !found) {
+                        if (currentList.get(index).getPlaceId().equals(autocompleteListRestaurantIds.get(i))) {
+                            found = true;
+                            newListRestaurantsAutocomplete.add(currentList.get(index));
                         }
+                        else index++;
                     }
-                    // Send to adapter
-                    adapter.updateListRestaurants(newListRestaurantsAutocomplete);
-            }
+                }
+                // Send to adapter
+                adapter.updateListRestaurants(newListRestaurantsAutocomplete);
         });
 
         // Workmates
-        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), new Observer<List<Workmate>>() {
-            @Override
-            public void onChanged(List<Workmate> listWorkmates) {
-                adapter.updateListWorkmates(listWorkmates);
-            }
-        });
+        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), listWorkmates -> adapter.updateListWorkmates(listWorkmates));
     }
 
     @Override
@@ -157,8 +148,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
                     if (numNextPageRequest < 1) { // Search Nearby API can only returns 2 others pages of locations
                         if (!recyclerView.canScrollVertically(1)) {
                             // Get next places available to display
-                            ArrayList<Restaurant> listToUpdate = new ArrayList<>();
-                            listToUpdate.addAll(adapter.getListRestaurant());
+                            ArrayList<Restaurant> listToUpdate = new ArrayList<>(adapter.getListRestaurant());
                             placesViewModel.getNextPlacesNearby(listToUpdate, numNextPageRequest);
                             numNextPageRequest++;
                             // Display circular progress bar

@@ -27,7 +27,6 @@ import com.openclassrooms.go4lunch.service.places.response.details.DetailsRespon
 import com.openclassrooms.go4lunch.service.places.response.places.PlaceResponse;
 import com.openclassrooms.go4lunch.service.places.response.places.ResultPlaces;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
-import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
 import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
 import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.DataConverters;
@@ -53,8 +52,6 @@ public class PlacesRepository {
     private final SharedPreferences[] sharedPrefNextPageToken;
     private SharedPreferences.Editor editor;
 
-    private final Context context;
-
     public PlacesRepository(RestaurantDao restaurantDao,
                             HoursDao hoursDao,
                             RestaurantAndHoursDao restaurantAndHoursDao,
@@ -74,9 +71,6 @@ public class PlacesRepository {
         sharedPrefNextPageToken = new SharedPreferences[2];
         sharedPrefNextPageToken[0] = context.getSharedPreferences(AppInfo.FILE_PREF_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
         sharedPrefNextPageToken[1] = context.getSharedPreferences(AppInfo.FILE_PREF_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
-
-        // Get context
-        this.context = context;
     }
 
     // Methods to access ListRestaurantsService

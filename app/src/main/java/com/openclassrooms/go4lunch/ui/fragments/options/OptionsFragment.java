@@ -15,6 +15,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.alarm.AlarmHandler;
 import com.openclassrooms.go4lunch.databinding.FragmentOptionsBinding;
+import com.openclassrooms.go4lunch.service.authentication.AuthenticationService;
+import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
 import com.openclassrooms.go4lunch.ui.dialogs.DeleteAccountDialog;
 import com.openclassrooms.go4lunch.utils.AppInfo;
 import java.util.Calendar;
@@ -47,7 +49,7 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentOptionsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -174,11 +176,7 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
 
     @Override
     public void confirmDeleteUser() {
-        // TODO("Not implemented yet)
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            user.delete();
-            Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_SHORT).show();
-        }
+        if (user != null) AuthenticationService.deleteUser(getContext(), ((MainActivityCallback) getActivity()));
     }
 }
