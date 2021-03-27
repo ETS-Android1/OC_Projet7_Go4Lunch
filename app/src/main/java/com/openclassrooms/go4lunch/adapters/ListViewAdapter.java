@@ -118,10 +118,8 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * user location.
      */
     public void updateListRestaurants(List<Restaurant> newList) {
-        Log.i("PERFORMAUTOCOMPLETE", "updateListRestaurants newList : " + newList.size());
         listRestaurant.clear();
         listRestaurant.addAll(newList);
-        Log.i("PERFORMAUTOCOMPLETE", "updateListRestaurants listRestaurant " + listRestaurant.size());
         notifyDataSetChanged();
     }
 
@@ -130,14 +128,12 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public void restoreListRestaurants() {
-        Log.i("PERFORMAUTOCOMPLETE", "PERFORMAUTOCOMPLETE");
         listRestaurant.clear();
         listRestaurant.addAll(listRestaurantBackup);
         notifyDataSetChanged();
     }
 
     public void updateListWorkmates(List<Workmate> newList) {
-        Log.i("LISTWORKMATE", "updateListWorkmates");
         listWorkmates.clear();
         listWorkmates.addAll(newList);
         notifyDataSetChanged();
@@ -260,12 +256,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 holder.hour.setText(context.getResources().getString(R.string.closed));
             }
         }
-
         // Update color text for "closing soon" hours
-        if (colorText)
-            displayStyleTextViewForHoursDisplay(holder.hour, R.color.red, Typeface.BOLD_ITALIC);
-        else
-            displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50, Typeface.ITALIC);
+        if (colorText) displayStyleTextViewForHoursDisplay(holder.hour, R.color.red, Typeface.BOLD_ITALIC);
+        else displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50, Typeface.ITALIC);
     }
 
 

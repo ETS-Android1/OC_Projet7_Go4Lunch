@@ -5,11 +5,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +15,6 @@ import android.view.ViewGroup;
 import com.openclassrooms.go4lunch.adapters.ListViewAdapter;
 import com.openclassrooms.go4lunch.databinding.FragmentListViewBinding;
 import com.openclassrooms.go4lunch.model.Restaurant;
-import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
@@ -40,9 +37,6 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
 
     private int numNextPageRequest;
 
-    // Autocomplete Activation status
-    private boolean autocompleteActivation = false;
-
     public ListViewFragment() { /* Empty public constructor */ }
 
     public static ListViewFragment newInstance() {
@@ -63,6 +57,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     private void addObserversToViewModels() {
         // PlaceViewModels
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), newListRestaurants -> {
+
                 adapter.updateListRestaurants(newListRestaurants);
                 adapter.updateListRestaurantsBackup();
                 // Update background text
@@ -72,11 +67,10 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
         });
 
         placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), autocompleteListRestaurantIds -> {
-                if (autocompleteListRestaurantIds.size() == 0) autocompleteActivation = false;
-                else autocompleteActivation = true;
-
+            if (((MainActivity) requireActivity()).getAutocompleteActivation()) {
                 List<Restaurant> currentList = adapter.getListRestaurantBackup();
                 List<Restaurant> newListRestaurantsAutocomplete = new ArrayList<>();
+
                 boolean found = false;
                 int index = 0;
 
@@ -91,6 +85,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
                 }
                 // Send to adapter
                 adapter.updateListRestaurants(newListRestaurantsAutocomplete);
+            }
         });
 
         // Workmates
@@ -144,7 +139,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 // If end of RecyclerView list
-                if (!autocompleteActivation) { // Only if autocomplete is not activated
+                if (!((MainActivity) requireActivity()).getAutocompleteActivation()) { // Only if autocomplete is not activated
                     if (numNextPageRequest < 1) { // Search Nearby API can only returns 2 others pages of locations
                         if (!recyclerView.canScrollVertically(1)) {
                             // Get next places available to display

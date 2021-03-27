@@ -2,7 +2,6 @@ package com.openclassrooms.go4lunch.utils.search;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
 
 /**
@@ -10,7 +9,7 @@ import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
  */
 public class SearchTextWatcher implements TextWatcher {
 
-    private MainActivityCallback callback;
+    private final MainActivityCallback callback;
 
     public SearchTextWatcher(MainActivityCallback callback) {
         this.callback = callback;
@@ -28,7 +27,6 @@ public class SearchTextWatcher implements TextWatcher {
 
     @Override
     public void afterTextChanged(Editable editable) {
-        Log.i("PERFORMAUTOCOMPLETE", "SearchTextWatcher : " + editable.toString());
         callback.provideSearchQuery(editable.toString());
     }
 }

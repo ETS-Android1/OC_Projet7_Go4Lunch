@@ -20,7 +20,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,9 +86,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     private SharedPreferences sharedPrefClusterOption;
     private final ArrayList<Restaurant> listRestaurants = new ArrayList<>();
 
-    // Autocomplete Activation status
-    private boolean autocompleteActivation = false;
-
     // Listener of user position updates
     private final LocationListener locationListener = new LocationListener() {
         @Override
@@ -97,7 +93,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 // Search new locations only if autocomplete is not activated
-                if (!autocompleteActivation) {
+                if (!((MainActivity) getActivity()).getAutocompleteActivation()) {
                     searchPlacesFromCurrentLocation();
                     // Save new location
                     currentLatUserPosition = location.getLatitude();
@@ -296,11 +292,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         });
 
         placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), autocompleteListRestaurantIds -> {
-            if (autocompleteListRestaurantIds.size() == 0) {
-                autocompleteActivation = false;
-            }
-            else {
-                autocompleteActivation = true;
+            if (((MainActivity) getActivity()).getAutocompleteActivation()) {
                 List<Restaurant> autocompleteListRestaurant = new ArrayList<>();
                 boolean found = false;
                 int j = 0;
@@ -317,7 +309,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                 updateRestaurantRenderer(autocompleteListRestaurant);
             }
         });
-
 
         // Check if workmates have done any updates in their restaurant selection
         workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), listWorkmates -> {
@@ -360,7 +351,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     public void updateRestaurantRenderer(List<Restaurant> list) {
-        boolean clusterOption = sharedPrefClusterOption.getBoolean("cluster_option", false);
+        boolean clusterOption = sharedPrefClusterOption.getBoolean(AppInfo.PREF_CLUSTER_OPTION_KEY, false);
         ((RestaurantRenderer) clusterManager.getRenderer()).setClusterActivation(clusterOption);
         displayMarkersWithClustersInMap(list);
     }

@@ -3,7 +3,6 @@ package com.openclassrooms.go4lunch.viewmodels;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.util.Log;
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
@@ -14,7 +13,6 @@ import com.openclassrooms.go4lunch.database.HoursData;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.database.RestaurantData;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
-import com.openclassrooms.go4lunch.service.autocomplete.ServiceAutocompleteCallback;
 import com.openclassrooms.go4lunch.utils.DataConverters;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -115,19 +113,9 @@ public class PlacesViewModel extends ViewModel {
     // Methods to access PlacesRepository -> AutocompleteService methods
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void performAutocompleteRequest(String query, Context context) {
-        Log.i("PERFORMAUTOCOMPLETE", "PlacesViewModel performAutocompleteRequest : " + query);
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    placesRepository.performAutocompleteRequest(query, new ServiceAutocompleteCallback() {
-                        @Override
-                        public void getAutocompleteResults(List<String> autocompleteIdRestaurantsList) {
-                            Log.i("PERFORMAUTOCOMPLETE", "PlacesViewModel getAutocompleteResults size : " + autocompleteIdRestaurantsList.size());
-                            listRestaurantsIdAutocomplete.postValue(autocompleteIdRestaurantsList);
-                        }
-                    });
-                }
+        executor.execute(() -> {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                placesRepository.performAutocompleteRequest(query, listRestaurantsIdAutocomplete::postValue);
             }
         });
     }
@@ -219,7 +207,6 @@ public class PlacesViewModel extends ViewModel {
             restaurant.setOpeningAndClosingHours(DataConverters.converterHoursDataToOpeningAndClosingHours(hoursData));
             oldListRestaurants.add(restaurant);
         }
-
         listRestaurants.postValue(oldListRestaurants);
     }
 }

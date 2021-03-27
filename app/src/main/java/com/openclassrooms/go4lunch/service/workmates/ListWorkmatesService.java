@@ -2,7 +2,6 @@ package com.openclassrooms.go4lunch.service.workmates;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -10,7 +9,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.CustomComparators;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

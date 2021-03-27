@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.net.Uri;
-import android.util.Log;
 import androidx.annotation.RequiresPermission;
 import androidx.lifecycle.LiveData;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -192,7 +191,6 @@ public class PlacesRepository {
     // Methods to access AutocompleteService
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void performAutocompleteRequest(String query, ServiceAutocompleteCallback callback) {
-        Log.i("PERFORMAUTOCOMPLETE", "PlacesRepository performAutocompleteRequest : " + query);
         autocompleteService.performAutocompleteRequest(query, callback);
     }
 

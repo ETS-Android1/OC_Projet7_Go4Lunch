@@ -1,7 +1,6 @@
 package com.openclassrooms.go4lunch.service.autocomplete;
 
 import android.Manifest;
-import android.util.Log;
 import androidx.annotation.RequiresPermission;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -31,8 +30,6 @@ public class AutocompleteService {
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void performAutocompleteRequest(String query, ServiceAutocompleteCallback callback) {
-        Log.i("PERFORMAUTOCOMPLETE", "AutocompleteService request ");
-        Log.i("PERFORMAUTOCOMPLETE", "AutocompleteService : " + query);
         locationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener(location -> {
                     // Get current location

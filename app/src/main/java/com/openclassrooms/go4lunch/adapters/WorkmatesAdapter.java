@@ -41,7 +41,6 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolderWorkmates holder, int position) {
-
         // Display text
         displayText(holder.text, position);
 
@@ -90,13 +89,12 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
                         .override(icon.getWidth(), icon.getHeight())
                         .into(icon);
             }
-            else {
-                icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.user_default_icon, null));
-            }
+            else icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                                                                   R.drawable.user_default_icon, null));
+
         }
-        else {
-            icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.user_default_icon, null));
-        }
+        else icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
+                                                               R.drawable.user_default_icon, null));
     }
 
 
@@ -116,7 +114,6 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
     }
 
     public void updateList(List<Workmate> newList) {
-
         listWorkmates.clear();
         listWorkmates.addAll(newList);
         notifyDataSetChanged();

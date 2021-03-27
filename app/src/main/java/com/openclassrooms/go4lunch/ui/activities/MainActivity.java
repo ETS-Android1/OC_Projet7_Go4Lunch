@@ -19,7 +19,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -93,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // ViewModels
     private PlacesViewModel placesViewModel;
     private WorkmatesViewModel workmatesViewModel;
+
+    private boolean autocompleteActivation = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -406,16 +407,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void provideSearchQuery(String query) {
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            Log.i("PERFORMAUTOCOMPLETE", "SearchTextWatcher : " + query);
             if (query.length() == 0) {
-                binding.textInputEditAutocomplete.getText().clear();
+                autocompleteActivation = false;
                 mapViewFragment.restoreBackupMarkersOnMap();
                 Fragment fragment = fragmentManager.findFragmentByTag(ListViewFragment.TAG);
                 if (fragment != null) {
                         listViewFragment.restoreListRestaurants();
                 }
             }
-            else placesViewModel.performAutocompleteRequest(query, getApplicationContext());
+            else {
+                autocompleteActivation = true;
+                placesViewModel.performAutocompleteRequest(query, getApplicationContext());
+            }
         }
         else Toast.makeText(getApplicationContext(), "GPS not enabled", Toast.LENGTH_SHORT).show();
     }
@@ -513,4 +516,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Setter methods
     public void setRestaurantToDisplay(Restaurant restaurantToDisplay) { this.restaurantToDisplay = restaurantToDisplay; }
+
+    public boolean getAutocompleteActivation() {
+        return autocompleteActivation;
+    }
 }
