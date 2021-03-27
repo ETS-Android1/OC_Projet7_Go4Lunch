@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeSearchEditTextListener();
         loadUserInfoInNavigationView();
         handleBottomNavigationItemsListeners();
+        handleConnectivityBarBtnListener();
         // Broadcast Receiver initialization
         networkBroadcastReceiver = new NetworkBroadcastReceiver(this);
         // To access Places API methods
@@ -452,6 +453,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fadeInAnim.start();
             }
         }
+    }
+
+    private void handleConnectivityBarBtnListener() {
+        binding.barConnectivityInfoBtnClose.setOnClickListener(v -> binding.barConnectivityInfo.setVisibility(View.GONE));
     }
 
     public void updateBottomBarStatusVisibility(int visibility) { binding.bottomNavigationBar.setVisibility(visibility); }

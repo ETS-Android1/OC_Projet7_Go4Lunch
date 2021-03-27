@@ -99,6 +99,7 @@
 
     <!-- activity_main.xml -->
     <string name="no_network_detected">Aucun réseau détecté</string>
+    <string name="connectivity_bar_btn_close">Fermer</string>
 
     <!-- activity_sign_in.xml/activity_main.xml -->
     <string name="content_description_logo">Go4Lunch application logo</string>
@@ -125,4 +126,7 @@
     <string name="delete_account_dialog_text">Cette action supprimera définitivement ce compte et ses données associées. Confirmer ?</string>
     <string name="delete_account_dialog_positive_btn">Confirmer</string>
     <string name="delete_account_dialog_negative_btn">Annuler</string>
+
+    <!-- Autocomplete search bar -->
+    <string name="search_bar_hint">Rechercher restaurants</string>
 </resources>

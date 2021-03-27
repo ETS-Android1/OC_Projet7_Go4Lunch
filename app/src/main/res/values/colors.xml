@@ -23,4 +23,5 @@
     <color name="blue_twitter_btn">#1DA1F3</color>
     <color name="grey_color_txt_google_btn">#757575</color>
     <color name="floating_action_btn">#494949</color>
+    <color name="light_blue">#80BEF5</color>
 </resources>
