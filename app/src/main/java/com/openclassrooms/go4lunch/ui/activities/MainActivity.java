@@ -262,9 +262,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Gson gson = new Gson();
                 setRestaurantToDisplay(gson.fromJson(savedRestaurantJSON, Restaurant.class));
                 if (optionsFragment.isVisible()) fragmentManager.popBackStack();
-                fragmentManager.beginTransaction()
-                        .add(R.id.fragment_container_view, RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG)
-                        .addToBackStack(null).commit();
+                displayRestaurantDetailsFragment();
                 updateNavigationAndBottomBarDisplay(View.GONE);
             }
             else Toast.makeText(this, getResources().getString(R.string.toast_your_lunch), Toast.LENGTH_SHORT).show();
@@ -315,14 +313,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         case R.id.workmates: // Workmates Fragment
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null) {
-                               listViewFragment.restoreListRestaurants();
-                               mapViewFragment.restoreBackupMarkersOnMap();
-                               updateSearchAutocompleteEditTextVisibility(View.GONE);
-                               autocompleteActivation = false;
+                                listViewFragment.restoreListRestaurants();
+                                mapViewFragment.restoreBackupMarkersOnMap();
+                                updateSearchAutocompleteEditTextVisibility(View.GONE);
+                                autocompleteActivation = false;
                                 if (listViewFragment.isVisible())
                                     fragmentManager.beginTransaction().hide(listViewFragment).commit();
                             }
-
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) == null)
                                 fragmentManager.beginTransaction()
                                         .add(R.id.fragment_container_view, workmatesFragment, WorkmatesFragment.TAG).commit();
@@ -334,10 +331,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         );
     }
 
-
     public void displayRestaurantDetailsFragment() {
-        fragmentManager.beginTransaction().add(R.id.fragment_container_view,
-                RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG).commit();
+        fragmentManager.beginTransaction()
+                .add(R.id.fragment_container_view, RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG)
+                .addToBackStack(null).commit();
         updateNavigationAndBottomBarDisplay(View.GONE);
     }
 
@@ -494,6 +491,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void updateNavigationAndBottomBarDisplay(int visibility) {
+        binding.toolbar.setVisibility(visibility);
         binding.barConnectivityInfo.setVisibility(visibility);
         binding.bottomNavigationBar.setVisibility(visibility);
     }
