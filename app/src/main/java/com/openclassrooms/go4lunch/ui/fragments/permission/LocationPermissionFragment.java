@@ -111,8 +111,7 @@ public class LocationPermissionFragment extends Fragment {
                 requireActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container_view, MapViewFragment.newInstance(), MapViewFragment.TAG)
                         .commit();
-                ((MainActivity) requireActivity()).updateToolbarStatusVisibility(View.VISIBLE);
-                ((MainActivity) requireActivity()).updateBottomBarStatusVisibility(View.VISIBLE);
+                ((MainActivity) requireActivity()).updateNavigationAndBottomBarDisplay(View.VISIBLE);
             }
         }
     }

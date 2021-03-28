@@ -16,6 +16,7 @@
     <string name="snack_bar_logout">Se déconnecter</string>
     <string name="snack_bar_account_deleted">Compte supprimé</string>
     <string name="toast_your_lunch">Pas de restaurant sélectionné</string>
+    <string name="toast_gps_disabled">GPS désactivé</string>
 
     <!-- Navigation Drawer -->s
     <string name="icon_your_lunch">TON RESTO</string>
