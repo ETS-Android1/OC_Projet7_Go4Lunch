@@ -17,12 +17,10 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -103,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         // Initialize views
-        initializeToolbar();
+        setSupportActionBar(binding.toolbar);
         initializeDrawerLayout();
         initializeNavigationView();
         initializeSearchEditTextListener();
@@ -178,15 +176,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mapViewFragment = MapViewFragment.newInstance();
         optionsFragment = OptionsFragment.newInstance();
         fragmentManager = getSupportFragmentManager();
-    }
-
-    private void initializeToolbar() {
-        setSupportActionBar(binding.toolbar);
-        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.toolbar.getLayoutParams();
-            params.setMargins(0, AppInfo.getStatusBarSize(this), 0, 0);
-            binding.toolbar.setLayoutParams(params);
-        }
     }
 
     private void initializeDrawerLayout() {
