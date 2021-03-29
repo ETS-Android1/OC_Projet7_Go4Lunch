@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_baseline_map_24dp_grey45"
-            android:contentDescription="TODO" />
+            android:contentDescription="@string/content_description_option_map" />
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_baseline_access_alarm_24dp_grey45"
-            android:contentDescription="TODO" />
+            android:contentDescription="@string/content_description_option_alarm"/>
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -140,7 +140,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_baseline_person_24dp_grey45"
-            android:contentDescription="TODO" />
+            android:contentDescription="@string/content_description_option_delete_account"/>
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"

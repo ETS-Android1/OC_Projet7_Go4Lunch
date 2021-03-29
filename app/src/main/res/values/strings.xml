@@ -57,10 +57,12 @@
     <string name="alarm_option_title">Alarm</string>
     <string name="alarm_option_activated_text">Alarm activated</string>
     <string name="alarm_option_deactivated_text">Alarm deactivated</string>
-
     <string name="account_option_title">Account</string>
     <string name="account_option_text">Delete user account</string>
     <string name="account_option_text_delete">Delete</string>
+    <string name="content_description_option_map">Map option icon</string>
+    <string name="content_description_option_alarm">Alarm option icon</string>
+    <string name="content_description_option_delete_account">Delete account option icon</string>
 
     <!-- ListViewAdapter -->
     <string name="closing_soon">Closing soon</string>
@@ -130,4 +132,7 @@
 
     <!-- Autocomplete search bar -->
     <string name="search_bar_hint">Search restaurants</string>
+
+    <!-- workmates_item.xml -->
+    <string name="content_description_workmate_icon">Workmate photo</string>
 </resources>

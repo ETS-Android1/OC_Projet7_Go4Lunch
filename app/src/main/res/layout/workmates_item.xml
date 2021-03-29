@@ -10,7 +10,8 @@
         android:id="@+id/photo_workmate"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_marginStart="20dp"/>
+        android:layout_marginStart="20dp"
+        android:contentDescription="@string/content_description_workmate_icon" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/text_workmate"
