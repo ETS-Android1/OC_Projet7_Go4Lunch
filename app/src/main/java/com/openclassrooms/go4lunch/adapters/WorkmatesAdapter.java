@@ -90,11 +90,11 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
                         .into(icon);
             }
             else icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
-                                                                   R.drawable.user_default_icon, null));
+                                                                   R.drawable.ic_baseline_account_circle_24dp_dark_orange, null));
 
         }
         else icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
-                                                               R.drawable.user_default_icon, null));
+                                                               R.drawable.ic_baseline_account_circle_24dp_dark_orange, null));
     }
 
 

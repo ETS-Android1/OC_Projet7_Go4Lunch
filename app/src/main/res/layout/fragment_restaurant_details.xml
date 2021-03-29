@@ -9,7 +9,8 @@
     android:clickable="true"
     android:focusable="true"
     android:id="@+id/root_layout_fragment_restaurant_details"
-    tools:context=".ui.fragments.restaurants.RestaurantDetailsFragment">
+    tools:context=".ui.fragments.restaurants.RestaurantDetailsFragment"
+    android:fitsSystemWindows="false">
 
     <ImageView
         android:id="@+id/photo_restaurant"

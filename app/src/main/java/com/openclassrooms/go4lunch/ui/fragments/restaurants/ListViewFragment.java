@@ -57,7 +57,6 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     private void addObserversToViewModels() {
         // PlaceViewModels
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), newListRestaurants -> {
-
                 adapter.updateListRestaurants(newListRestaurants);
                 adapter.updateListRestaurantsBackup();
                 // Update background text

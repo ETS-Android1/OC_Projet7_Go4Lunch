@@ -2,6 +2,7 @@ package com.openclassrooms.go4lunch.service.workmates;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,7 +30,6 @@ public class ListWorkmatesService {
      * @param callback
      */
     public void getEmployeesInfoFromFirestoreDatabase(ServiceWorkmatesCallback callback) {
-
         ArrayList<Workmate> list = new ArrayList<>();
         FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = dbFirestore.collection(AppInfo.ROOT_COLLECTION_ID);

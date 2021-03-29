@@ -20,6 +20,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -289,6 +290,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             listRestaurants.addAll(list);
             // Load workmates list from Firestore db
             workmatesViewModel.getEmployeesInfoFromFirestoreDatabase();
+            // Update map with marker, after updating RestaurantRenderer
+            updateRestaurantRenderer(list);
         });
 
         placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), autocompleteListRestaurantIds -> {

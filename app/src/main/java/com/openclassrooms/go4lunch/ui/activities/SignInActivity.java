@@ -125,6 +125,10 @@ public class SignInActivity extends AppCompatActivity {
     private void addUserIdToFirestoreDatabase() {
       FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
       FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
+      SharedPreferences sharedPrefFirestoreUserId = getSharedPreferences(
+                AppInfo.FILE_FIRESTORE_USER_ID,
+                Context.MODE_PRIVATE);
+      SharedPreferences.Editor editor = sharedPrefFirestoreUserId.edit();
 
       CollectionReference collectionRef = dbFirestore.collection(AppInfo.ROOT_COLLECTION_ID);
       try {
@@ -144,14 +148,15 @@ public class SignInActivity extends AppCompatActivity {
                       // Get ID of the DocumentReference after workmate has been added to database
                       // Then store value in SharedPreferences file
                       collectionRef.add(workmate).addOnCompleteListener(task1 -> {
-                          SharedPreferences sharedPrefFirestoreUserId = getSharedPreferences(
-                                  AppInfo.FILE_FIRESTORE_USER_ID,
-                                  Context.MODE_PRIVATE);
-                          SharedPreferences.Editor editor = sharedPrefFirestoreUserId.edit();
                           editor.putString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, task1.getResult().getId());
                           editor.apply();
                       });
                   }
+                  else {
+                      editor.putString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, task.getResult().getDocuments().get(0).getId());
+                      editor.apply();
+                  }
+
               }
           });
       } catch (NullPointerException exception) { exception.printStackTrace(); }

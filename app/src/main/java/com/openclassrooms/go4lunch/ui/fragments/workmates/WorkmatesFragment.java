@@ -50,9 +50,9 @@ public class WorkmatesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        workmatesViewModel.getEmployeesInfoFromFirestoreDatabase();
         initializeRecyclerView();
         addObserverToViewModel();
+        workmatesViewModel.getEmployeesInfoFromFirestoreDatabase();
     }
 
     /**

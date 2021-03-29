@@ -17,11 +17,15 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -101,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         // Initialize views
-        setSupportActionBar(binding.toolbar);
+        initializeToolbar();
         initializeDrawerLayout();
         initializeNavigationView();
         initializeSearchEditTextListener();
@@ -119,6 +123,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeFragments();
         // Initialize view models
         initializeViewModels();
+
+    }
+
+    private void initializeToolbar() {
+        setSupportActionBar(binding.toolbar);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+                Window w = getWindow();
+                w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+            }
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.toolbar.getLayoutParams();
+            params.setMargins(0, AppInfo.getStatusBarSize(this), 0, 0);
+            binding.toolbar.setLayoutParams(params);
+        }
     }
 
     @Override
