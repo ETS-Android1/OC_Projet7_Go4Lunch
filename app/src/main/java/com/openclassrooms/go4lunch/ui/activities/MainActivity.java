@@ -19,7 +19,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -97,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Autocomplete status parameter
     private boolean autocompleteActivation = false;
-
+    private boolean displaySearchIcon = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,6 +134,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onPause() {
         super.onPause();
         unregisterReceiver(networkBroadcastReceiver);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (menu.findItem(R.id.search) != null) {
+            MenuItem item = menu.findItem(R.id.search);
+            item.setVisible(displaySearchIcon);
+        }
+        return true;
     }
 
     private void initializeViewModels() {
@@ -264,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (optionsFragment.isVisible()) fragmentManager.popBackStack();
                 displayRestaurantDetailsFragment();
                 updateNavigationAndBottomBarDisplay(View.GONE);
+                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             }
             else Toast.makeText(this, getResources().getString(R.string.toast_your_lunch), Toast.LENGTH_SHORT).show();
         }
@@ -271,14 +280,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void onClickOptionsIcon() {
         if (fragmentManager.findFragmentByTag(OptionsFragment.TAG) == null) {
-            if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG) != null) {
+            if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG) != null)
                 fragmentManager.popBackStack();
-            }
             fragmentManager.beginTransaction()
                     .add(R.id.fragment_container_view, optionsFragment, OptionsFragment.TAG)
                     .addToBackStack(null)
                     .commit();
             updateNavigationAndBottomBarDisplay(View.GONE);
+            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
     }
 
@@ -292,6 +301,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     item.setChecked(true);
                     switch (item.getItemId()) {
                         case R.id.map: // Map View Fragment
+                            displaySearchIcon = true;
+                            invalidateOptionsMenu();
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null)
                                 if (listViewFragment.isVisible())
                                     fragmentManager.beginTransaction().hide(listViewFragment).commit();
@@ -301,6 +312,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     fragmentManager.beginTransaction().hide(workmatesFragment).commit();
                             break;
                         case R.id.list: // List View Fragment
+                            displaySearchIcon = true;
+                            invalidateOptionsMenu();
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) != null)
                                 if (workmatesFragment.isVisible())
                                     fragmentManager.beginTransaction().hide(workmatesFragment).commit();
@@ -312,6 +325,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             break;
 
                         case R.id.workmates: // Workmates Fragment
+                            displaySearchIcon = false;
+                            invalidateOptionsMenu();
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null) {
                                 listViewFragment.restoreListRestaurants();
                                 mapViewFragment.restoreBackupMarkersOnMap();
@@ -356,6 +371,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 updateNavigationAndBottomBarDisplay(View.VISIBLE);
                 mapViewFragment.updateRestaurantRenderer(mapViewFragment.getListRestaurants()); // Apply options updates
                 fragmentManager.popBackStack();
+                binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
             else if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG) != null) { // RestaurantDetailsFragment visible
                 Fragment fragment = fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG);
@@ -364,6 +380,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     ((RestaurantDetailsFragment) fragment).updateFirestoreWithLikeStatus();
                     updateNavigationAndBottomBarDisplay(View.VISIBLE);
                     fragmentManager.popBackStack();
+                    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 }
             }
             else {
@@ -399,9 +416,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 autocompleteActivation = false;
                 mapViewFragment.restoreBackupMarkersOnMap();
                 Fragment fragment = fragmentManager.findFragmentByTag(ListViewFragment.TAG);
-                if (fragment != null) {
-                    listViewFragment.restoreListRestaurants();
-                }
+                if (fragment != null) listViewFragment.restoreListRestaurants();
             }
             else {
                 autocompleteActivation = true;

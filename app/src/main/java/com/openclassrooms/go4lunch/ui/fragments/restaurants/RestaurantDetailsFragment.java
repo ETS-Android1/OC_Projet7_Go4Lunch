@@ -11,15 +11,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -33,14 +28,11 @@ import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.utils.AppInfo;
-import com.openclassrooms.go4lunch.utils.CustomComparators;
 import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
 import com.openclassrooms.go4lunch.viewmodels.PlacesViewModel;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Fragment used to display the information of a selected Restaurant.
@@ -52,17 +44,13 @@ public class RestaurantDetailsFragment extends Fragment {
     private Restaurant restaurant;
     private boolean selected = false;
 
-    // ViewModels
-    private PlacesViewModel placesViewModel;
     private WorkmatesViewModel workmatesViewModel;
 
     // Adapter to display the list of Workmates
     private WorkmatesAdapter adapter;
 
-    // SharedPreferences to save user restaurant choice
-    private SharedPreferences sharedPrefSelection;
+    // To handle SharedPreferences file updates
     private SharedPreferences.Editor editor;
-    private String savedRestaurantJSON;
 
     // Parameters to handle the list of liked restaurants for the current user
     private boolean likeStatus = false;
@@ -81,7 +69,6 @@ public class RestaurantDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true); // TODO : Utile ?
     }
 
     @Override
@@ -95,7 +82,6 @@ public class RestaurantDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initDocumentReferenceId();
-        initializeToolbar();
         initializeStatusBar();
         initializeRecyclerView();
         initializeViewModels();
@@ -109,16 +95,6 @@ public class RestaurantDetailsFragment extends Fragment {
         handleButtonsClicks();
     }
 
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) { menu.clear(); }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            requireActivity().onBackPressed();
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     public void initDocumentReferenceId() {
         SharedPreferences sharedPrefFirestoreUserId = requireContext().getSharedPreferences(AppInfo.FILE_FIRESTORE_USER_ID,
                 Context.MODE_PRIVATE);
@@ -126,11 +102,12 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     public void initializeSharedPreferences() {
-        sharedPrefSelection = requireContext().getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
+        // SharedPreferences to save user restaurant choice
+        SharedPreferences sharedPrefSelection = requireContext().getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
         editor = sharedPrefSelection.edit();
 
         // Check if a selection is saved in SharedPreferences
-        savedRestaurantJSON = sharedPrefSelection.getString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
+        String savedRestaurantJSON = sharedPrefSelection.getString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
 
         if (!savedRestaurantJSON.equals("")) {
             // If yes, deserialize the data
@@ -152,25 +129,6 @@ public class RestaurantDetailsFragment extends Fragment {
         binding.recyclerViewWorkmatesRestaurant.setHasFixedSize(true);
         binding.recyclerViewWorkmatesRestaurant.setLayoutManager(layoutManager);
         binding.recyclerViewWorkmatesRestaurant.setAdapter(adapter);
-    }
-
-    /**
-     * This method initializes the appearance of the parent activity toolbar for this fragment.
-     */
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private void initializeToolbar() {
-        // Add SupportActionBar
-        ((MainActivity) requireActivity()).setSupportActionBar(binding.toolbarDetailsRestaurantFragment);
-        // Configure Toolbar
-        Objects.requireNonNull(((MainActivity) requireActivity()).getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        Objects.requireNonNull(((MainActivity) requireActivity()).getSupportActionBar()).setTitle("");
-        Objects.requireNonNull(((MainActivity) requireActivity()).getSupportActionBar())
-                .setHomeAsUpIndicator(getResources()
-                        .getDrawable(R.drawable.ic_baseline_arrow_back_24dp_white));
-        // Set margin
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.toolbarDetailsRestaurantFragment.getLayoutParams();
-        params.setMargins(0, AppInfo.getStatusBarSize(requireContext()), 0, 0);
-        binding.toolbarDetailsRestaurantFragment.setLayoutParams(params);
     }
 
     /**
@@ -197,7 +155,8 @@ public class RestaurantDetailsFragment extends Fragment {
      * This method initializes a PlaceViewModel instance and attaches an observer.
      */
     private void initializeViewModels() {
-        placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        // ViewModels
+        PlacesViewModel placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), list -> {
             // Info available
             initializeDetails();
@@ -327,7 +286,7 @@ public class RestaurantDetailsFragment extends Fragment {
         if (!documentID.equals("")) {
             workmatesViewModel.getDocumentReferenceCurrentUser(documentID).get().addOnSuccessListener(documentSnapshot -> {
                 // Get list of restaurant liked by user
-                listLikedRestaurants = (List<String>) documentSnapshot.get("liked"); // TODO() : Check cast
+                listLikedRestaurants = (List<String>) documentSnapshot.get("liked");
                 // Check if list contains the current restaurant
                 int j = 0;
                 while (j < listLikedRestaurants.size() && !likeStatus) {
