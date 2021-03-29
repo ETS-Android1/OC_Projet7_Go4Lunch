@@ -184,81 +184,86 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         closingHours = getClosingAndOpeningHoursForADay(closingHours, currentDay, position, true);
         openingHours = getClosingAndOpeningHoursForADay(closingHours, currentDay, position, false);
 
-        // Check number of opening and closing hours for a day
-        if (closingHours.size() == 1) { // Restaurant closed once
-            int closingHour = Integer.parseInt(closingHours.get(0).substring(0,2));
-            int closingMinutes = Integer.parseInt(closingHours.get(0).substring(2,4));
-            int openingHour = Integer.parseInt(openingHours.get(0).substring(0,2));
-            int openingMinutes = Integer.parseInt(openingHours.get(0).substring(2,4));
-            // Update text
-            if (CustomComparators.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) >= 0) { // CLOSED
-                holder.hour.setText(context.getResources().getString(R.string.closed));
-            }
-            else {
-                if (CustomComparators.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) > -60) { // CLOSED SOON
-                    holder.hour.setText(context.getResources().getString(R.string.closing_soon));
-                    colorText = true;
+        try {
+            // Check number of opening and closing hours for a day
+            if (closingHours.size() == 1) { // Restaurant closed once
+                int closingHour = Integer.parseInt(closingHours.get(0).substring(0,2));
+                int closingMinutes = Integer.parseInt(closingHours.get(0).substring(2,4));
+                int openingHour = Integer.parseInt(openingHours.get(0).substring(0,2));
+                int openingMinutes = Integer.parseInt(openingHours.get(0).substring(2,4));
+                // Update text
+                if (CustomComparators.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) >= 0) { // CLOSED
+                    holder.hour.setText(context.getResources().getString(R.string.closed));
                 }
                 else {
-                    if (CustomComparators.getTimeDiff(currentHour, currentMinutes, openingHour, openingMinutes) > 0) { // OPEN UNTIL
-                        String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(0).substring(0,2)
-                                + ":" + closingHours.get(0).substring(2,4);
-                        holder.hour.setText(text);
+                    if (CustomComparators.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) > -60) { // CLOSED SOON
+                        holder.hour.setText(context.getResources().getString(R.string.closing_soon));
+                        colorText = true;
                     }
-                    else { // CLOSED (NOT OPENED YET)
-                        holder.hour.setText(context.getResources().getString(R.string.closed));
+                    else {
+                        if (CustomComparators.getTimeDiff(currentHour, currentMinutes, openingHour, openingMinutes) > 0) { // OPEN UNTIL
+                            String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(0).substring(0,2)
+                                    + ":" + closingHours.get(0).substring(2,4);
+                            holder.hour.setText(text);
+                        }
+                        else { // CLOSED (NOT OPENED YET)
+                            holder.hour.setText(context.getResources().getString(R.string.closed));
+                        }
                     }
                 }
             }
-        }
-        if (closingHours.size() == 2) { // Restaurant closed twice
-            int firstClosingHour = Integer.parseInt(closingHours.get(0).substring(0,2));
-            int firstClosingMinutes = Integer.parseInt(closingHours.get(0).substring(2,4));
-            int firstOpeningHour = Integer.parseInt(openingHours.get(0).substring(0,2));
-            int firstOpeningMinutes = Integer.parseInt(openingHours.get(0).substring(2,4));
+            if (closingHours.size() == 2) { // Restaurant closed twice
+                int firstClosingHour = Integer.parseInt(closingHours.get(0).substring(0,2));
+                int firstClosingMinutes = Integer.parseInt(closingHours.get(0).substring(2,4));
+                int firstOpeningHour = Integer.parseInt(openingHours.get(0).substring(0,2));
+                int firstOpeningMinutes = Integer.parseInt(openingHours.get(0).substring(2,4));
 
-            int secondClosingHour = Integer.parseInt(closingHours.get(1).substring(0,2));
-            int secondClosingMinutes = Integer.parseInt(closingHours.get(1).substring(2,4));
-            int secondOpeningHour = Integer.parseInt(openingHours.get(1).substring(0,2));
-            int secondOpeningMinutes = Integer.parseInt(openingHours.get(1).substring(2,4));
-            // Update text
-            if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) < 0) { // CLOSED (NOT OPENING YET)
-                holder.hour.setText(context.getResources().getString(R.string.closed));
-            }
-            else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) >= 0 &&
-                    CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) < 0) {
+                int secondClosingHour = Integer.parseInt(closingHours.get(1).substring(0,2));
+                int secondClosingMinutes = Integer.parseInt(closingHours.get(1).substring(2,4));
+                int secondOpeningHour = Integer.parseInt(openingHours.get(1).substring(0,2));
+                int secondOpeningMinutes = Integer.parseInt(openingHours.get(1).substring(2,4));
+                // Update text
+                if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) < 0) { // CLOSED (NOT OPENING YET)
+                    holder.hour.setText(context.getResources().getString(R.string.closed));
+                }
+                else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) >= 0 &&
+                        CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) < 0) {
                     if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) > -60) { // CLOSING SOON
                         holder.hour.setText(context.getResources().getString(R.string.closing_soon));
                         colorText = true;
                     }
                     else { // OPEN UNTIL
                         String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(0).substring(0,2)
-                                                                                            + ":" + closingHours.get(0).substring(2,4);
+                                + ":" + closingHours.get(0).substring(2,4);
                         holder.hour.setText(text);
                     }
-            }
-            else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) >= 0 &&
-                    CustomComparators.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) < 0) {  // CLOSED (NOT OPENING YET)
+                }
+                else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) >= 0 &&
+                        CustomComparators.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) < 0) {  // CLOSED (NOT OPENING YET)
                     holder.hour.setText(context.getResources().getString(R.string.closed));
-            }
-            else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) >= 0 &&
-                    CustomComparators.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingMinutes) < 0) {
-                if (CustomComparators.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingHour) > -60) { // CLOSING SOON
-                    holder.hour.setText(context.getResources().getString(R.string.closing_soon));
-                    colorText = true;
                 }
-                else { // OPEN UNTIL
-                    String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(1).substring(0,2) + ":" + closingHours.get(1).substring(2,4);
-                    holder.hour.setText(text);
+                else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) >= 0 &&
+                        CustomComparators.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingMinutes) < 0) {
+                    if (CustomComparators.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingHour) > -60) { // CLOSING SOON
+                        holder.hour.setText(context.getResources().getString(R.string.closing_soon));
+                        colorText = true;
+                    }
+                    else { // OPEN UNTIL
+                        String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(1).substring(0,2) + ":" + closingHours.get(1).substring(2,4);
+                        holder.hour.setText(text);
+                    }
+                }
+                else { // CLOSED
+                    holder.hour.setText(context.getResources().getString(R.string.closed));
                 }
             }
-            else { // CLOSED
-                holder.hour.setText(context.getResources().getString(R.string.closed));
-            }
+            // Update color text for "closing soon" hours
+            if (colorText) displayStyleTextViewForHoursDisplay(holder.hour, R.color.red, Typeface.BOLD_ITALIC);
+            else displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50, Typeface.ITALIC);
         }
-        // Update color text for "closing soon" hours
-        if (colorText) displayStyleTextViewForHoursDisplay(holder.hour, R.color.red, Typeface.BOLD_ITALIC);
-        else displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50, Typeface.ITALIC);
+        catch (IndexOutOfBoundsException exception) {
+            exception.printStackTrace();
+        }
     }
 
 

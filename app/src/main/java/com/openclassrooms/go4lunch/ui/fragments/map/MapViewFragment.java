@@ -374,7 +374,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                 if (sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, 0L) != 0L &&
                     sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, 0L) != 0L)
                     centerCursorInOldPosition();
-                else centerCursorInCurrentLocation(false);
+                centerCursorInCurrentLocation(false);
                 if (connectivityManager.getActiveNetworkInfo() != null) getPlacesFromDatabaseOrRetrofitRequest();
             }
             // Enable click interactions on cluster items window

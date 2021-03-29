@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .apply(RequestOptions.circleCropTransform())
                         .into(userAvatar);
             }
-            else userAvatar.setImageDrawable(getResources().getDrawable(R.drawable.user_default_icon));
+            else userAvatar.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_account_circle_24dp_dark_orange));
         } catch (NullPointerException exception) { exception.printStackTrace(); }
     }
 
