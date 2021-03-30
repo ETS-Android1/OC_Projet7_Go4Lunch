@@ -1,5 +1,7 @@
 package com.openclassrooms.go4lunch.model;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class Workmate {
     private final String restaurantName;
 
     // Contains list of "liked" restaurants by a workmate
-    private final List<String> liked;
+    private List<String> liked;
 
     public Workmate(String name, String email, String restaurantSelectedID, String photoUrl, String restaurantName) {
         this.name = name;
@@ -42,7 +44,23 @@ public class Workmate {
 
     public String getRestaurantName() { return restaurantName; }
 
+    @VisibleForTesting
+    public String getEmail() {
+        return email;
+    }
+
+    @VisibleForTesting
+    public List<String> getLiked() {
+        return liked;
+    }
+
     // Setter methods
     public void setName(String name) { this.name = name; }
+
+    @VisibleForTesting
+    public void setLiked(List<String> liked) {
+        this.liked.clear();
+        this.liked.addAll(liked);
+    }
 }
 

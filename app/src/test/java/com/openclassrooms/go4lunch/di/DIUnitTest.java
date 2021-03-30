@@ -1,0 +1,40 @@
+package com.openclassrooms.go4lunch.di;
+
+import android.content.Context;
+import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
+import java.util.concurrent.Executor;
+import static org.junit.Assert.assertNotNull;
+
+/**
+ * File providing tests to cover methods from @{@link DI} class file.
+ */
+@RunWith(JUnit4.class)
+public class DIUnitTest {
+
+    @Mock
+    private Context mockContext;
+
+    /**
+     * TEST #1 : Checks if the DI class provides a singleton instance of @{@link Go4LunchDatabase}.
+     */
+    @Test
+    public void test_di_database_provider() {
+        mockContext = Mockito.mock(Context.class);
+        Go4LunchDatabase database = DI.provideDatabase(mockContext);
+        assertNotNull(database);
+    }
+
+    /**
+     * TEST #2 : Checks if the DI class provides an Executor object.
+     */
+    @Test
+    public void test_di_executor_provider() {
+        Executor executor = DI.provideExecutor();
+        assertNotNull(executor);
+    }
+}
