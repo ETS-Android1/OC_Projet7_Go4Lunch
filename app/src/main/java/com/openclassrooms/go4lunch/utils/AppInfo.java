@@ -69,7 +69,7 @@ public class AppInfo {
      */
     public static int getStatusBarSize(Context context) {
         int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
-        int statusBarSize = 0;
+        int statusBarSize;
         statusBarSize = context.getResources().getDimensionPixelSize(resourceId);
         return statusBarSize;
     }

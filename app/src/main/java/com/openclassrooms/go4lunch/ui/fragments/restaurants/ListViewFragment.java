@@ -47,7 +47,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initializeViewModels();
+
     }
 
     private void initializeViewModels() {
@@ -105,7 +105,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         numNextPageRequest = 0;
-
+        initializeViewModels();
         initializeRecyclerView();
         addObserversToViewModels();
 

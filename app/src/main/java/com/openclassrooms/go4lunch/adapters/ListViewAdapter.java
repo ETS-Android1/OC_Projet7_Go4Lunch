@@ -187,9 +187,8 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         // Get Opening/Closing hours associated to the current day
         ArrayList<String> closingHours = new ArrayList<>();
-        ArrayList<String> openingHours = new ArrayList<>();
         closingHours = getClosingAndOpeningHoursForADay(closingHours, currentDay, position, true);
-        openingHours = getClosingAndOpeningHoursForADay(closingHours, currentDay, position, false);
+        ArrayList<String> openingHours = getClosingAndOpeningHoursForADay(closingHours, currentDay, position, false);
 
         try {
             // Check number of opening and closing hours for a day

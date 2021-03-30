@@ -38,8 +38,6 @@ android {
 }
 
 apply plugin: 'com.google.gms.google-services'
-// Apply the Crashlytics Gradle plugin
-//apply plugin: 'com.google.firebase.crashlytics'
 
 dependencies {
 
@@ -58,9 +56,6 @@ dependencies {
     // Firestore
     implementation 'com.google.firebase:firebase-firestore'
 
-    // Firebase Analytics
-    implementation 'com.google.firebase:firebase-analytics'
-    
     // FirebaseUI
     implementation 'com.firebaseui:firebase-ui-auth:6.4.0'
 
@@ -102,7 +97,7 @@ dependencies {
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
-    testImplementation 'junit:junit:4.+'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }

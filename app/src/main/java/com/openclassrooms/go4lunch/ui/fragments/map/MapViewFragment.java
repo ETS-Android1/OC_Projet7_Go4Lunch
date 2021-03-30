@@ -120,8 +120,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        placesViewModel = ((MainActivity) requireActivity()).getPlacesViewModel();
-        workmatesViewModel = ((MainActivity) requireActivity()).getWorkmatesViewModel();
     }
 
     @Override
@@ -133,6 +131,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        placesViewModel = ((MainActivity) requireActivity()).getPlacesViewModel();
+        workmatesViewModel = ((MainActivity) requireActivity()).getWorkmatesViewModel();
         // Initialization
         locationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
         connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -346,8 +346,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             RestaurantMarkerItem item = new RestaurantMarkerItem(
                     new LatLng(list.get(indice).getLatitude(),
                             list.get(indice).getLongitude()),
-                    list.get(indice).getName(), null, list.get(indice).getSelected(), indice,
-                    list.get(indice).getPlaceId());
+                    list.get(indice).getName(), null, list.get(indice).getSelected(), indice
+                    );
             clusterManager.addItem(item);
             clusterManager.cluster();
         }
