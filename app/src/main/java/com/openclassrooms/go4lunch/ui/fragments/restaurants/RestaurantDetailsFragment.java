@@ -35,15 +35,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fragment used to display the information of a selected Restaurant.
+ * Fragment class used to display the information of a selected Restaurant.
  */
 public class RestaurantDetailsFragment extends Fragment {
 
     public final static String TAG = "TAG_RESTAURANT_DETAILS_FRAGMENT";
     private FragmentRestaurantDetailsBinding binding;
     private Restaurant restaurant;
+
+    // Parameter defining if the current restaurant has been selected or not by user
     private boolean selected = false;
 
+    // View model
     private WorkmatesViewModel workmatesViewModel;
 
     // Adapter to display the list of Workmates
@@ -95,12 +98,18 @@ public class RestaurantDetailsFragment extends Fragment {
         handleButtonsClicks();
     }
 
+    /**
+     * Initializes document user id from firestore database.
+     */
     public void initDocumentReferenceId() {
         SharedPreferences sharedPrefFirestoreUserId = requireContext().getSharedPreferences(AppInfo.FILE_FIRESTORE_USER_ID,
                 Context.MODE_PRIVATE);
         documentID = sharedPrefFirestoreUserId.getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, "");
     }
 
+    /**
+     * Initializes SharedPreferences objects to access SharedPreferences file.
+     */
     public void initializeSharedPreferences() {
         // SharedPreferences to save user restaurant choice
         SharedPreferences sharedPrefSelection = requireContext().getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
@@ -132,7 +141,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     /**
-     * This method initializes the appearance of the  status bar for this fragment.
+     * Initializes the appearance of the  status bar for this fragment.
      */
     private void initializeStatusBar() {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -141,7 +150,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     /**
-     * This method initializes all views according to fields values of the Restaurant object.
+     * Initializes all views according to fields values of the Restaurant object.
      */
     @SuppressLint("UseCompatLoadingForDrawables")
     private void initializeDetails() {
@@ -152,7 +161,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     /**
-     * This method initializes a PlaceViewModel instance and attaches an observer.
+     * Initializes a PlaceViewModel instance and attaches an observer.
      */
     private void initializeViewModels() {
         // ViewModels
@@ -176,7 +185,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     /**
-     * This methods initializes the ImageView used to display the photo of the selected restaurant.
+     * Initializes the ImageView used to display the photo of the selected restaurant.
      */
     private void initializePhotoRestaurant() {
         if (restaurant.getPhotoReference() != null) {
@@ -191,7 +200,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     /**
-     * This methods updates the FloatingActionButton display according to the "selected" boolean value.
+     * Updates the FloatingActionButton display according to the "selected" boolean value.
      */
     private void updateFloatingActionButtonIconDisplay() {
         if (selected) binding.fabSelect.setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.light_green)));
@@ -200,7 +209,7 @@ public class RestaurantDetailsFragment extends Fragment {
 
 
     /**
-     * This method handles user click interactions with "Selection restaurant" FloatingActionButton.
+     * Handles user click interactions with "Selection restaurant" FloatingActionButton.
      */
     private void handleFloatingButtonClicks() {
         binding.fabSelect.setOnClickListener(v -> {
@@ -232,7 +241,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     /**
-     * This method handles user click interactions with all options buttons.
+     * Handles user click interactions with all options buttons.
      */
     @SuppressLint("ClickableViewAccessibility")
     private void handleButtonsClicks() {
@@ -247,7 +256,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     /**
-     * This method in used to launch an Intent.ACTION_DIAL intent after a click on the "Call" option button.
+     * Launches an Intent.ACTION_DIAL intent after a click on the "Call" option button.
      */
     private void launchCallIntent() {
         if (restaurant.getPhoneNumber() != null) {
@@ -258,7 +267,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     /**
-     * This method is used to launch an Intent.ACTION_VIEW intent with a URI website after a click on the
+     * Launches an Intent.ACTION_VIEW intent with a URI website after a click on the
      * "WEBSITE" option button.
      */
     private void openWebSite() {
@@ -269,6 +278,9 @@ public class RestaurantDetailsFragment extends Fragment {
         else Toast.makeText(getContext(), "No website url available", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Updates "Like" button display.
+     */
     @SuppressLint("UseCompatLoadingForDrawables")
     private void updateLikeButtonDisplay() {
         if (likeStatus)
@@ -280,7 +292,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     /**
-     * This method gets the list of liked restaurants by current user.
+     * Gets the list of liked restaurants by current user.
      */
     private void checkIfRestaurantWasLiked() {
         if (!documentID.equals("")) {
@@ -303,7 +315,7 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     /**
-     * This method updates the list of liked restaurants and send it to the WorkmatesService to update
+     * Updates the list of liked restaurants and send it to the WorkmatesService to update
      * the Firestore database.
      */
     public void updateFirestoreWithLikeStatus() {

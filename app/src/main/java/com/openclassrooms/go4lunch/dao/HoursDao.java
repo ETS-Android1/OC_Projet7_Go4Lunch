@@ -14,14 +14,14 @@ import com.openclassrooms.go4lunch.database.HoursData;
 public interface HoursDao {
 
     /**
-     * This method is used to insert a new HoursData object in hours_table in database.
-     * @param hoursData : new HoursData object to add to table
+     * Inserts a new HoursData object in hours_table in database.
+     * @param hoursData : New HoursData object to add to table
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertHoursData(HoursData hoursData);
 
     /**
-     * This method is used to delete all data in hours_table.
+     * Deletes all data in hours_table.
      */
     @Query("DELETE FROM hours_table")
     void deleteAllHoursData();

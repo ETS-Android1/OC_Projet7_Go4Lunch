@@ -23,7 +23,6 @@ public class NotificationHandler {
 
     private final Context context;
     private static NotificationManager manager;
-    private final int notificationId = 0;
     private final String CHANNELID = "CHANNELID";
 
     public NotificationHandler(Context context) {
@@ -32,7 +31,7 @@ public class NotificationHandler {
     }
 
     /**
-     * This method is used to create and launch a notification.
+     * Creates and launch a notification.
      */
     public void createNotification() {
         // Get restaurant name
@@ -64,12 +63,13 @@ public class NotificationHandler {
             createChannel();
 
             // Display notification
+            int notificationId = 0;
             manager.notify(notificationId, builder.build());
         }
     }
 
     /**
-     * This method creates a channel to associate with the current notification.
+     * Creates a channel to associate with the current notification.
      */
     private void createChannel() {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -80,7 +80,7 @@ public class NotificationHandler {
     }
 
     /**
-     * This method is used to display a RestaurantDetailsFragment after user clicked on notification
+     * Displays a RestaurantDetailsFragment after user clicked on notification
      * @param activity : main activity
      */
     public static void getActionFromNotification(Activity activity) {

@@ -22,7 +22,7 @@ import com.openclassrooms.go4lunch.utils.AppInfo;
 import java.util.Calendar;
 
 /**
- * Fragment used to display all options configurable by user.
+ * Fragment class used to display all options configurable by user.
  */
 public class OptionsFragment extends Fragment implements OptionsFragmentCallback {
 
@@ -37,6 +37,7 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     // Parameter for Alarm option
     private AlarmHandler alarmHandler;
     private Calendar calendarAlarm;
+
     public OptionsFragment() { /* Required empty public constructor */ }
 
     public static OptionsFragment newInstance() {
@@ -69,16 +70,25 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
         handleCheckBoxButton();
     }
 
+    /**
+     * Initializes SharedPreferences objects to access SharedPreferences file.
+     */
     private void initializeSharedPreferences() {
         sharedPrefClusterOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
         sharedPrefAlarmOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
     }
 
+    /**
+     * Initializes display of the switch.
+     */
     private void initializeMapOptionDisplay() {
         boolean checked = sharedPrefClusterOption.getBoolean(AppInfo.PREF_CLUSTER_OPTION_KEY, false);
         binding.switchOptionCluster.setChecked(checked);
     }
 
+    /**
+     * Initializes calendar.
+     */
     private void initializeCalendar() {
         calendarAlarm = Calendar.getInstance();
         calendarAlarm.set(Calendar.HOUR_OF_DAY, 12);
@@ -87,7 +97,7 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     }
 
     /**
-     * This method initializes alarm hour displayed according to a previous configuration by user. If user
+     * Initializes alarm hour displayed according to a previous configuration by user. If user
      * has not configured an alarm yet, then a default hour is displayed.
      */
     private void initializeAlarmOption() {
@@ -107,9 +117,9 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     }
 
     /**
-     * This method is used to update the "Alarm" text option according to the "mode" parameter value,
+     * Updates the "Alarm" text option according to the "mode" parameter value,
      * and display a Toast to user.
-     * @param status : boolean value defining the state of "Alarm" option
+     * @param status : Boolean value defining the state of "Alarm" option
      */
     private void updateTextModeAlarmOption(boolean status) {
         String textStatus;
@@ -120,8 +130,8 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     }
 
     /**
-     * This method display a Toast indicating either the alarm mode has been activated or not.
-     * @param status : status of the alarm mode
+     * Displays a Toast indicating either the alarm mode has been activated or not.
+     * @param status : Status of the alarm mode
      */
     private void displayToastAlarm(boolean status) {
         if (status) {
@@ -140,8 +150,7 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     }
 
     /**
-     * This methods updates the SharedPreference "PREF_ALARM_OPTION_STATUS_KEY" value according
-     * to the checkBox state value.
+     * Updates the SharedPreference "PREF_ALARM_OPTION_STATUS_KEY" value according to the checkBox state value.
      */
     private void handleCheckBoxButton() {
         binding.checkboxAlarm.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -154,7 +163,7 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     }
 
     /**
-     * This method is used to display a confirmation Dialog to user.
+     * Displays a confirmation Dialog to user.
      */
     private void handleClickOnDeleteButton() {
         DeleteAccountDialog dialog = new DeleteAccountDialog(this);
@@ -162,8 +171,7 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     }
 
     /**
-     * This methods updates the SharedPreference "PREF_CLUSTER_OPTION_KEY" value according
-     * to the switch state value.
+     * Updates the SharedPreference "PREF_CLUSTER_OPTION_KEY" value according to the switch state value.
      */
     private void handleSwitchInteractions() {
         binding.switchOptionCluster.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -174,6 +182,9 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     }
 
 
+    /**
+     * Confirms user deletion using deleteUser() method from @{@link AuthenticationService} service class.
+     */
     @Override
     public void confirmDeleteUser() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();

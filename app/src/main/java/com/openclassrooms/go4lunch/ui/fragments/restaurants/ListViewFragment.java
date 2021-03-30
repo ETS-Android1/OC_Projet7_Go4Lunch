@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fragment used to display the list of restaurant in a RecyclerView, using a
+ * Fragment class used to display the list of restaurant in a RecyclerView, using a
  * @{@link ListViewAdapter} adapter
  */
 public class ListViewFragment extends Fragment implements ListViewAdapter.OnItemRestaurantClickListener {
@@ -35,6 +35,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     private PlacesViewModel placesViewModel;
     private WorkmatesViewModel workmatesViewModel;
 
+    // Indicates the number of the next page of data loadable with a "next_place_token" token
     private int numNextPageRequest;
 
     public ListViewFragment() { /* Empty public constructor */ }
@@ -54,6 +55,9 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
         workmatesViewModel = ((MainActivity) requireActivity()).getWorkmatesViewModel();
     }
 
+    /**
+     * Adds observers to view model objects.
+     */
     private void addObserversToViewModels() {
         // PlaceViewModels
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), newListRestaurants -> {
@@ -105,6 +109,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
         initializeRecyclerView();
         addObserversToViewModels();
 
+        // TODO() : Check usage
         DisplayMetrics displayMetrics = new DisplayMetrics();
         Display display;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -118,7 +123,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     }
 
     /**
-     * This method initializes a RecyclerView used to display all detected restaurants in a list
+     * Initializes a RecyclerView used to display all detected restaurants in a list
      */
     public void initializeRecyclerView() {
         // Initialize RecyclerView
@@ -160,8 +165,7 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     }
 
     /**
-     * ListViewAdapter.OnItemRestaurantClickListener interface implementation.
-     * This method is used to handle click on a RecyclerView item
+     * Handles clicks on a RecyclerView item
      * @param position : position in the RecyclerView
      */
     @Override
@@ -172,8 +176,8 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
     }
 
     /**
-     * This method is used to update the background text visibility status according to "status" boolean value
-     * @param status : status value.
+     * Updates the background text visibility status according to "status" boolean value
+     * @param status : Status value.
      */
     public void updateTextBackgroundDisplay(boolean status) {
         if (status) binding.noRestaurantNearby.setVisibility(View.VISIBLE);

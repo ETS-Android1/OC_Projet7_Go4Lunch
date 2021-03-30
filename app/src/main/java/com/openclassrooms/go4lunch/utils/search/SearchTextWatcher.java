@@ -5,7 +5,7 @@ import android.text.TextWatcher;
 import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
 
 /**
- * This class is used to detect any change in EditText field of the autocomplete toolbar, and provide queries.
+ * class used to detect any change in EditText field of the autocomplete toolbar, and provide queries.
  */
 public class SearchTextWatcher implements TextWatcher {
 

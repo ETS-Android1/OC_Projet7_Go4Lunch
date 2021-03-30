@@ -13,7 +13,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Service to access and update the list of restaurants, with location requests results.
+ * Service class used to access and update the list of restaurants, with location requests results.
  */
 public class ListRestaurantsService {
 
@@ -21,7 +21,6 @@ public class ListRestaurantsService {
 
     // Service instance
     private final PlaceService service;
-    private final OkHttpClient httpClient;
 
     public ListRestaurantsService() {
         // Initialize list of restaurants
@@ -32,7 +31,7 @@ public class ListRestaurantsService {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         // Define HTTP client
-        httpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+        OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         // Initialize retrofit instance
         Retrofit retrofit = new Retrofit.Builder()
@@ -46,7 +45,7 @@ public class ListRestaurantsService {
     }
 
     /**
-     * This method is used to send a GET request using a @{@link PlaceService } interface, and
+     * Sends a GET request using a @{@link PlaceService } interface, and
      * returns as a result a set of available places nearby user location.
      * @param location : Info location of the user
      * @param type : Type of places to search
@@ -59,10 +58,10 @@ public class ListRestaurantsService {
     }
 
     /**
-     * This method is used to send a GET request using a @{@link PlaceService} interface, and
+     * Sends a GET request using a @{@link PlaceService} interface, and
      * returns as a result a set of others available places nearby user location.
      * @param nextPlaceToken : String value used to request the other available places
-     * @return : available places
+     * @return : Available places
      * @throws IOException : Exception thrown if the GET request fail
      */
     public PlaceResponse getNextPlacesNearby(String nextPlaceToken) throws IOException {
@@ -70,7 +69,7 @@ public class ListRestaurantsService {
     }
 
     /**
-     * This method is used to return the details of a restaurant with a GET request using a @{@link PlaceService } interface
+     * Returns the details of a restaurant with a GET request using a @{@link PlaceService } interface
      * @return : Result of a GET request
      * @throws IOException : Exception thrown if the GET request fail
      */

@@ -11,8 +11,8 @@ import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
 
 /**
- * This class is used to create a dialog with which the user can interact to
- * activate GPS device, by using a {@link MapViewFragmentCallback} interface.
+ * Dialog with which the user can interact to activate GPS device,
+ * by using a {@link MapViewFragmentCallback} interface.
  */
 public class GPSActivationDialog extends DialogFragment {
 

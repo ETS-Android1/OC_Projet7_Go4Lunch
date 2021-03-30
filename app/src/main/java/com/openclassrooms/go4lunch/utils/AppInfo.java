@@ -6,9 +6,12 @@ import com.openclassrooms.go4lunch.BuildConfig;
 import static android.content.Context.MODE_PRIVATE;
 
 /**
- * This class contains static values for the Go4Lunch application, and method to check app configuration.
+ * class containING static values for the Go4Lunch application, and method to check app configuration.
  */
 public class AppInfo {
+
+    // Database name
+    public static final String SQLITE_DATABASE_NAME = "go4lunch_database";
 
     // Root collection id in Firestore
     public static final String ROOT_COLLECTION_ID = "list_employees";

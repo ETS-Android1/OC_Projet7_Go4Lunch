@@ -8,7 +8,7 @@ import com.openclassrooms.go4lunch.receivers.AlarmBroadcastReceiver;
 import java.util.Calendar;
 
 /**
- * This class is used to handle the AlarmManager and activate/deactivate an alarm.
+ * Class is used to handle the AlarmManager and activate/deactivate an alarm.
  */
 public class AlarmHandler {
 
@@ -21,7 +21,7 @@ public class AlarmHandler {
     }
 
     /**
-     * This method is used to initialize an AlarmManager, according to the user-defined hour.
+     * Initializes an AlarmManager, according to the user-defined hour.
      */
     public void startAlarm(Calendar calendarAlarm) {
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
@@ -36,7 +36,7 @@ public class AlarmHandler {
     }
 
     /**
-     * This method is used to cancel an AlarmManager, previously enabled by user.
+     * Cancels an AlarmManager, previously enabled by user.
      */
     public void cancelAlarm() {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

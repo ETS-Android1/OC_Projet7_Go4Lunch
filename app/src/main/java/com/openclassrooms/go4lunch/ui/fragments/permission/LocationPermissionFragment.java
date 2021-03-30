@@ -20,7 +20,7 @@ import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragment;
 import com.openclassrooms.go4lunch.utils.AppInfo;
 
 /**
- * This fragment is used to display the UI interface with with the user can authorize the
+ * Fragment class used to display the UI interface with with the user can authorize the
  * location access permission from device.
  */
 public class LocationPermissionFragment extends Fragment {
@@ -56,8 +56,7 @@ public class LocationPermissionFragment extends Fragment {
     }
 
     /**
-     * This method checks the number of permission requests which have already been displayed to
-     * user.
+     * Checks the number of permission requests which have already been displayed to user.
      */
     private void initializeNbPermissionRequests() {
         SharedPreferences nbPermissionRequestSaved = getContext()
@@ -67,7 +66,7 @@ public class LocationPermissionFragment extends Fragment {
     }
 
     /**
-     * This method is used to handle user interaction with "Enable Permission" button
+     * Handles user interaction with "Enable Permission" button
      */
     private void handlePermissionButtonListener() {
         binding.buttonPermissionLocation.setOnClickListener((View v) -> {

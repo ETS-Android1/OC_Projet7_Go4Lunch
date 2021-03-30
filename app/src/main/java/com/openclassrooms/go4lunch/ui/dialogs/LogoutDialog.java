@@ -11,8 +11,8 @@ import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
 
 /**
- * This class is used to create a dialog with which the user can interact to
- * logout from his Go4Lunch account, by using a {@link MainActivityCallback} interface.
+ * Dialog with which the user can interact to logout from his Go4Lunch account,
+ * by using a {@link MainActivityCallback} interface.
  */
 public class LogoutDialog extends DialogFragment {
 

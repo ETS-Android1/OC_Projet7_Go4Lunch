@@ -23,8 +23,13 @@ import java.util.List;
  */
 public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.ViewHolderWorkmates>{
 
+    // List of workmates to display
     private final ArrayList<Workmate> listWorkmates = new ArrayList<>();
+    // Context parameter
     private final Context context;
+    // Defines the type of list to display using workmates information
+    // true : List to display in WorkmatesFragment
+    // false : List to display in RestaurantDetailsFragment
     private final boolean typeOfList;
 
     public WorkmatesAdapter(Context context, boolean typeOfList) {
@@ -55,6 +60,11 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         return listWorkmates.size();
     }
 
+    /**
+     * Displays the text associated to a workmates, and corresponding to its restaurant selection.
+     * @param textView : View in which the text must be displayed
+     * @param position : Position in the RecyclerView
+     */
     private void displayText(TextView textView, int position) {
         if (typeOfList) {
             // Text
@@ -80,7 +90,13 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         }
     }
 
+    /**
+     * Loads workmate photo if available, otherwise displays a default drawable.
+     * @param icon : ImageView in which icon must be displayed
+     * @param url : Url to load photo
+     */
     private void loadUserIcon(ImageView icon, String url) {
+        // Load photo from url
         if (url != null) {
             if (!url.isEmpty()) {
                 Glide.with(context)
@@ -93,6 +109,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
                                                                    R.drawable.ic_baseline_account_circle_24dp_dark_orange, null));
 
         }
+        // Otherwise display default drawable
         else icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
                                                                R.drawable.ic_baseline_account_circle_24dp_dark_orange, null));
     }
@@ -113,12 +130,22 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         }
     }
 
+    /**
+     * Updates list of workmates when a new one is available.
+     * @param newList : New list of workmates to display
+     */
     public void updateList(List<Workmate> newList) {
         listWorkmates.clear();
         listWorkmates.addAll(newList);
         notifyDataSetChanged();
     }
 
+    /**
+     * Updates the appearance of the text using a color resource and a specified style.
+     * @param text : TextView to update
+     * @param color : Color to apply
+     * @param typeface : Text style to apply
+     */
     private void displayStyleTextView(TextView text, @ColorRes int color, int typeface) {
         text.setTextColor(context.getResources().getColor(color));
         text.setTypeface(null, typeface);

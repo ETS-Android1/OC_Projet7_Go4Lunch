@@ -8,9 +8,12 @@ import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.dao.HoursDao;
 import com.openclassrooms.go4lunch.dao.RestaurantAndHoursDao;
 import com.openclassrooms.go4lunch.dao.RestaurantDao;
+import com.openclassrooms.go4lunch.utils.AppInfo;
 
 /**
- * Go4Lunch application database, containing a table of Restaurants
+ * Go4Lunch application database containing :
+ *      - a "restaurant_table" table storing a list of @{@link RestaurantData} object
+ *      - a "hours_table" table storing a list of {@link HoursData} object
  */
 @Database(entities = {RestaurantData.class, HoursData.class}, version = BuildConfig.VERSION_CODE, exportSchema = false)
 public abstract class Go4LunchDatabase extends RoomDatabase {
@@ -28,7 +31,7 @@ public abstract class Go4LunchDatabase extends RoomDatabase {
         if (instance == null) {
 
             // Create instance
-            instance = Room.databaseBuilder(context, Go4LunchDatabase.class, "go4lunch_database")
+            instance = Room.databaseBuilder(context, Go4LunchDatabase.class, AppInfo.SQLITE_DATABASE_NAME)
                     .fallbackToDestructiveMigration()
                     .build();
         }

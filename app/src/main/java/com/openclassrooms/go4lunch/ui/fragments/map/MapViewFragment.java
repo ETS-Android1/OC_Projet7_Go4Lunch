@@ -20,7 +20,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This fragment is used to allow user to interact with a Google Map, search for a restaurant
+ * Fragment class used to allow user to interact with a Google Map, search for a restaurant
  * and enable/disable GPS functionality.
  */
 public class MapViewFragment extends Fragment implements MapViewFragmentCallback, OnMapReadyCallback {
@@ -77,8 +76,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     private PlacesViewModel placesViewModel;
     private WorkmatesViewModel workmatesViewModel;
 
-    // To store current user position and user position saved in previous session
-    private SharedPreferences.Editor editor;
     private SharedPreferences sharedPrefLatLon;
     private double currentLatUserPosition;
     private double currentLonUserPosition;
@@ -171,13 +168,18 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         }
     }
 
+    /**
+     * To store current user position and user position saved in previous session.
+     */
     private void saveCurrentPosition() {
-        // Save position
-        editor = sharedPrefLatLon.edit();
+        SharedPreferences.Editor editor = sharedPrefLatLon.edit();
         editor.putLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, Double.doubleToRawLongBits(currentLatUserPosition)).apply();
         editor.putLong(AppInfo.PREF_OLD_LON_POSITION_KEY, Double.doubleToRawLongBits(currentLonUserPosition)).apply();
     }
 
+    /**
+     * Accesses the getPlacesFromDatabaseOrRetrofitRequest() method from @{@link PlacesViewModel} class
+     */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void getPlacesFromDatabaseOrRetrofitRequest() {
         placesViewModel.getPlacesRepository().getPlacesFromDatabaseOrRetrofitRequest(
@@ -187,7 +189,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     /**
-     * This method handle the click events on FloatingActionButton according to GPS activations status :
+     * Handles the click events on FloatingActionButton according to GPS activations status :
      *      - If GPS is disabled : Display dialog interface to user
      *      - If GPS is enabled : move + zoom in current user position
      */
@@ -209,7 +211,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     /**
-     * This method gets current user location and zoom map camera in this location, according to the type
+     * Gets current user location and zoom map camera in this location, according to the type
      * of update passed in parameter (boolean) :
      *      - If false : first call when map is displayed -> initialize user position
      *      - If true : next calls -> repositioning user position
@@ -217,7 +219,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void centerCursorInCurrentLocation(boolean update) {
-        // TODO() : check cancellation token (must not be null)
         ((MainActivity) requireActivity()).getLocationClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener((Location location) -> {
                     currentLonUserPosition = location.getLongitude();
@@ -235,7 +236,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
 
 
     /**
-     * This method is used to initialize cursor position at old user position, if latitude and longitude have been
+     * Initializes cursor position at old user position, if latitude and longitude have been
      * stored in SharedPreferences file.
      */
     public void centerCursorInOldPosition() {
@@ -246,7 +247,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     /**
-     * This method is to launch a places search to detect all restaurants around user location in a defined radius.
+     * Launches a places search to detect all restaurants around user location in a defined radius.
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     @Override
@@ -260,7 +261,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     /**
-     * This method is used to update FloatingActionButton Icon display according to GPS activation status.
+     * Updates FloatingActionButton Icon display according to GPS activation status.
      * @param status : GPS activation status.
      */
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -280,7 +281,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     public void activateGPS() { startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)); }
 
     /**
-     * This method initializes both PlacesViewModel and WorkmatesViewModel viewModel attributes, by
+     * Initializes both PlacesViewModel and WorkmatesViewModel viewModel attributes, by
      * adding observers.
      */
     private void initializeViewModelsObservers() {
@@ -336,8 +337,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
 
 
     /**
-     * This method is used to update the map by displaying custom markers in clusters for all detected restaurants around
-     * user location.
+     * Updates the map by displaying custom markers in clusters for all detected restaurants around user location.
      */
     private void displayMarkersWithClustersInMap(List<Restaurant> list) {
         clusterManager.clearItems();
@@ -353,6 +353,10 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         }
     }
 
+    /**
+     * Updates @{@link RestaurantRenderer} associated to a Cluster and displays markers on map.
+     * @param list : list of restaurants
+     */
     public void updateRestaurantRenderer(List<Restaurant> list) {
         boolean clusterOption = sharedPrefClusterOption.getBoolean(AppInfo.PREF_CLUSTER_OPTION_KEY, false);
         ((RestaurantRenderer) clusterManager.getRenderer()).setClusterActivation(clusterOption);
@@ -383,7 +387,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     /**
-     * This method is used to handle all user "clicking" interactions with clusters and markers on map.
+     * Handles all user "clicking" interactions with clusters and markers on map.
      */
     private void handleClusterClickInteractions() {
         clusterManager.setOnClusterItemInfoWindowClickListener(item -> {
@@ -400,7 +404,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     /**
-     * This method initializes a map configuration.
+     * Initializes a map configuration.
      * @param googleMap : map instance to initialize
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -413,7 +417,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     /**
-     * This method initializes a cluster manager for markers and clusters display on map.
+     * Initializes a cluster manager for markers and clusters display on map.
      */
     @SuppressLint("PotentialBehaviorOverride")
     private void initializeClusterManager() {
@@ -428,8 +432,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     /**
-     * This methods is used to launch a loadAllRestaurantsWithHours request to database and
-     * send the result to view model to perform a data restoration.
+     * Launches a loadAllRestaurantsWithHours() request to database and send the result
+     * to view model to perform a data restoration.
      */
     @Override
     public void restoreListFromDatabase() {
@@ -438,10 +442,14 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                         -> placesViewModel.restoreData(restaurantAndHoursData));
     }
 
+    /**
+     * Restores all markers on map by using the list of all existing restaurants.
+     */
     public void restoreBackupMarkersOnMap() {
         updateRestaurantRenderer(listRestaurants);
     }
 
+    // Getter
     public ArrayList<Restaurant> getListRestaurants() {
         return listRestaurants;
     }

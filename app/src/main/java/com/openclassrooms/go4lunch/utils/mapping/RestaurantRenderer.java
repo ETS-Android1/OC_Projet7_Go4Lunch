@@ -17,12 +17,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * This class defines how all @{@link RestaurantMarkerItem} item must be defined in map cluster.
+ * Class defining how all @{@link RestaurantMarkerItem} item must be defined in map cluster.
  */
 public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerItem> {
 
     private final Context context;
+
+    // To handle resources to display in markers
     private final AssetManager assetManager;
+
+    // Defines if cluster display must be activated or not
     private boolean clusterActivation;
 
     public RestaurantRenderer(Context context, GoogleMap map, ClusterManager<RestaurantMarkerItem> clusterManager) {
@@ -34,8 +38,8 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
 
     /**
      * Called before the marker for a ClusterItem is added to the map.
-     * @param item : item in map
-     * @param markerOptions : options of the associated marker
+     * @param item : Item in map
+     * @param markerOptions : Options of the associated marker
      */
     @Override
     protected void onBeforeClusterItemRendered(@NonNull RestaurantMarkerItem item,
@@ -45,7 +49,7 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
 
     /**
      * Overriden to define the minimum size of a cluster in map.
-     * @param minClusterSize : minimum size of a cluster
+     * @param minClusterSize : Minimum size of a cluster
      */
     @Override
     public void setMinClusterSize(int minClusterSize) {
@@ -53,9 +57,9 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
     }
 
     /**
-     * This method defines which Bitmap must be displayed for a marker according to the restaurant status
+     * Defines which Bitmap must be displayed for a marker according to the restaurant status
      * (selected by at least one workmate, or not).
-     * @param item : restaurant item in map
+     * @param item : Restaurant item in map
      * @return : BitmapDescriptor object associated with the corresponding .png file
      */
     private BitmapDescriptor getIconMarkerItem(RestaurantMarkerItem item) {
@@ -72,8 +76,8 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
 
     /**
      * Defines the color of a cluster icon.
-     * @param clusterSize : not used
-     * @return : resource id associated with the corresponding color
+     * @param clusterSize : Not used
+     * @return : Resource id associated with the corresponding color
      */
     @Override
     protected int getColor(int clusterSize) {
@@ -81,9 +85,9 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
     }
 
     /**
-     * This method is used to determine whether markers must be displayed with cluster or not.
-     * @param cluster : cluster
-     * @return : boolean value
+     * Determines whether markers must be displayed with cluster or not.
+     * @param cluster : Cluster
+     * @return : Boolean value
      */
     @Override
     protected boolean shouldRenderAsCluster(@NonNull Cluster<RestaurantMarkerItem> cluster) {

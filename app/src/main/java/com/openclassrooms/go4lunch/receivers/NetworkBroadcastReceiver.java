@@ -9,7 +9,7 @@ import android.net.NetworkInfo;
 import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
 
 /**
- * This class is used to detect any "network change" event and send the information
+ * A BroadcastReceiver class used to detect any "network change" event and send the information
  * to a {@link MainActivityCallback} callback
  */
 public class NetworkBroadcastReceiver extends BroadcastReceiver {

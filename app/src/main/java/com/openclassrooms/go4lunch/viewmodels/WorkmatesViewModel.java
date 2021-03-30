@@ -30,17 +30,27 @@ public class WorkmatesViewModel extends ViewModel {
     }
 
     /**
-     * This method is used to access the Firestore database to retrieve the list of all existing
-     * employees.
+     * Accesses the getEmployeesInfoFromFirestoreDatabase() method from @{@link WorkmatesRepository} repository class.
      */
     public void getEmployeesInfoFromFirestoreDatabase() {
         workmatesRepository.getEmployeesInfoFromFirestoreDatabase(listWorkmates::postValue);
     }
 
+    /**
+     * Accesses the getDocumentReferenceCurrentUser() method from @{@link WorkmatesRepository} repository class.
+     * @param documentCurrentUserId : Id of the document in firestore associated with the current user.
+     * @return : DocumentReference from firestore database
+     */
     public DocumentReference getDocumentReferenceCurrentUser(String documentCurrentUserId) {
         return workmatesRepository.getDocumentReferenceCurrentUser(documentCurrentUserId);
     }
 
+    /**
+     * Accesses the updateDocumentReferenceCurrentUser() method from @{@link WorkmatesRepository} repository class.
+     * @param restaurantName : Name of a selected restaurant by current user.
+     * @param restaurantId : Id of a selected restaurant by current user.
+     * @param documentCurrentUserId : Id of the document in firestore associated with the current user.
+     */
     public void updateDocumentReferenceCurrentUser(String restaurantName,
                                                    String restaurantId,
                                                    String documentCurrentUserId) {
@@ -49,6 +59,11 @@ public class WorkmatesViewModel extends ViewModel {
                                                                documentCurrentUserId);
     }
 
+    /**
+     * Accesses the updateCurrentUserListOfLikedRestaurant() method from @{@link WorkmatesRepository} repository class.
+     * @param documentCurrentUserId : Id of the document in firestore associated with the current user
+     * @param listLikedRestaurants : list of liked restaurant by the current user
+     */
     public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId, List<String> listLikedRestaurants) {
         workmatesRepository.updateCurrentUserListOfLikedRestaurant(documentCurrentUserId, listLikedRestaurants);
     }

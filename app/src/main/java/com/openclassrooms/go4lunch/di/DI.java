@@ -11,17 +11,17 @@ import java.util.concurrent.Executors;
 public class DI {
 
     /**
-     * Static method to return an instance of the application database
+     * Returns an instance of the application database.
      * @param context : Context
-     * @return : Database
+     * @return : Go4Lunch SQLite Database
      */
     public static Go4LunchDatabase provideDatabase(Context context) {
         return Go4LunchDatabase.getInstance(context);
     }
 
     /**
-     * Static method to provide an instance of a Thread
-     * @return : Executor
+     * Provides an instance of an Executor object to use to execute Runnable tasks outside the main thread.
+     * @return : Executor object
      */
     public static Executor provideExecutor() {
         return Executors.newSingleThreadExecutor();

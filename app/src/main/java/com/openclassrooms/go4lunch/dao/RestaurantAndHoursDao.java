@@ -15,7 +15,7 @@ import java.util.List;
 public interface RestaurantAndHoursDao {
 
     /**
-     * This method is used to get all Restaurant data in database with their associated hours data
+     * Get all Restaurant data in database with their associated hours data.
      * @return : LiveData containing the list of all RestaurantAndHours objects
      */
     @Transaction

@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import com.openclassrooms.go4lunch.databinding.FragmentAccessSettingsAppBinding;
 
 /**
- * This fragment is used to display the UI interface with which the user can access the device
+ * Fragment class used to display the UI interface with which the user can access the device
  * settings, and let the user authorize the Location permission access in the Go4Lunch section.
  */
 public class AccessSettingsAppFragment extends Fragment {
@@ -44,7 +44,7 @@ public class AccessSettingsAppFragment extends Fragment {
     }
 
     /**
-     * This method is used to access the settings activity for Go4Lunch application.
+     * Accesses the settings activity for Go4Lunch application.
      */
     private void handleSettingsAccessButtonListener() {
         binding.buttonPermissionLocation.setOnClickListener((View v) -> {

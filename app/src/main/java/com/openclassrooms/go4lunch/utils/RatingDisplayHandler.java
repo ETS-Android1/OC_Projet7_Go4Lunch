@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import com.openclassrooms.go4lunch.R;
 
 /**
- * This class is used to handle display of rating information in fragment views
+ * Class used to handle display of rating information in fragment views
  */
 public class RatingDisplayHandler {
 

@@ -6,7 +6,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 /**
- * Data to store in a row of the @{@link Go4LunchDatabase} restaurant_table table.
+ * Data class to store in a row of the @{@link Go4LunchDatabase} restaurant_table table.
  */
 @Entity(tableName = "restaurant_table")
 public class RestaurantData {

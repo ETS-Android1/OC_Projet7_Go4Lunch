@@ -74,7 +74,7 @@ public class PlacesRepository {
 
     // Methods to access ListRestaurantsService
     /**
-     * This method is used to access the findPlacesNearby() method of the @{@link ListRestaurantsService } service class.
+     * Accesses the findPlacesNearby() method of the @{@link ListRestaurantsService } service class.
      * @param location : Info location of the user
      * @param type : Type of places to search
      * @param callback : Callback interface
@@ -98,6 +98,13 @@ public class PlacesRepository {
         callback.onPlacesAvailable(listRestaurantsServices.getListRestaurants());
     }
 
+    /**
+     * Accesses the getNextPlacesNearby() method of the @{@link ListRestaurantsService } service class.
+     * @param callback : ServicePlacesCallback callback interface to send back results
+     * @param listRestaurants : List of existing restaurants
+     * @param numNextPageToken : Token to request next places to load
+     * @throws IOException : Exception
+     */
     public void getNextPlacesNearby(ServicePlacesCallback callback, List<Restaurant> listRestaurants, int numNextPageToken) throws IOException {
         String nextPage_Token;
         nextPage_Token = sharedPrefNextPageToken[numNextPageToken].getString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY, null);
@@ -128,7 +135,7 @@ public class PlacesRepository {
     }
 
     /**
-     * This method is used to update the list of restaurants with their details.
+     * Updates the list of restaurants with their details.
      * @param listRestaurant : List of restaurants
      * @param callback : Callback interface
      * @throws IOException : Exception thrown by getPlacesDetails() method of the @{@link ListRestaurantsService } service class
@@ -164,8 +171,8 @@ public class PlacesRepository {
     }
 
     /**
-     * This method creates a Restaurant object, by extracting data from a ResultPlaces
-     * @param results : from GET response
+     * Creates a Restaurant object, by extracting data from a ResultPlaces
+     * @param results : Results from GET response
      * @return : Restaurant object
      */
     private Restaurant initializeRestaurantObject(ResultPlaces results) {
@@ -189,6 +196,12 @@ public class PlacesRepository {
     }
 
     // Methods to access AutocompleteService
+
+    /**
+     * Accesses the performAutocompleteRequest() method of the @{@link ListRestaurantsService } service class.
+     * @param query : Autocomplete query
+     * @param callback : ServiceAutocompleteCallback callback interface to send back results
+     */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void performAutocompleteRequest(String query, ServiceAutocompleteCallback callback) {
         autocompleteService.performAutocompleteRequest(query, callback);
@@ -197,15 +210,15 @@ public class PlacesRepository {
 
     // Methods to access Database RestaurantDao
     /**
-     * DAO method used to insert a new RestaurantData item in database.
-     * @param restaurantData : item to add
+     * Inserts a new RestaurantData item in "restaurant_table" table in database.
+     * @param restaurantData : Item to add
      */
     public void insertRestaurantData(RestaurantData restaurantData) {
         restaurantDao.insertRestaurantData(restaurantData);
     }
 
     /**
-     * DAO method used to delete all data in restaurant_table from database.
+     * Deletes all data in restaurant_table from database.
      */
     public void deleteAllRestaurantsData() {
         restaurantDao.deleteAllRestaurantsData();
@@ -213,15 +226,15 @@ public class PlacesRepository {
 
     // Methods to access Database HoursDataDao
     /**
-     * DAO method used to insert a new HoursData item in database.
-     * @param hoursData : item to add
+     * Inserts a new HoursData item in "hours_table" table in database.
+     * @param hoursData : Item to add
      */
     public void insertHoursData(HoursData hoursData) {
         hoursDao.insertHoursData(hoursData);
     }
 
     /**
-     * DAO method used to delete all data in horus_table from database.
+     * Deletes all data in "hours_table" table from database.
      */
     public void deleteAllHoursData() {
         hoursDao.deleteAllHoursData();
@@ -229,17 +242,17 @@ public class PlacesRepository {
 
     // Methods to access Database RestaurantAndHoursDao
     /**
-     * DAO method to retrieve all RestaurantData and associated HourData from both tables in
+     * Retrieves all RestaurantData and associated HourData from both tables in
      * database.
-     * @return : list of RestaurantData and HoursData
+     * @return : List of RestaurantData and HoursData
      */
     public LiveData<List<RestaurantAndHoursData>> loadAllRestaurantsWithHours() {
         return restaurantAndHoursDao.loadAllRestaurantsWithHours();
     }
 
-    // Other methods
+    // Other method
     /**
-     * This method is used to check the current user location and compare with the previous saved value,
+     * Checks the current user location and compare with the previous saved value,
      * to determine if a new search request is necessary or if data can be reloading from database.
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)

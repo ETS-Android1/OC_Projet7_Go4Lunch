@@ -6,13 +6,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
 /**
- * This class contains all information for a restaurant marker in map.
+ * Class containing all information for a restaurant marker in map.
  */
 public class RestaurantMarkerItem implements ClusterItem {
     private final LatLng position;
     private final String title;
     private final String snippet;
-    private boolean type; // Defines type of marker (selected restaurant or non-selected)
+    private final boolean type; // Defines type of marker (selected restaurant or non-selected)
     private final int indice; // Indice of the corresponding Restaurant object in the list
     private final String restaurantId;
 

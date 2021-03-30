@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * This class is used to handle sign-in operation, using FirebaseUI Auth SDK
+ * Class used to handle sign-in operation, using FirebaseUI Auth SDK
  */
 public class SignInActivity extends AppCompatActivity {
 
@@ -58,7 +58,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     /**
-     * This method handles click event on connexion button. When a click is detected, the authentication
+     * Handles click event on connexion button. When a click is detected, the authentication
      * activity is displayed using FirebaseUI
      */
     private void handleConnexionButtonListener() {
@@ -86,7 +86,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     /**
-     * This method starts the main activity if user is already logged-in or, after successful
+     * Starts the main activity if user is already logged-in or, after successful
      * authentication.
      */
     private void startMainActivity() {
@@ -119,7 +119,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     /**
-     * This method is used to update Firestore database with current user information, if these
+     * Updates Firestore database with current user information, if these
      * information are not stored yet (first authentication).
      */
     private void addUserIdToFirestoreDatabase() {

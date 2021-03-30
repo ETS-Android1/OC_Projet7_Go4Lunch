@@ -59,7 +59,7 @@ public class PlacesViewModel extends ViewModel {
 
     // Methods to access PlacesRepository -> ListRestaurantsService methods
     /**
-     * This method is used to access the findPlacesNearby() method of the @{@link PlacesRepository } repository class.
+     * Accesses the findPlacesNearby() method of the @{@link PlacesRepository } repository class.
      * @param location : Info location of the user
      * @param type : Type of places to search
      */
@@ -77,6 +77,11 @@ public class PlacesViewModel extends ViewModel {
         );
     }
 
+    /**
+     * Gets next places available nearby user location
+     * @param listRestaurants : List of existing restaurants
+     * @param numNextPageToken : Number of the next page of data requested
+     */
     public void getNextPlacesNearby(List<Restaurant> listRestaurants, int numNextPageToken) {
         executor.execute(() -> {
             try {
@@ -89,7 +94,7 @@ public class PlacesViewModel extends ViewModel {
     }
 
     /**
-     * This method is used to access the getPlacesDetails() method of the @{@link PlacesRepository } repository class.
+     * Accesses the getPlacesDetails() method of the @{@link PlacesRepository } repository class.
      * @param list : List of restaurant to update with details for each place
      */
     public void getPlacesDetails(List<Restaurant> list, boolean nextPageTokenResults) {
@@ -111,6 +116,11 @@ public class PlacesViewModel extends ViewModel {
     }
 
     // Methods to access PlacesRepository -> AutocompleteService methods
+    /**
+     * Performs an autocomplete request using a String "query".
+     * @param query : Query for autocomplete request
+     * @param context : Context
+     */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void performAutocompleteRequest(String query, Context context) {
         executor.execute(() -> {
@@ -122,7 +132,7 @@ public class PlacesViewModel extends ViewModel {
 
     // Methods to access PlacesRepository -> RestaurantDao methods
     /**
-     * This method handles the insertion operation of a new RestaurantData object in restaurant_table.
+     * Handles the insertion operation of a new RestaurantData object in restaurant_table.
      * @param restaurantData : Data to insert
      */
     public void insertRestaurantData(RestaurantData restaurantData) {
@@ -130,15 +140,14 @@ public class PlacesViewModel extends ViewModel {
     }
 
     /**
-     * This method handles the deletion of all RestaurantData objects stored in restaurant_table .
+     * Handles the deletion of all RestaurantData objects stored in restaurant_table.
      */
     public void deleteAllRestaurantsData() {
         executor.execute(placesRepository::deleteAllRestaurantsData);
     }
 
     /**
-     * This method handles the update of restaurant_table with a new list of Restaurant (result of a
-     * search request).
+     * Handles the update of restaurant_table with a new list of Restaurant (result of a search request).
      * @param list : Data to store in restaurant_table
      */
     private void updateDatabaseRestaurantTable(List<Restaurant> list) {
@@ -155,7 +164,7 @@ public class PlacesViewModel extends ViewModel {
 
     // Methods to access placeRepository -> HoursDao methods
     /**
-     * This method handles the insertion of a new HoursData object in hours_table.
+     * Handles the insertion of a new HoursData object in hours_table.
      * @param hoursData : Data to insert
      */
     public void insertHoursData(HoursData hoursData) {
@@ -163,14 +172,14 @@ public class PlacesViewModel extends ViewModel {
     }
 
     /**
-     * This method handles the deletion of all HoursData objects stored in hours_table .
+     * Handles the deletion of all HoursData objects stored in hours_table .
      */
     public void deleteAllHoursData() {
         executor.execute(() -> placesRepository.deleteAllHoursData());
     }
 
     /**
-     * This method handles the update of hours_table with a list of several lists containing the closing/opening
+     * Handles the update of hours_table with a list of several lists containing the closing/opening
      * hours information, each one associated with a restaurant.
      * @param listOfListHoursData : Data to store in hours_table
      */
@@ -185,7 +194,7 @@ public class PlacesViewModel extends ViewModel {
 
     // Other methods
     /**
-     * This method handles the restoration of all Restaurant data and OpeningAndClosingHours data, from
+     * Handles the restoration of all Restaurant data and OpeningAndClosingHours data, from
      * a list of RestaurantAndHoursData retrieved from a RestaurantAndHoursDao request.
      * @param restaurantAndHoursData : Data from a RestaurantAndHoursDao request
      */

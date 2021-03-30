@@ -6,7 +6,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +15,17 @@ import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
 
 /**
- * Fragment used to display the list of workmates in a RecyclerView, using a
+ * Fragment class used to display the list of workmates in a RecyclerView, using a
  * @{@link WorkmatesAdapter} adapter
  */
 public class WorkmatesFragment extends Fragment {
 
     public final static String TAG = "TAG_WORKMATES_FRAGMENT";
     private FragmentWorkmatesBinding binding;
+
     // View Model containing a MutableLiveData
     private WorkmatesViewModel workmatesViewModel;
+
     // Adapter to display the list in a RecyclerView
     private WorkmatesAdapter adapter;
 
@@ -56,7 +57,7 @@ public class WorkmatesFragment extends Fragment {
     }
 
     /**
-     * This method is used to attach an observer to the MutableLiveData listWorkmates and refresh the
+     * Attaches an observer to the MutableLiveData listWorkmates and refresh the
      * adapter list when an update is detected.
      */
     private void addObserverToViewModel() {
@@ -67,7 +68,7 @@ public class WorkmatesFragment extends Fragment {
     }
 
     /**
-     * This method initializes a RecyclerView used to display all employees in a list
+     * Initializes a RecyclerView used to display all employees in a list
      */
     private void initializeRecyclerView() {
         // Initialize LayoutManager

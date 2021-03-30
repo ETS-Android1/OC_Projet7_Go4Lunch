@@ -18,18 +18,27 @@ public class WorkmatesRepository {
     }
 
     /**
-     * This method is used to access the getEmployeesInfoFromFirestoreDatabase() method of the
-     * @{@link ListWorkmatesService} service class.
-     * @param callback : Callback interface
+     * Accesses the getEmployeesInfoFromFirestoreDatabase() method of the @{@link ListWorkmatesService} service class.
+     * @param callback : @{@link ServiceWorkmatesCallback} callback interface
      */
     public void getEmployeesInfoFromFirestoreDatabase(ServiceWorkmatesCallback callback) {
         listWorkmatesService.getEmployeesInfoFromFirestoreDatabase(callback);
     }
 
+    /**
+     * Accesses the getDocumentReferenceCurrentUser() method of the @{@link ListWorkmatesService} service class.
+     * @param documentCurrentUserId : Id Document in Firestore of the current user
+     */
     public DocumentReference getDocumentReferenceCurrentUser(String documentCurrentUserId) {
         return listWorkmatesService.getDocumentReferenceCurrentUser(documentCurrentUserId);
     }
 
+    /**
+     * Accesses the updateDocumentReferenceCurrentUser() method of the @{@link ListWorkmatesService} service class.
+     * @param restaurantName : Name of the restaurant
+     * @param restaurantId : Id of the restaurant
+     * @param documentCurrentUserId : Id Document in Firestore of the current user
+     */
     public void updateDocumentReferenceCurrentUser(String restaurantName,
                                                    String restaurantId,
                                                    String documentCurrentUserId) {
@@ -38,6 +47,11 @@ public class WorkmatesRepository {
                                                                 documentCurrentUserId);
     }
 
+    /**
+     * Accesses the updateCurrentUserListOfLikedRestaurant() method of the @{@link ListWorkmatesService} service class.
+     * @param documentCurrentUserId : Id Document in Firestore of the current user
+     * @param listLikedRestaurants : list of "liked" restaurant
+     */
     public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId, List<String> listLikedRestaurants) {
         listWorkmatesService.updateCurrentUserListOfLikedRestaurant(documentCurrentUserId, listLikedRestaurants);
     }

@@ -3,8 +3,9 @@ package com.openclassrooms.go4lunch.model;
 import java.util.ArrayList;
 
 /**
- * This class contains all closing/opening hours information of a Restaurant, for each day of
- * the week.
+ *  Model class defining all closing/opening hours information, and containing all data retrieved
+ *  from a Place API search, or from the "hours_table" table of the @{@link com.openclassrooms.go4lunch.database.Go4LunchDatabase}
+ *  database instance.
  */
 public class OpeningAndClosingHours {
 
@@ -29,9 +30,9 @@ public class OpeningAndClosingHours {
     private final ArrayList<String> sundayOpeningHours = new ArrayList<>();
 
     /**
-     * This method adds new opening hours information in the associated day list.
+     * Adds new opening hours information in the associated day list.
      * @param day : day
-     * @param hours : opening hours in String format
+     * @param hours : opening hours in String format for a corresponding day
      */
     public void addOpeningHours(int day, String hours) {
         switch (day) {
@@ -60,9 +61,9 @@ public class OpeningAndClosingHours {
     }
 
     /**
-     * This method adds new closing hours information in the associated day list.
+     * Adds new closing hours information in the associated day list.
      * @param day : day
-     * @param hours : closing hours in String format
+     * @param hours : closing hours in String format for a corresponding day
      */
     public void addClosingHours(int day, String hours) {
         switch (day) {
@@ -90,7 +91,7 @@ public class OpeningAndClosingHours {
         }
     }
 
-    // Getter methods
+    // Getter methods for closing Hours
     public ArrayList<String> getMondayClosingHours() { return mondayClosingHours; }
 
     public ArrayList<String> getTuesdayClosingHours() { return tuesdayClosingHours; }
@@ -105,6 +106,7 @@ public class OpeningAndClosingHours {
 
     public ArrayList<String> getSundayClosingHours() { return sundayClosingHours; }
 
+    // Getter methods for opening Hours
     public ArrayList<String> getMondayOpeningHours() { return mondayOpeningHours; }
 
     public ArrayList<String> getTuesdayOpeningHours() { return tuesdayOpeningHours; }

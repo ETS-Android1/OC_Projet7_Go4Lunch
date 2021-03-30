@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import java.util.Calendar;
 import android.graphics.Typeface;
 import android.location.Location;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -93,7 +92,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ((ViewHolderListView) holder).rating.get(3), ((ViewHolderListView) holder).rating.get(4), listRestaurant.get(position).getRating(), context);
 
             // Closing hours
-            if (listRestaurant.get(position).getOpeningAndClosingHours() != null) displayOpenHours(((ViewHolderListView) holder),position);
+            if (listRestaurant.get(position).getOpeningAndClosingHours() != null) displayClosingHours(((ViewHolderListView) holder),position);
 
             // Photo
             displayRestaurantPhoto(((ViewHolderListView) holder), position);
@@ -114,8 +113,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     /**
-     * This method is used to update the list of restaurant each time a new restaurant is detected around
-     * user location.
+     * Updates the list of restaurant to display (all restaurants or autocomplete results).
      */
     public void updateListRestaurants(List<Restaurant> newList) {
         listRestaurant.clear();
@@ -123,16 +121,28 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
+    /**
+     * Updates the backup list of Restaurants, containing the list of all detected restaurants
+     * around user location.
+     */
     public void updateListRestaurantsBackup() {
         listRestaurantBackup.addAll(listRestaurant);
     }
 
+    /**
+     * Restores the list of all restaurants in backup to reinitialize display after autocompletion
+     * ends.
+     */
     public void restoreListRestaurants() {
         listRestaurant.clear();
         listRestaurant.addAll(listRestaurantBackup);
         notifyDataSetChanged();
     }
 
+    /**
+     * Updates the list of workmates.
+     * @param newList : List of workmates get from Firestore database
+     */
     public void updateListWorkmates(List<Workmate> newList) {
         listWorkmates.clear();
         listWorkmates.addAll(newList);
@@ -142,8 +152,8 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     /**
      * This method is used to display the distance between user location and a restaurant location
      * in each recyclerview item.
-     * @param holder : holder containing the item view
-     * @param position : restaurant at the indice "position" in list
+     * @param holder : Holder containing the item view
+     * @param position : Restaurant at the indice "position" in list
      */
     private void displayDistanceBetweenRestaurantAndUserLocation(@NonNull ViewHolderListView holder, int position) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -156,22 +166,19 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             double restaurantLongitude = listRestaurant.get(position).getLongitude();
                             float[] result = new float[1];
                             Location.distanceBetween(userLatitude, userLongitude, restaurantLatitude, restaurantLongitude, result);
-
                             String distance = ((int) result[0]) + " m";
                             holder.distance.setText(distance);
-                        } catch (IndexOutOfBoundsException exception) {
-                            exception.printStackTrace();
-                        }
+                        } catch (IndexOutOfBoundsException exception) { exception.printStackTrace(); }
                     }).addOnFailureListener(Throwable::printStackTrace);
         }
     }
 
     /**
-     * This method is used to display open hours for a restaurant in each recyclerview item.
-     * @param holder : holder containing the item view
-     * @param position : restaurant at the indice "position" in list
+     * Displays closing hours for a restaurant in each recyclerview item.
+     * @param holder : Holder containing the item view
+     * @param position : Restaurant at the indice "position" in list
      */
-    private void displayOpenHours(@NonNull ViewHolderListView holder, int position) {
+    private void displayClosingHours(@NonNull ViewHolderListView holder, int position) {
         boolean colorText = false;
         Calendar calendar = Calendar.getInstance();
         int currentDay = calendar.get(Calendar.DAY_OF_WEEK);
@@ -268,12 +275,12 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     /**
-     * This method is used to get the list of opening or closing hours for a Restaurant.
-     * @param hours : list or hours
-     * @param currentDay : current day
-     * @param position : position of the Restaurant in the list of Restaurant
-     * @param type : type of list (true : Closing hours / false : Opening hours)
-     * @return : list of hours
+     * Get the list of opening/closing hours for a Restaurant.
+     * @param hours : List or hours
+     * @param currentDay : Current day
+     * @param position : Position of the Restaurant in the list of Restaurant
+     * @param type : Type of list (true : Closing hours / false : Opening hours)
+     * @return : List of hours
      */
     private ArrayList<String> getClosingAndOpeningHoursForADay(ArrayList<String> hours, int currentDay,
                                                                int position, boolean type) {
@@ -332,10 +339,10 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     /**
-     * This method updates the "closing hour" text with a color and a style.
+     * Updates the "closing hour" text with a color and a style.
      * @param text : "closing hour" text for a recyclerview item
-     * @param color : color to apply
-     * @param typeface : style to apply
+     * @param color : Color to apply
+     * @param typeface : Style to apply
      */
     private void displayStyleTextViewForHoursDisplay(TextView text, @ColorRes int color, int typeface) {
         text.setTextColor(context.getResources().getColor(color));
@@ -343,9 +350,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     /**
-     * This method displays the associated photo to a restaurant
-     * @param holder : holder containing the item view
-     * @param position : restaurant at the indice "position" in list
+     * Displays the associated photo of a restaurant.
+     * @param holder : Holder containing the item view
+     * @param position : Restaurant at the indice "position" in list
      */
     @SuppressLint("UseCompatLoadingForDrawables")
     private void displayRestaurantPhoto(@NonNull ViewHolderListView holder, int position) {
@@ -364,9 +371,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     /**
-     * This method displays the number of workmates going to a specified restaurant
-     * @param holder : holder containing the item view
-     * @param position : restaurant at the indice "position" in list
+     * Displays the number of workmates going to a selected restaurant.
+     * @param holder : Holder containing the item view
+     * @param position : Restaurant at the indice "position" in list
      */
     private void displayNumberOfWorkmates(@NonNull RecyclerView.ViewHolder holder, int position) {
         String restaurantId = listRestaurant.get(position).getPlaceId();
@@ -440,17 +447,31 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         void onItemRestaurantClick(int position);
     }
 
+    /**
+     * Returns the type of ViewHolder to create according to the position in the RecyclerView.
+     * @param position : Position in the RecyclerView
+     * @return : Type of ViewHolder
+     */
     @Override
     public int getItemViewType(int position) {
         if (isPositionItem(position)) return VIEW_ITEM;
         else return VIEW_FOOTER;
     }
 
+    /**
+     * Returns a boolean value according to the position in the RecyclerView
+     * @param position : Position in the RecyclerView
+     * @return : Boolean value
+     */
     private boolean isPositionItem(int position) {
         if (getItemCount() == 1) return true;
         else return position < getItemCount()-1; // last position
     }
 
+    /**
+     * Updates visibility of the progress bar.
+     * @param visibility : Visibility to apply
+     */
     public void updateVisibilityProgressBarStatus(int visibility) {
         progressBarVisibilityStatus = visibility;
         notifyDataSetChanged();

@@ -8,7 +8,7 @@ import android.net.ConnectivityManager;
 import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
 
 /**
- * This class is used to detect any "GPS status change" event and send to information
+ * A BroadcastReceiver class used to detect any "GPS status change" event and send to information
  * to a {@link MapViewFragmentCallback} callback
  */
 public class GPSBroadcastReceiver extends BroadcastReceiver {

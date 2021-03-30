@@ -8,7 +8,7 @@ import com.openclassrooms.go4lunch.service.places.response.details.ClosingHours;
 import com.openclassrooms.go4lunch.service.places.response.details.OpeningHours;
 
 /**
- * Data to store in a row of the @{@link Go4LunchDatabase} hours_table table.
+ * Data class to store in a row of the @{@link Go4LunchDatabase} hours_table table.
  */
 @Entity(tableName = "hours_table")
 public class HoursData {

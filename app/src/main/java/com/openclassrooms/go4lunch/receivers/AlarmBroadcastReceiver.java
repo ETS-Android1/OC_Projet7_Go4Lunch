@@ -6,7 +6,7 @@ import android.content.Intent;
 import com.openclassrooms.go4lunch.notifications.NotificationHandler;
 
 /**
- * A BroadcastReceiver used to launch a Notification at a time defined by an AlarmManager.
+ * A BroadcastReceiver class used to launch a Notification at a time defined by an AlarmManager.
  */
 public class AlarmBroadcastReceiver extends BroadcastReceiver {
 

@@ -26,8 +26,8 @@ public class ListWorkmatesService {
     }
 
     /**
-     * This method is used to retrieve a list of workmates from Firestore database
-     * @param callback
+     * Retrieves a list of workmates from Firestore database.
+     * @param callback @{@link ServiceWorkmatesCallback} callback interface to send back results
      */
     public void getEmployeesInfoFromFirestoreDatabase(ServiceWorkmatesCallback callback) {
         ArrayList<Workmate> list = new ArrayList<>();
@@ -36,6 +36,7 @@ public class ListWorkmatesService {
 
         SharedPreferences sharedPrefUserId = context.getSharedPreferences(AppInfo.FILE_FIRESTORE_USER_ID, Context.MODE_PRIVATE);
         String userId = sharedPrefUserId.getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, null);
+
         // Retrieve all employees information
         collectionRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -65,9 +66,8 @@ public class ListWorkmatesService {
     }
 
     /**
-     * This method is used to retrieve the DocumentReference object associated with the user
-     * documentReference id
-     * @param documentCurrentUserId : id of the document in collection
+     * Retrieves the DocumentReference object associated with the user documentReference id.
+     * @param documentCurrentUserId : Id of the document in collection
      * @return : DocumentReference
      */
     public DocumentReference getDocumentReferenceCurrentUser(String documentCurrentUserId) {
@@ -77,10 +77,10 @@ public class ListWorkmatesService {
     }
 
     /**
-     * This method is used to update the fields "restaurantId" et "restaurantName" of a document in collection
-     * @param restaurantName : new value for the field "restaurantName"
-     * @param restaurantId : new value for the field "restaurantId"
-     * @param documentCurrentUserId : id of the document in collection
+     * Updates the fields "restaurantId" et "restaurantName" of a document in collection
+     * @param restaurantName : New value for the field "restaurantName"
+     * @param restaurantId : New value for the field "restaurantId"
+     * @param documentCurrentUserId : Id of the document in collection
      */
     public void updateDocumentReferenceCurrentUser(String restaurantName, String restaurantId, String documentCurrentUserId) {
         DocumentReference documentReference = getDocumentReferenceCurrentUser(documentCurrentUserId);
@@ -89,9 +89,9 @@ public class ListWorkmatesService {
     }
 
     /**
-     * This method is used to update the field "liked" of a document in collection
-     * @param documentCurrentUserId : new value for the field "liked"
-     * @param listLikedRestaurants : id of the document in collection
+     * Updates the field "liked" of a document in collection
+     * @param documentCurrentUserId : New value for the field "liked"
+     * @param listLikedRestaurants : Id of the document in collection
      */
     public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId, List<String> listLikedRestaurants) {
         getDocumentReferenceCurrentUser(documentCurrentUserId).update("liked", listLikedRestaurants);

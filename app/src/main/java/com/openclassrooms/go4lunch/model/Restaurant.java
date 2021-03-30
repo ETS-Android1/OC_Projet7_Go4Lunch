@@ -3,8 +3,9 @@ package com.openclassrooms.go4lunch.model;
 import androidx.annotation.NonNull;
 
 /**
- * Model class which defines a restaurant, and containing all data retrieved from a Place API search,
- * or from the @{@link com.openclassrooms.go4lunch.database.Go4LunchDatabase} database instance.
+ * Model class defining a restaurant, and containing all data retrieved from a Place API search,
+ * or from the "restaurant_table" table of the @{@link com.openclassrooms.go4lunch.database.Go4LunchDatabase}
+ * database instance.
  */
 public class Restaurant {
 

@@ -16,6 +16,9 @@ import com.openclassrooms.go4lunch.utils.GeometricUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Service class handling autocomplete requests
+ */
 public class AutocompleteService {
 
     private final PlacesClient placesClient;
@@ -28,6 +31,11 @@ public class AutocompleteService {
         this.token = AutocompleteSessionToken.newInstance();
     }
 
+    /**
+     * Performs a autocomplete request using the String "query" parameter
+     * @param query : String value to use for autocomplete request
+     * @param callback : @{@link ServiceAutocompleteCallback"} callback interface to send back request results
+     */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void performAutocompleteRequest(String query, ServiceAutocompleteCallback callback) {
         locationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
