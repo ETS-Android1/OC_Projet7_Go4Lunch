@@ -4,6 +4,7 @@ import com.openclassrooms.go4lunch.model.Workmate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -23,23 +24,27 @@ public class ComparatorsUnitTest {
     @Test
     public void test_workmate_AZ_comparator() {
         // WorkmateAZComparator only based on "name" field
-        // Other fields not needed for this test (set to "null")
-        Workmate workmate1 = new Workmate("Nicolas", null, null, null, null);
-        Workmate workmate2 = new Workmate("Walter", null, null, null, null);
-        Workmate workmate3 = new Workmate("Alice", null, null, null, null);
+        Workmate workmateMock1 = Mockito.mock(Workmate.class);
+        Mockito.when(workmateMock1.getName()).thenReturn("Nicolas");
+
+        Workmate workmateMock2 = Mockito.mock(Workmate.class);
+        Mockito.when(workmateMock2.getName()).thenReturn("Walter");
+
+        Workmate workmateMock3 = Mockito.mock(Workmate.class);
+        Mockito.when(workmateMock3.getName()).thenReturn("Alice");
 
         // Check if comparison between two Workmate objects works
         CustomComparators.WorkmateAZComparator workmateAZComparator = new CustomComparators.WorkmateAZComparator();
-        assertTrue(workmateAZComparator.compare(workmate1, workmate2) < 0);
-        assertTrue(workmateAZComparator.compare(workmate1, workmate3) > 0);
-        assertEquals(0, workmateAZComparator.compare(workmate1, workmate1));
+        assertTrue(workmateAZComparator.compare(workmateMock1, workmateMock2) < 0);
+        assertTrue(workmateAZComparator.compare(workmateMock1, workmateMock3) > 0);
+        assertEquals(0, workmateAZComparator.compare(workmateMock1, workmateMock1));
 
         // Check if ordering list of Workmate objects using this Comparator works
-        List<Workmate> listWorkmates = Arrays.asList(workmate1, workmate2, workmate3);
+        List<Workmate> listWorkmates = Arrays.asList(workmateMock1, workmateMock2, workmateMock3);
         Collections.sort(listWorkmates, new CustomComparators.WorkmateAZComparator());
-        assertEquals(workmate3, listWorkmates.get(0));
-        assertEquals(workmate1, listWorkmates.get(1));
-        assertEquals(workmate2, listWorkmates.get(2));
+        assertEquals(workmateMock3, listWorkmates.get(0));
+        assertEquals(workmateMock1, listWorkmates.get(1));
+        assertEquals(workmateMock2, listWorkmates.get(2));
     }
 
     /**

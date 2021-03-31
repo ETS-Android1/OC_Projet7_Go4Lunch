@@ -5,6 +5,7 @@ import com.openclassrooms.go4lunch.service.places.response.details.OpeningHours;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -18,12 +19,19 @@ public class HoursDataUnitTest {
      */
     @Test
     public void test_hours_data_object_creation() {
-        ClosingHours closingHours = new ClosingHours(0, "1400");
-        OpeningHours openingHours = new OpeningHours(0, "0900");
-        String PLACE_ID = "ChIJGz20sdh65kcRCfY0bMPzkVo";
+        // Mocking ClosingHours object
+        ClosingHours closingHoursMock = Mockito.mock(ClosingHours.class);
+        Mockito.when(closingHoursMock.getDay()).thenReturn(0);
+        Mockito.when(closingHoursMock.getTime()).thenReturn("1400");
+
+        // Mocking OpeningHours object
+        OpeningHours openingHoursMock = Mockito.mock(OpeningHours.class);
+        Mockito.when(openingHoursMock.getDay()).thenReturn(0);
+        Mockito.when(openingHoursMock.getTime()).thenReturn("0900");
 
         // Initialize an HoursData object
-        HoursData hoursData = new HoursData(closingHours, openingHours, PLACE_ID);
+        String PLACE_ID = "ChIJGz20sdh65kcRCfY0bMPzkVo";
+        HoursData hoursData = new HoursData(closingHoursMock, openingHoursMock, PLACE_ID);
 
         // Check if values in HoursData object fields are correct
         assertEquals(PLACE_ID, hoursData.getRestaurantId());

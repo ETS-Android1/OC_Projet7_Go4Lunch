@@ -16,15 +16,12 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(JUnit4.class)
 public class DIUnitTest {
 
-    @Mock
-    private Context mockContext;
-
     /**
      * TEST #1 : Checks if the DI class provides a singleton instance of @{@link Go4LunchDatabase}.
      */
     @Test
     public void test_di_database_provider() {
-        mockContext = Mockito.mock(Context.class);
+        Context mockContext = Mockito.mock(Context.class);
         Go4LunchDatabase database = DI.provideDatabase(mockContext);
         assertNotNull(database);
     }
