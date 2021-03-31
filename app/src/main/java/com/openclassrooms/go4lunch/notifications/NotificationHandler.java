@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
@@ -35,14 +36,17 @@ public class NotificationHandler {
      */
     public void createNotification() {
         // Get restaurant name
-        SharedPreferences sharedPrefSelection = context.getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
-        String savedRestaurantJSON = sharedPrefSelection.getString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
+        SharedPreferences sharedPrefSelection =
+                context.getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT,
+                                                             Context.MODE_PRIVATE);
+        String savedRestaurantJSON =
+                sharedPrefSelection.getString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
+
         if (!savedRestaurantJSON.equals("")) {
             Gson gson = new Gson();
             Restaurant restaurant = gson.fromJson(savedRestaurantJSON, Restaurant.class);
-            String title = context.getResources().getString(R.string.app_name) + " " +
-                    context.getResources().getString(R.string.notification_reservation) + " "
-                    + restaurant.getName();
+            String title = context.getResources().getString(R.string.notification_reservation,
+                                                                         restaurant.getName());
             String text = restaurant.getAddress();
 
             // Build notification
@@ -56,7 +60,8 @@ public class NotificationHandler {
             // Create pendingIntent
             Intent intent = new Intent(context, MainActivity.class);
             intent.setAction(savedRestaurantJSON);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,
+                                                                          intent, 0);
             builder.setContentIntent(pendingIntent);
 
             // Add channel
@@ -73,7 +78,9 @@ public class NotificationHandler {
      */
     private void createChannel() {
         if (Build.VERSION.SDK_INT >= 26) {
-            NotificationChannel channel = new NotificationChannel(CHANNELID, "channel", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationChannel channel = new NotificationChannel(CHANNELID,
+                                                           "channel",
+                                    NotificationManager.IMPORTANCE_DEFAULT);
             channel.setDescription("Description");
             manager.createNotificationChannel(channel);
         }
@@ -83,11 +90,12 @@ public class NotificationHandler {
      * Displays a RestaurantDetailsFragment after user clicked on notification
      * @param activity : main activity
      */
-    public static void getActionFromNotification(Activity activity) {
+    public static void getActionFromNotification(Activity activity) throws JsonSyntaxException {
         if (activity.getIntent().getAction() != null) {
             Gson gson = new Gson();
             String restaurantNotification = activity.getIntent().getAction();
-            Restaurant restaurantToDisplay = gson.fromJson(restaurantNotification, Restaurant.class);
+            Restaurant restaurantToDisplay = gson.fromJson(restaurantNotification,
+                                                                Restaurant.class);
             ((MainActivity) activity).setRestaurantToDisplay(restaurantToDisplay);
             ((MainActivity) activity).displayRestaurantDetailsFragment();
         }

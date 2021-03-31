@@ -66,8 +66,10 @@
 
     <!-- ListViewAdapter -->
     <string name="closing_soon">Ferme bientôt</string>
-    <string name="open_until">Ouvert jusqu\'à</string>
+    <string name="open_until">Ouvert jusqu\'à %1$s:%2$s</string>
     <string name="closed">Fermé</string>
+    <string name="nb_workmates">(%1$d)</string>
+    <string name="distance">%1$d m</string>
 
     <!-- fragment_map_view.xml -->
     <string name="content_description_fab_location">Bouton pour centrer le curseur de la map à la position courante de l\'utilisateur</string>
@@ -112,9 +114,9 @@
     <string name="content_description_user_icon">Icône du compte utilisateur</string>
 
     <!-- WorkmatesAdapter -->
-    <string name="no_decision">n\'a pas encore décidé</string>
-    <string name="is_eating_at">mange à</string>
-    <string name="is_going">y va</string>
+    <string name="no_decision">%1$s n\'a pas encore décidé</string>
+    <string name="is_eating_at">%1$s mange à %2$s</string>
+    <string name="is_going">%1$s y va</string>
 
     <!-- OptionsFragment -->
     <string name="toast_alarm_activated_today">Alarme prévue à 12:00</string>
@@ -122,7 +124,7 @@
     <string name="toast_alarm_deactivated">Alarme désactivée</string>
 
     <!-- NotificationHandler -->
-    <string name="notification_reservation">- Réservation à</string>
+    <string name="notification_reservation">Go4Lunch - Réservation à %1$s</string>
 
     <!-- DeleteAccountDialog -->
     <string name="delete_account_dialog_title">Supprimer compte</string>

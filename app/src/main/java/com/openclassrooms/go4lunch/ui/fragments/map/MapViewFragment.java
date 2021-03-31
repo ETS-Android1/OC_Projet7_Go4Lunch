@@ -30,6 +30,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.JsonSyntaxException;
 import com.google.maps.android.clustering.ClusterManager;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.FragmentMapViewBinding;
@@ -143,7 +144,12 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         sharedPrefLatLon = requireContext().getSharedPreferences(AppInfo.FILE_PREF_USER_POSITION, Context.MODE_PRIVATE);
         sharedPrefClusterOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
         // Check if app was launched after notification click
-        NotificationHandler.getActionFromNotification(getActivity());
+        try {
+            NotificationHandler.getActionFromNotification(getActivity());
+        } catch (JsonSyntaxException exception) {
+            exception.printStackTrace();
+        }
+
     }
 
     @Override

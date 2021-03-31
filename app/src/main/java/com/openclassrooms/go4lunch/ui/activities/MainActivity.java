@@ -221,7 +221,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView userEmail = header.findViewById(R.id.user_email);
         ImageView userAvatar = header.findViewById(R.id.user_avatar);
         try {
-            assert user != null;
             userName.setText(user.getDisplayName());
             userEmail.setText(user.getEmail());
             if (user.getPhotoUrl() != null ) {
@@ -382,7 +381,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             else if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG) != null) { // RestaurantDetailsFragment visible
                 Fragment fragment = fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG);
-                assert fragment != null;
                 if (fragment.isVisible()) {
                     ((RestaurantDetailsFragment) fragment).updateFirestoreWithLikeStatus();
                     updateNavigationAndBottomBarDisplay(View.VISIBLE);

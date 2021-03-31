@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -54,7 +55,11 @@ public class ListRestaurantsService {
      */
     public PlaceResponse findPlacesNearby(String location, String type) throws IOException {
         clearListRestaurants();
-        return service.searchPlaces(location, type).execute().body();
+        Response<PlaceResponse> response = service.searchPlaces(location, type).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        throw new IOException(response.errorBody().toString());
     }
 
     /**
@@ -65,7 +70,11 @@ public class ListRestaurantsService {
      * @throws IOException : Exception thrown if the GET request fail
      */
     public PlaceResponse getNextPlacesNearby(String nextPlaceToken) throws IOException {
-        return service.getNextPlacesAvailable(nextPlaceToken).execute().body();
+        Response<PlaceResponse> response = service.getNextPlacesAvailable(nextPlaceToken).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        throw new IOException(response.errorBody().toString());
     }
 
     /**
@@ -73,8 +82,12 @@ public class ListRestaurantsService {
      * @return : Result of a GET request
      * @throws IOException : Exception thrown if the GET request fail
      */
-    public DetailsResponse getPlacesDetails(String place_id) throws IOException{
-        return service.getPlaceDetails(place_id).execute().body();
+    public DetailsResponse getPlacesDetails(String placeId) throws IOException{
+        Response<DetailsResponse> response = service.getPlaceDetails(placeId).execute();
+        if (response.isSuccessful()) {
+            return response.body();
+        }
+        else throw new IOException(response.errorBody().toString());
     }
 
     private void clearListRestaurants() {

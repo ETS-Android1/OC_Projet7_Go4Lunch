@@ -166,7 +166,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             double restaurantLongitude = listRestaurant.get(position).getLongitude();
                             float[] result = new float[1];
                             Location.distanceBetween(userLatitude, userLongitude, restaurantLatitude, restaurantLongitude, result);
-                            String distance = ((int) result[0]) + " m";
+                            String distance = context.getResources().getString(R.string.distance, (int) result[0]);
                             holder.distance.setText(distance);
                         } catch (IndexOutOfBoundsException exception) { exception.printStackTrace(); }
                     }).addOnFailureListener(Throwable::printStackTrace);
@@ -208,8 +208,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
                     else {
                         if (CustomComparators.getTimeDiff(currentHour, currentMinutes, openingHour, openingMinutes) > 0) { // OPEN UNTIL
-                            String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(0).substring(0,2)
-                                    + ":" + closingHours.get(0).substring(2,4);
+                            String text = context.getResources().getString(R.string.open_until,
+                                                                 closingHours.get(0).substring(0,2),
+                                                                 closingHours.get(0).substring(2,4));
                             holder.hour.setText(text);
                         }
                         else { // CLOSED (NOT OPENED YET)
@@ -239,8 +240,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         colorText = true;
                     }
                     else { // OPEN UNTIL
-                        String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(0).substring(0,2)
-                                + ":" + closingHours.get(0).substring(2,4);
+                        String text = context.getResources().getString(R.string.open_until,
+                                closingHours.get(0).substring(0,2),
+                                closingHours.get(0).substring(2,4));
                         holder.hour.setText(text);
                     }
                 }
@@ -255,7 +257,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         colorText = true;
                     }
                     else { // OPEN UNTIL
-                        String text = context.getResources().getString(R.string.open_until) + " " + closingHours.get(1).substring(0,2) + ":" + closingHours.get(1).substring(2,4);
+                         String text = context.getResources().getString(R.string.open_until,
+                                closingHours.get(1).substring(0,2),
+                                closingHours.get(1).substring(2,4));
                         holder.hour.setText(text);
                     }
                 }
@@ -381,7 +385,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (listWorkmates.get(i).getRestaurantSelectedID().equals(restaurantId))
                 nbWorkmates++;
         }
-        String text = "(" + nbWorkmates + ")";
+        String text = context.getResources().getString(R.string.nb_workmates, nbWorkmates);
         ((ViewHolderListView) holder).nbWorkmates.setText(text);
     }
 

@@ -40,7 +40,8 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
     @NonNull
     @Override
     public ViewHolderWorkmates onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workmates_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workmates_item,
+                                                                     parent, false);
         return new ViewHolderWorkmates(view);
     }
 
@@ -52,7 +53,6 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         // Display icon
         Glide.with(context).clear(holder.photo); // Cancel any pending loads
         loadUserIcon(holder.photo, listWorkmates.get(position).getPhotoUrl());
-
     }
 
     @Override
@@ -71,13 +71,15 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
             String text;
             if (listWorkmates.get(position).getRestaurantName() != null) {
                 if (listWorkmates.get(position).getRestaurantName().length() == 0) {
-                    text = listWorkmates.get(position).getName() + " " + context.getResources().getString(R.string.no_decision);
+                    text = context.getResources().getString(R.string.no_decision,
+                                                            listWorkmates.get(position).getName());
                     textView.setText(text);
                     displayStyleTextView(textView, R.color.light_grey, Typeface.ITALIC);
                 }
                 else {
-                    text = listWorkmates.get(position).getName() + " " + context.getResources().getString(R.string.is_eating_at) + " "
-                            + listWorkmates.get(position).getRestaurantName();
+                    text = context.getResources().getString(R.string.is_eating_at,
+                                                            listWorkmates.get(position).getName(),
+                            listWorkmates.get(position).getRestaurantName());
                     textView.setText(text);
                     displayStyleTextView(textView, R.color.black, Typeface.NORMAL);
                 }
@@ -85,7 +87,8 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
         }
         else {
             // Text
-            String text = listWorkmates.get(position).getName() + " " + context.getResources().getString(R.string.is_going);
+            String text = context.getResources().getString(R.string.is_going,
+                                                           listWorkmates.get(position).getName());
             textView.setText(text);
         }
     }
@@ -106,12 +109,14 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
                         .into(icon);
             }
             else icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
-                                                                   R.drawable.ic_baseline_account_circle_24dp_dark_orange, null));
+                                   R.drawable.ic_baseline_account_circle_24dp_dark_orange,
+                                                                            null));
 
         }
         // Otherwise display default drawable
         else icon.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),
-                                                               R.drawable.ic_baseline_account_circle_24dp_dark_orange, null));
+                               R.drawable.ic_baseline_account_circle_24dp_dark_orange,
+                                                                        null));
     }
 
 
