@@ -1,5 +1,6 @@
 package com.openclassrooms.go4lunch.database;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
@@ -33,4 +34,20 @@ public class HoursData {
     public String getRestaurantId() { return restaurantId; }
 
     public void setId(int id) { this.id = id; }
+
+    /**
+     * Used for testing only. See HoursDataUnitTest.java file.
+     */
+    @VisibleForTesting
+    public OpeningHours getOpeningHours() {
+        return openingHours;
+    }
+
+    /**
+     * Used for testing only. See HoursDataUnitTest.java file.
+     */
+    @VisibleForTesting
+    public ClosingHours getClosingHours() {
+        return closingHours;
+    }
 }

@@ -1,10 +1,12 @@
 package com.openclassrooms.go4lunch.utils;
 
 import com.openclassrooms.go4lunch.model.Workmate;
-import com.openclassrooms.go4lunch.utils.CustomComparators;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -26,11 +28,18 @@ public class ComparatorsUnitTest {
         Workmate workmate2 = new Workmate("Walter", null, null, null, null);
         Workmate workmate3 = new Workmate("Alice", null, null, null, null);
 
+        // Check if comparison between two Workmate objects works
         CustomComparators.WorkmateAZComparator workmateAZComparator = new CustomComparators.WorkmateAZComparator();
-
         assertTrue(workmateAZComparator.compare(workmate1, workmate2) < 0);
         assertTrue(workmateAZComparator.compare(workmate1, workmate3) > 0);
         assertEquals(0, workmateAZComparator.compare(workmate1, workmate1));
+
+        // Check if ordering list of Workmate objects using this Comparator works
+        List<Workmate> listWorkmates = Arrays.asList(workmate1, workmate2, workmate3);
+        Collections.sort(listWorkmates, new CustomComparators.WorkmateAZComparator());
+        assertEquals(workmate3, listWorkmates.get(0));
+        assertEquals(workmate1, listWorkmates.get(1));
+        assertEquals(workmate2, listWorkmates.get(2));
     }
 
     /**

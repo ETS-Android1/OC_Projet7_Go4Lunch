@@ -1,5 +1,7 @@
 package com.openclassrooms.go4lunch.model;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.util.ArrayList;
 
 /**
@@ -8,8 +10,6 @@ import java.util.ArrayList;
  *  database instance.
  */
 public class OpeningAndClosingHours {
-
-    public  OpeningAndClosingHours() {}
 
     // Closing hours
     private final ArrayList<String> mondayClosingHours = new ArrayList<>();

@@ -33,14 +33,14 @@ public class WorkmateUnitTest {
         workmate.setLiked(LIKED);
 
         // Check if values in Workmate object fields are correct
-        assertEquals(workmate.getName(), NAME);
-        assertEquals(workmate.getEmail(), EMAIL);
-        assertEquals(workmate.getPhotoUrl(), PHOTO_URL);
-        assertEquals(workmate.getRestaurantName(), RESTAURANT_NAME);
-        assertEquals(workmate.getRestaurantSelectedID(), RESTAURANT_SELECTED_ID);
-        assertEquals(workmate.getLiked().size(), 3);
-        assertEquals(workmate.getLiked().get(0), "ChIJGz20sdh65kcRCfY0bMPzkVo");
-        assertEquals(workmate.getLiked().get(1), "ChIJW3_CtNh65kcRJDaPERLXgGY");
-        assertEquals(workmate.getLiked().get(2), "ChIJXYZoq9h65kcRuWrPmnFCQUI");
+        assertEquals(NAME, workmate.getName());
+        assertEquals(EMAIL, workmate.getEmail());
+        assertEquals(PHOTO_URL, workmate.getPhotoUrl());
+        assertEquals(RESTAURANT_NAME, workmate.getRestaurantName());
+        assertEquals(RESTAURANT_SELECTED_ID, workmate.getRestaurantSelectedID());
+        assertEquals(3, workmate.getLiked().size());
+        assertEquals("ChIJGz20sdh65kcRCfY0bMPzkVo", workmate.getLiked().get(0));
+        assertEquals("ChIJW3_CtNh65kcRJDaPERLXgGY" ,workmate.getLiked().get(1));
+        assertEquals("ChIJXYZoq9h65kcRuWrPmnFCQUI", workmate.getLiked().get(2));
     }
 }

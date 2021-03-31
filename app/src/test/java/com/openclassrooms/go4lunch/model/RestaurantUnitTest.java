@@ -16,7 +16,7 @@ public class RestaurantUnitTest {
      */
     @Test
     public void test_restaurant_object_creation() {
-        String ID = "ChIJGz20sdh65kcRCfY0bMPzkVo";
+        String PLACE_ID = "ChIJGz20sdh65kcRCfY0bMPzkVo";
         String NAME = "Franprix";
         String ADDRESS = "80 Avenue Jean Baptiste Clement, Boulogne-Billancourt";
         double LATITUDE = 48.8437898;
@@ -31,7 +31,7 @@ public class RestaurantUnitTest {
         boolean SELECTED = true;
 
         // Initialize a Restaurant object
-        Restaurant restaurant1  = new Restaurant(ID, NAME, ADDRESS, LATITUDE, LONGITUDE, RATING);
+        Restaurant restaurant1  = new Restaurant(PLACE_ID, NAME, ADDRESS, LATITUDE, LONGITUDE, RATING);
 
         // Use setter methods to instantiate others fields
         restaurant1.setPhoneNumber(NUMBER);
@@ -42,17 +42,17 @@ public class RestaurantUnitTest {
         restaurant1.setSelected(SELECTED);
 
         // Check if values in Restaurant object fields are correct
-        assertEquals(restaurant1.getPlaceId(), ID);
-        assertEquals(restaurant1.getName(), NAME);
-        assertEquals(restaurant1.getAddress(), ADDRESS);
-        assertEquals(restaurant1.getLatitude(), LATITUDE, 0);
-        assertEquals(restaurant1.getLongitude(), LONGITUDE, 0);
-        assertEquals(restaurant1.getRating(), RATING, 0);
-        assertEquals(restaurant1.getPhoneNumber(), NUMBER);
-        assertEquals(restaurant1.getWebsiteUri(), WEBSITE_URI);
-        assertEquals(restaurant1.getPhotoReference(), PHOTO_REFERENCE);
-        assertEquals(restaurant1.getPhotoHeight(), PHOTO_HEIGHT);
-        assertEquals(restaurant1.getPhotoWidth(), PHOTO_WIDTH);
-        assertEquals(restaurant1.getSelected(), SELECTED);
+        assertEquals(PLACE_ID, restaurant1.getPlaceId());
+        assertEquals(NAME, restaurant1.getName());
+        assertEquals(ADDRESS, restaurant1.getAddress());
+        assertEquals(LATITUDE, restaurant1.getLatitude(), 0);
+        assertEquals(LONGITUDE, restaurant1.getLongitude(), 0);
+        assertEquals(RATING, restaurant1.getRating(), 0);
+        assertEquals(NUMBER, restaurant1.getPhoneNumber());
+        assertEquals(WEBSITE_URI, restaurant1.getWebsiteUri());
+        assertEquals(PHOTO_REFERENCE, restaurant1.getPhotoReference());
+        assertEquals(PHOTO_HEIGHT, restaurant1.getPhotoHeight());
+        assertEquals(PHOTO_WIDTH, restaurant1.getPhotoWidth());
+        assertEquals(SELECTED, restaurant1.getSelected());
     }
 }
