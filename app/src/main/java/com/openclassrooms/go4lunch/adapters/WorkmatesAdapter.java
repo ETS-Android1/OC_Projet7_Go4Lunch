@@ -3,7 +3,6 @@ package com.openclassrooms.go4lunch.adapters;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,6 +12,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.openclassrooms.go4lunch.R;
+import com.openclassrooms.go4lunch.databinding.WorkmatesItemBinding;
 import com.openclassrooms.go4lunch.model.Workmate;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,19 +40,18 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
     @NonNull
     @Override
     public ViewHolderWorkmates onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.workmates_item,
-                                                                     parent, false);
-        return new ViewHolderWorkmates(view);
+        WorkmatesItemBinding binding = WorkmatesItemBinding.inflate(LayoutInflater.from(context), parent, false);
+        return new ViewHolderWorkmates(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolderWorkmates holder, int position) {
         // Display text
-        displayText(holder.text, position);
+        displayText(holder.binding.textWorkmate, position);
 
         // Display icon
-        Glide.with(context).clear(holder.photo); // Cancel any pending loads
-        loadUserIcon(holder.photo, listWorkmates.get(position).getPhotoUrl());
+        Glide.with(context).clear(holder.binding.photoWorkmate); // Cancel any pending loads
+        loadUserIcon(holder.binding.photoWorkmate, listWorkmates.get(position).getPhotoUrl());
     }
 
     @Override
@@ -125,13 +124,11 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
      */
     static class ViewHolderWorkmates extends RecyclerView.ViewHolder {
 
-        private final TextView text;
-        private final ImageView photo;
+        private final WorkmatesItemBinding binding;
 
-        ViewHolderWorkmates(View view) {
-            super(view);
-            text = view.findViewById(R.id.text_workmate);
-            photo = view.findViewById(R.id.photo_workmate);
+        ViewHolderWorkmates(WorkmatesItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 

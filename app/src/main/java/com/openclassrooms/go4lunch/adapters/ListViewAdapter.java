@@ -22,6 +22,8 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
+import com.openclassrooms.go4lunch.databinding.ListViewFooterItemBinding;
+import com.openclassrooms.go4lunch.databinding.ListViewItemBinding;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.utils.CustomComparators;
@@ -65,11 +67,13 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_ITEM) { // ViewHolderListView
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_item, parent, false);
-            return new ViewHolderListView(view, onItemRestaurantClickListener);
+            ListViewItemBinding binding = ListViewItemBinding.inflate(LayoutInflater.from(context), parent, false);
+            return new ViewHolderListView(binding, onItemRestaurantClickListener);
         }
         else { // ViewHolderFooterListView
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_footer_item, parent, false);
-            return new ViewHolderFooterListView(view);
+            ListViewFooterItemBinding binding = ListViewFooterItemBinding.inflate(LayoutInflater.from(context), parent, false);
+            return new ViewHolderFooterListView(binding);
         }
     }
 
@@ -79,10 +83,10 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         // Handle item display
         if (holder instanceof ViewHolderListView) {
             // Name
-            ((ViewHolderListView) holder).name.setText(listRestaurant.get(position).getName());
+            ((ViewHolderListView) holder).binding.name.setText(listRestaurant.get(position).getName());
 
             // Address
-            ((ViewHolderListView) holder).address.setText(listRestaurant.get(position).getAddress());
+            ((ViewHolderListView) holder).binding.address.setText(listRestaurant.get(position).getAddress());
 
             // Distance between restaurant location and user location
             displayDistanceBetweenRestaurantAndUserLocation(((ViewHolderListView) holder), position);
@@ -102,7 +106,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
         // Handle footer item display
         if (holder instanceof ViewHolderFooterListView) {
-            ((ViewHolderFooterListView) holder).progressBar.setVisibility(progressBarVisibilityStatus);
+            ((ViewHolderFooterListView) holder).binding.progressBarListView.setVisibility(progressBarVisibilityStatus);
         }
     }
 
@@ -167,7 +171,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             float[] result = new float[1];
                             Location.distanceBetween(userLatitude, userLongitude, restaurantLatitude, restaurantLongitude, result);
                             String distance = context.getResources().getString(R.string.distance, (int) result[0]);
-                            holder.distance.setText(distance);
+                            holder.binding.distance.setText(distance);
                         } catch (IndexOutOfBoundsException exception) { exception.printStackTrace(); }
                     }).addOnFailureListener(Throwable::printStackTrace);
         }
@@ -199,11 +203,11 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 int openingMinutes = Integer.parseInt(openingHours.get(0).substring(2,4));
                 // Update text
                 if (CustomComparators.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) >= 0) { // CLOSED
-                    holder.hour.setText(context.getResources().getString(R.string.closed));
+                    holder.binding.hour.setText(context.getResources().getString(R.string.closed));
                 }
                 else {
                     if (CustomComparators.getTimeDiff(currentHour, currentMinutes, closingHour, closingMinutes) > -60) { // CLOSED SOON
-                        holder.hour.setText(context.getResources().getString(R.string.closing_soon));
+                        holder.binding.hour.setText(context.getResources().getString(R.string.closing_soon));
                         colorText = true;
                     }
                     else {
@@ -211,10 +215,10 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             String text = context.getResources().getString(R.string.open_until,
                                                                  closingHours.get(0).substring(0,2),
                                                                  closingHours.get(0).substring(2,4));
-                            holder.hour.setText(text);
+                            holder.binding.hour.setText(text);
                         }
                         else { // CLOSED (NOT OPENED YET)
-                            holder.hour.setText(context.getResources().getString(R.string.closed));
+                            holder.binding.hour.setText(context.getResources().getString(R.string.closed));
                         }
                     }
                 }
@@ -231,45 +235,45 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 int secondOpeningMinutes = Integer.parseInt(openingHours.get(1).substring(2,4));
                 // Update text
                 if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) < 0) { // CLOSED (NOT OPENING YET)
-                    holder.hour.setText(context.getResources().getString(R.string.closed));
+                    holder.binding.hour.setText(context.getResources().getString(R.string.closed));
                 }
                 else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstOpeningHour, firstOpeningMinutes) >= 0 &&
                         CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) < 0) {
                     if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) > -60) { // CLOSING SOON
-                        holder.hour.setText(context.getResources().getString(R.string.closing_soon));
+                        holder.binding.hour.setText(context.getResources().getString(R.string.closing_soon));
                         colorText = true;
                     }
                     else { // OPEN UNTIL
                         String text = context.getResources().getString(R.string.open_until,
                                 closingHours.get(0).substring(0,2),
                                 closingHours.get(0).substring(2,4));
-                        holder.hour.setText(text);
+                        holder.binding.hour.setText(text);
                     }
                 }
                 else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, firstClosingHour, firstClosingMinutes) >= 0 &&
                         CustomComparators.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) < 0) {  // CLOSED (NOT OPENING YET)
-                    holder.hour.setText(context.getResources().getString(R.string.closed));
+                    holder.binding.hour.setText(context.getResources().getString(R.string.closed));
                 }
                 else if (CustomComparators.getTimeDiff(currentHour, currentMinutes, secondOpeningHour, secondOpeningMinutes) >= 0 &&
                         CustomComparators.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingMinutes) < 0) {
                     if (CustomComparators.getTimeDiff(currentHour, currentMinutes, secondClosingHour, secondClosingHour) > -60) { // CLOSING SOON
-                        holder.hour.setText(context.getResources().getString(R.string.closing_soon));
+                        holder.binding.hour.setText(context.getResources().getString(R.string.closing_soon));
                         colorText = true;
                     }
                     else { // OPEN UNTIL
                          String text = context.getResources().getString(R.string.open_until,
                                 closingHours.get(1).substring(0,2),
                                 closingHours.get(1).substring(2,4));
-                        holder.hour.setText(text);
+                        holder.binding.hour.setText(text);
                     }
                 }
                 else { // CLOSED
-                    holder.hour.setText(context.getResources().getString(R.string.closed));
+                    holder.binding.hour.setText(context.getResources().getString(R.string.closed));
                 }
             }
             // Update color text for "closing soon" hours
-            if (colorText) displayStyleTextViewForHoursDisplay(holder.hour, R.color.red, Typeface.BOLD_ITALIC);
-            else displayStyleTextViewForHoursDisplay(holder.hour, R.color.grey_50, Typeface.ITALIC);
+            if (colorText) displayStyleTextViewForHoursDisplay(holder.binding.hour, R.color.red, Typeface.BOLD_ITALIC);
+            else displayStyleTextViewForHoursDisplay(holder.binding.hour, R.color.grey_50, Typeface.ITALIC);
         }
         catch (IndexOutOfBoundsException exception) {
             exception.printStackTrace();
@@ -340,7 +344,6 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return hours;
     }
 
-
     /**
      * Updates the "closing hour" text with a color and a style.
      * @param text : "closing hour" text for a recyclerview item
@@ -364,11 +367,11 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     .load("https://maps.googleapis.com/maps/api/place/photo?&maxwidth=400&maxheight=400&photo_reference="
                             + listRestaurant.get(position).getPhotoReference() + "&key=" + BuildConfig.API_KEY)
                              .centerCrop()
-                    .override(holder.photo.getWidth(), holder.photo.getHeight())
-                    .into(holder.photo);
+                    .override(holder.binding.photoRestaurant.getWidth(), holder.binding.photoRestaurant.getHeight())
+                    .into(holder.binding.photoRestaurant);
         }
         else {
-            holder.photo.setImageDrawable(context.getResources()
+            holder.binding.photoRestaurant.setImageDrawable(context.getResources()
                     .getDrawable(R.drawable.ic_baseline_image_not_supported_24dp_oyster_white));
         }
     }
@@ -386,7 +389,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 nbWorkmates++;
         }
         String text = context.getResources().getString(R.string.nb_workmates, nbWorkmates);
-        ((ViewHolderListView) holder).nbWorkmates.setText(text);
+        ((ViewHolderListView) holder).binding.nbWorkmates.setText(text);
     }
 
     /**
@@ -394,34 +397,23 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      */
     private static class ViewHolderListView extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private final TextView name;
-        private final TextView address;
-        private final TextView hour;
-        private final TextView distance;
-        private final ImageView photo;
         private final List<ImageView> rating;
         private final OnItemRestaurantClickListener onItemRestaurantClickListener;
-        private final TextView nbWorkmates;
+        private final ListViewItemBinding binding;
 
         @SuppressLint("ClickableViewAccessibility")
-        ViewHolderListView(View view, OnItemRestaurantClickListener onItemRestaurantClickListener) {
-            super(view);
+        ViewHolderListView(ListViewItemBinding binding, OnItemRestaurantClickListener onItemRestaurantClickListener) {
+            super(binding.getRoot());
             this.onItemRestaurantClickListener = onItemRestaurantClickListener;
 
-            name = view.findViewById(R.id.name);
-            address = view.findViewById(R.id.address);
-            distance = view.findViewById(R.id.distance);
-            hour = view.findViewById(R.id.hour);
-            photo = view.findViewById(R.id.photo_restaurant);
-            View layout = view.findViewById(R.id.root_layout_item);
+            this.binding = binding;
+            binding.rootLayoutItem.setOnClickListener(this);
+            rating = Arrays.asList(binding.noteStar1,
+                                   binding.noteStar2,
+                                   binding.noteStar3,
+                                   binding.noteStar4,
+                                   binding.noteStar5);
 
-            rating = Arrays.asList(view.findViewById(R.id.note_star_5),
-                                   view.findViewById(R.id.note_star_4),
-                                   view.findViewById(R.id.note_star_3),
-                                   view.findViewById(R.id.note_star_2),
-                                   view.findViewById(R.id.note_star_1));
-            nbWorkmates = view.findViewById(R.id.nb_workmates);
-            layout.setOnClickListener(this);
         }
 
         @Override
@@ -435,11 +427,11 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      */
     private static class ViewHolderFooterListView extends RecyclerView.ViewHolder {
 
-        private final ProgressBar progressBar;
+        private final ListViewFooterItemBinding binding;
 
-        ViewHolderFooterListView(View view) {
-            super(view);
-            progressBar = view.findViewById(R.id.progress_bar_list_view);
+        ViewHolderFooterListView(ListViewFooterItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
