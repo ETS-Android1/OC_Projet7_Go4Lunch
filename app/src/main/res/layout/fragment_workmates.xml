@@ -7,7 +7,8 @@
     android:clickable="true"
     android:focusable="true"
     android:background="@color/white"
-    tools:context=".ui.fragments.workmates.WorkmatesFragment">
+    tools:context=".ui.fragments.workmates.WorkmatesFragment"
+    android:id="@+id/fragment_workmates_root_layout">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_workmates"

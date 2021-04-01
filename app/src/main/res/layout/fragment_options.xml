@@ -8,7 +8,8 @@
     android:clickable="true"
     android:focusable="true"
     android:background="@color/white"
-    tools:context=".ui.fragments.options.OptionsFragment">
+    tools:context=".ui.fragments.options.OptionsFragment"
+    android:id="@+id/fragment_options_root_layout">
 
     <!-- Map section -->
     <GridLayout

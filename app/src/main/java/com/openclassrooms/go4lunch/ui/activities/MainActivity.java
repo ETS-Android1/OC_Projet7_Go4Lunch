@@ -42,7 +42,6 @@ import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
-import com.openclassrooms.go4lunch.databinding.MainActivityNavHeaderBinding;
 import com.openclassrooms.go4lunch.di.DI;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
@@ -246,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
         switch (item.getItemId()) {
             case R.id.your_lunch_option:
                 onClickYourLunchOptionIcon();
