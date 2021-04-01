@@ -4,7 +4,6 @@ import android.view.View;
 import androidx.test.espresso.matcher.BoundedMatcher;
 import com.google.android.material.internal.NavigationMenuItemView;
 import com.openclassrooms.go4lunch.NavigationViewInstrumentTest;
-
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 

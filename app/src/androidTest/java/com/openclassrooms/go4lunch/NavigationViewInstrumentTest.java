@@ -5,7 +5,6 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.openclassrooms.go4lunch.matchers.NavigationViewMatchers;
-import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.ui.activities.MainActivity;
 import org.junit.Before;
 import org.junit.Rule;
