@@ -62,7 +62,8 @@ public class SignInActivity extends AppCompatActivity {
      * activity is displayed using FirebaseUI
      */
     private void handleConnexionButtonListener() {
-        AuthMethodPickerLayout layout = new AuthMethodPickerLayout.Builder(R.layout.authentication_layout)
+        AuthMethodPickerLayout layout = new AuthMethodPickerLayout
+                .Builder(R.layout.authentication_layout)
                 .setGoogleButtonId(R.id.google_auth_btn)
                 .setFacebookButtonId(R.id.facebook_auth_btn)
                 .setTwitterButtonId(R.id.twitter_auth_btn)
@@ -106,13 +107,19 @@ public class SignInActivity extends AppCompatActivity {
             }
             else {
                 if (response == null) {
-                    Snackbar.make(binding.signInActivityLayout, R.string.snack_bar_auth_cancelled, Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(binding.signInActivityLayout,
+                                  R.string.snack_bar_auth_cancelled,
+                                  Snackbar.LENGTH_SHORT).show();
                 }
                 else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
-                    Snackbar.make(binding.signInActivityLayout, R.string.snack_bar_error_no_network, Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(binding.signInActivityLayout,
+                                  R.string.snack_bar_error_no_network,
+                                  Snackbar.LENGTH_SHORT).show();
                 }
                 else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    Snackbar.make(binding.signInActivityLayout, R.string.snack_bar_error_unknown, Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(binding.signInActivityLayout,
+                                  R.string.snack_bar_error_unknown,
+                                  Snackbar.LENGTH_SHORT).show();
                 }
             }
         }
@@ -133,12 +140,15 @@ public class SignInActivity extends AppCompatActivity {
       CollectionReference collectionRef = dbFirestore.collection(AppInfo.ROOT_COLLECTION_ID);
       try {
           // Query to check if a Document with associated user information exists in database collection
-          Query query = collectionRef.whereEqualTo("email", Objects.requireNonNull(user).getEmail()).limit(1);
+          Query query = collectionRef.whereEqualTo("email", Objects.requireNonNull(user)
+                                                                              .getEmail()).limit(1);
           query.get().addOnCompleteListener(task -> {
               if (task.isSuccessful()) {
                   if (task.getResult().size() == 0) { // User does not exist yet in db
                       // Create a new data object
-                      String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null;
+                      String photoUrl = user.getPhotoUrl() != null ?
+                                        user.getPhotoUrl().toString() :
+                                        null;
                       Workmate workmate = new Workmate(user.getDisplayName(),
                               user.getEmail(),
                               "",
@@ -153,10 +163,10 @@ public class SignInActivity extends AppCompatActivity {
                       });
                   }
                   else {
-                      editor.putString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, task.getResult().getDocuments().get(0).getId());
+                      editor.putString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, task.getResult()
+                                                                    .getDocuments().get(0).getId());
                       editor.apply();
                   }
-
               }
           });
       } catch (NullPointerException exception) { exception.printStackTrace(); }

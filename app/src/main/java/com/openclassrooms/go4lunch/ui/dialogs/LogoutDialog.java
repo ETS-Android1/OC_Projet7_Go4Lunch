@@ -29,11 +29,13 @@ public class LogoutDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.DialogStyle);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
+                                                                               R.style.DialogStyle);
 
         builder.setTitle(R.string.title_logout_dialog)
                 .setMessage(R.string.message_logout_dialog)
-                .setPositiveButton(R.string.positive_btn_logout_dialog, (DialogInterface dialog, int which) -> {
+                .setPositiveButton(R.string.positive_btn_logout_dialog,
+                        (DialogInterface dialog, int which) -> {
                         listener.logoutUser(); // Logout action
                     }
                 )

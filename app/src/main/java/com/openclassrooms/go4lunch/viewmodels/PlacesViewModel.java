@@ -13,6 +13,7 @@ import com.openclassrooms.go4lunch.database.HoursData;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.database.RestaurantData;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
+import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.DataConverters;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,9 +71,7 @@ public class PlacesViewModel extends ViewModel {
                             listRestaurants.postValue(newListRestaurants);
                             getPlacesDetails(newListRestaurants, false);
                         });
-                    } catch (IOException exception) {
-                        exception.printStackTrace();
-                    }
+                    } catch (IOException exception) { exception.printStackTrace(); }
                 }
         );
     }
@@ -86,10 +85,10 @@ public class PlacesViewModel extends ViewModel {
         executor.execute(() -> {
             try {
                 placesRepository.getNextPlacesNearby(listRestaurant ->
-                        getPlacesDetails(listRestaurant, true), listRestaurants, numNextPageToken);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
+                        getPlacesDetails(listRestaurant, true),
+                        listRestaurants,
+                        numNextPageToken);
+            } catch (IOException exception) { exception.printStackTrace(); }
         });
     }
 
@@ -100,7 +99,8 @@ public class PlacesViewModel extends ViewModel {
     public void getPlacesDetails(List<Restaurant> list, boolean nextPageTokenResults) {
         executor.execute(() -> {
             try {
-                placesRepository.getPlacesDetails(list, (newListRestaurants, listOfListHoursData) -> {
+                placesRepository.getPlacesDetails(list,
+                        (newListRestaurants, listOfListHoursData) -> {
                     listRestaurants.postValue(newListRestaurants);
                     if (!nextPageTokenResults) {
                         // Store list of periods in database
@@ -124,7 +124,7 @@ public class PlacesViewModel extends ViewModel {
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void performAutocompleteRequest(String query, Context context) {
         executor.execute(() -> {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (AppInfo.checkIfLocationPermissionIsGranted(context)) {
                 placesRepository.performAutocompleteRequest(query, listRestaurantsIdAutocomplete::postValue);
             }
         });
@@ -152,12 +152,13 @@ public class PlacesViewModel extends ViewModel {
      */
     private void updateDatabaseRestaurantTable(List<Restaurant> list) {
         deleteAllRestaurantsData();
-
         for (int i = 0; i < list.size(); i++) {
-            RestaurantData restaurantData = new RestaurantData(list.get(i).getPlaceId(), list.get(i).getName(), list.get(i).getAddress(),
+            RestaurantData restaurantData = new RestaurantData(list.get(i).getPlaceId(),
+                    list.get(i).getName(), list.get(i).getAddress(),
                     list.get(i).getLatitude(), list.get(i).getLongitude(), list.get(i).getRating(),
                     list.get(i).getPhoneNumber(), list.get(i).getWebsiteUri(),
-                    list.get(i).getPhotoReference(), list.get(i).getPhotoHeight(), list.get(i).getPhotoWidth());
+                    list.get(i).getPhotoReference(), list.get(i).getPhotoHeight(),
+                    list.get(i).getPhotoWidth());
             insertRestaurantData(restaurantData);
         }
     }
@@ -203,8 +204,10 @@ public class PlacesViewModel extends ViewModel {
 
         for (int i = 0; i < restaurantAndHoursData.size(); i++) {
             RestaurantData restaurantData = restaurantAndHoursData.get(i).restaurantData;
-            Restaurant restaurant = new Restaurant(restaurantData.getPlaceId(), restaurantData.getName(), restaurantData.getAddress(),
-                    restaurantData.getLatitude(), restaurantData.getLongitude(), restaurantData.getRating());
+            Restaurant restaurant = new Restaurant(restaurantData.getPlaceId(),
+                    restaurantData.getName(), restaurantData.getAddress(),
+                    restaurantData.getLatitude(), restaurantData.getLongitude(),
+                    restaurantData.getRating());
 
                     restaurant.setPhotoReference(restaurantData.getPhotoReference());
                     restaurant.setPhotoWidth(restaurantData.getPhotoWidth());

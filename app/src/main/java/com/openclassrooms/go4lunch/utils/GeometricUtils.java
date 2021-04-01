@@ -19,7 +19,8 @@ public class GeometricUtils {
      */
     public static LatLng getCoordinate(double latitudeRef, double longitudeRef, long dx, long dy) {
         double newLatitude = latitudeRef + (dy / EARTH_RADIUS) * (180 / Math.PI);
-        double newLongitude = longitudeRef + (dx / EARTH_RADIUS) * (180 / Math.PI) / Math.cos(latitudeRef * Math.PI / 180);
+        double newLongitude = longitudeRef +
+                      (dx / EARTH_RADIUS) * (180 / Math.PI) / Math.cos(latitudeRef * Math.PI / 180);
         return new LatLng(newLatitude, newLongitude);
     }
 }

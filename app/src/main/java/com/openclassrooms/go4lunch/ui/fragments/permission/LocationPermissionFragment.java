@@ -42,7 +42,8 @@ public class LocationPermissionFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentLocationPermissionBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -80,13 +81,15 @@ public class LocationPermissionFragment extends Fragment {
                                 LOCATION_PERMISSION_CODE);
                     }
                     else { // If user checked Checkbox "Don't ask again"
-                        if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) { // If "Do not ask again" checkbox has been checked
+                        // If "Do not ask again" checkbox has been checked
+                        if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                             requireActivity().getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.fragment_container_view, AccessSettingsAppFragment.newInstance(),
                                             AccessSettingsAppFragment.TAG)
                                     .commit();
                         }
-                        else { // Others request permission
+                        // Others request permission
+                        else {
                             ActivityCompat.requestPermissions(requireActivity(), new String[] {
                                     Manifest.permission.ACCESS_FINE_LOCATION},
                                     LOCATION_PERMISSION_CODE);
@@ -97,7 +100,8 @@ public class LocationPermissionFragment extends Fragment {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_CODE) {
             if (permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION) && grantResults[0]
@@ -107,7 +111,8 @@ public class LocationPermissionFragment extends Fragment {
                 editor.apply();
                 // Let user access the bottom bar navigation fragments
                 requireActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container_view, MapViewFragment.newInstance(), MapViewFragment.TAG)
+                        .replace(R.id.fragment_container_view, MapViewFragment.newInstance(),
+                                 MapViewFragment.TAG)
                         .commit();
                 ((MainActivity) requireActivity()).updateNavigationAndBottomBarDisplay(View.VISIBLE);
             }

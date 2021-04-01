@@ -1,7 +1,12 @@
 package com.openclassrooms.go4lunch.utils;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+
+import androidx.core.content.ContextCompat;
+
 import com.openclassrooms.go4lunch.BuildConfig;
 import static android.content.Context.MODE_PRIVATE;
 
@@ -63,12 +68,21 @@ public class AppInfo {
         }
     }
 
+    public static boolean checkIfLocationPermissionIsGranted(Context context) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED)
+            return false;
+        else return true;
+    }
+
     /**
      * This method is used to retrieve the current Status bar size
      * @return : size of the status bar
      */
     public static int getStatusBarSize(Context context) {
-        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        int resourceId = context.getResources().getIdentifier("status_bar_height",
+                                                            "dimen",
+                                                         "android");
         int statusBarSize;
         statusBarSize = context.getResources().getDimensionPixelSize(resourceId);
         return statusBarSize;

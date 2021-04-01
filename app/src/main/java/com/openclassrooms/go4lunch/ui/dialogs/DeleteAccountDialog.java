@@ -31,9 +31,11 @@ public class DeleteAccountDialog extends DialogFragment {
 
         builder.setTitle(getResources().getString(R.string.delete_account_dialog_title))
                 .setMessage(getResources().getString(R.string.delete_account_dialog_text))
-                .setPositiveButton(getResources().getString(R.string.delete_account_dialog_positive_btn),
+                .setPositiveButton(getResources()
+                                            .getString(R.string.delete_account_dialog_positive_btn),
                         (dialog, which) -> callback.confirmDeleteUser())
-                .setNegativeButton(getResources().getString(R.string.delete_account_dialog_negative_btn), null);
+                .setNegativeButton(getResources()
+                              .getString(R.string.delete_account_dialog_negative_btn), null);
         return builder.create();
     }
 }

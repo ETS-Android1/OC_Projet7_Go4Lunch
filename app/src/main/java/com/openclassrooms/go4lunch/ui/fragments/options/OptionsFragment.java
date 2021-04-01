@@ -50,7 +50,8 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentOptionsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -74,15 +75,18 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
      * Initializes SharedPreferences objects to access SharedPreferences file.
      */
     private void initializeSharedPreferences() {
-        sharedPrefClusterOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
-        sharedPrefAlarmOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
+        sharedPrefClusterOption = requireContext()
+                                  .getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
+        sharedPrefAlarmOption = requireContext()
+                                  .getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
     }
 
     /**
      * Initializes display of the switch.
      */
     private void initializeMapOptionDisplay() {
-        boolean checked = sharedPrefClusterOption.getBoolean(AppInfo.PREF_CLUSTER_OPTION_KEY, false);
+        boolean checked = sharedPrefClusterOption
+                                       .getBoolean(AppInfo.PREF_CLUSTER_OPTION_KEY, false);
         binding.switchOptionCluster.setChecked(checked);
     }
 
@@ -102,13 +106,16 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
      */
     private void initializeAlarmOption() {
         // Checkbox
-        boolean checked = sharedPrefAlarmOption.getBoolean(AppInfo.PREF_ALARM_OPTION_STATUS_KEY, false);
+        boolean checked = sharedPrefAlarmOption
+                                   .getBoolean(AppInfo.PREF_ALARM_OPTION_STATUS_KEY, false);
         binding.checkboxAlarm.setChecked(checked);
 
         // Text Mode
         String textMode;
-        if (checked) textMode = requireContext().getResources().getString(R.string.alarm_option_activated_text);
-        else  textMode = requireContext().getResources().getString(R.string.alarm_option_deactivated_text);
+        if (checked) textMode = requireContext().getResources()
+                                                   .getString(R.string.alarm_option_activated_text);
+        else  textMode = requireContext().getResources()
+                                                 .getString(R.string.alarm_option_deactivated_text);
         binding.textAlarm.setText(textMode);
 
         // Alarm
@@ -137,20 +144,21 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
         if (status) {
             if (Calendar.getInstance().getTimeInMillis() - calendarAlarm.getTimeInMillis() > 0) {
                 Toast.makeText(requireContext(), getResources()
-                        .getString(R.string.toast_alarm_activated_tomorrow), Toast.LENGTH_SHORT).show();
+                    .getString(R.string.toast_alarm_activated_tomorrow), Toast.LENGTH_SHORT).show();
             }
             else {
                 Toast.makeText(requireContext(), getResources()
-                        .getString(R.string.toast_alarm_activated_today), Toast.LENGTH_SHORT).show();
+                       .getString(R.string.toast_alarm_activated_today), Toast.LENGTH_SHORT).show();
             }
 
         }
         else Toast.makeText(requireContext(), getResources()
-                  .getString(R.string.toast_alarm_deactivated), Toast.LENGTH_SHORT).show();
+                           .getString(R.string.toast_alarm_deactivated), Toast.LENGTH_SHORT).show();
     }
 
     /**
-     * Updates the SharedPreference "PREF_ALARM_OPTION_STATUS_KEY" value according to the checkBox state value.
+     * Updates the SharedPreference "PREF_ALARM_OPTION_STATUS_KEY" value according to the checkBox
+     * state value.
      */
     private void handleCheckBoxButton() {
         binding.checkboxAlarm.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -167,7 +175,8 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
      */
     private void handleClickOnDeleteButton() {
         DeleteAccountDialog dialog = new DeleteAccountDialog(this);
-        binding.textOptionDelete.setOnClickListener(v -> dialog.show(getParentFragmentManager(), DeleteAccountDialog.TAG));
+        binding.textOptionDelete.setOnClickListener(v -> dialog.show(getParentFragmentManager(),
+                                                                      DeleteAccountDialog.TAG));
     }
 
     /**

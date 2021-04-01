@@ -3,20 +3,16 @@ package com.openclassrooms.go4lunch.ui.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -46,6 +42,7 @@ import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
 import com.openclassrooms.go4lunch.databinding.ActivityMainBinding;
+import com.openclassrooms.go4lunch.databinding.MainActivityNavHeaderBinding;
 import com.openclassrooms.go4lunch.di.DI;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.repositories.PlacesRepository;
@@ -68,7 +65,8 @@ import java.util.Objects;
 /**
  * Main activity of the application.
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainActivityCallback {
+public class MainActivity extends AppCompatActivity implements
+                             NavigationView.OnNavigationItemSelectedListener, MainActivityCallback {
 
     private ActivityMainBinding binding;
     private boolean initialize = false;
@@ -99,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     // Autocomplete status parameter
     private boolean autocompleteActivation = false;
     private boolean displaySearchIcon = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Initialize views
         initializeToolbar();
         initializeDrawerLayout();
-        initializeNavigationView();
+        binding.navigationView.setNavigationItemSelectedListener(this);
         initializeSearchEditTextListener();
         loadUserInfoInNavigationView();
         handleBottomNavigationItemsListeners();
@@ -123,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initializeFragments();
         // Initialize view models
         initializeViewModels();
-
     }
 
     private void initializeToolbar() {
@@ -131,9 +129,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             if (android.os.Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
                 Window w = getWindow();
-                w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+                w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                          WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
             }
-            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.toolbar.getLayoutParams();
+            ViewGroup.MarginLayoutParams params =
+                                   (ViewGroup.MarginLayoutParams) binding.toolbar.getLayoutParams();
             params.setMargins(0, AppInfo.getStatusBarSize(this), 0, 0);
             binding.toolbar.setLayoutParams(params);
         }
@@ -142,8 +142,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onResume() {
         super.onResume();
-        if (!initialize) { checkIfLocationPermissionIsGranted(); }
-        registerReceiver(networkBroadcastReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+        if (!initialize) { initializeFragmentDisplayAccordingToLocationPermission(); }
+        registerReceiver(networkBroadcastReceiver,
+                         new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     }
 
     @Override
@@ -164,12 +165,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initializeViewModels() {
         // Places
         placesViewModel = new ViewModelProvider(this).get(PlacesViewModel.class);
-        placesViewModel.setRepository(new PlacesRepository(DI.provideDatabase(this).restaurantDao(),
+        placesViewModel.setRepository(
+                new PlacesRepository(DI.provideDatabase(this).restaurantDao(),
                 DI.provideDatabase(this).hoursDao(),
-                DI.provideDatabase(this).restaurantAndHoursDao(),
-                this,
-                placesClient,
-                locationClient));
+                DI.provideDatabase(this).restaurantAndHoursDao(), this,
+                placesClient, locationClient));
         // Workmates
         workmatesViewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
         workmatesViewModel.setWorkmatesRepository(new WorkmatesRepository(this));
@@ -177,8 +177,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
-     * This method is used to attach a listener to the database collection and updates the MutableLiveData
-     * listWorkmates every time an update in database is detected.
+     * This method is used to attach a listener to the database collection and updates the
+     * MutableLiveData listWorkmates every time an update in database is detected.
      */
     private void addListenerToDatabaseCollection() {
         FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
@@ -197,13 +197,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initializeDrawerLayout() {
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, binding.drawerLayout,
+                binding.toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         binding.drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
     }
-
-    private void initializeNavigationView() { binding.navigationView.setNavigationItemSelectedListener(this); }
 
     private void initializeSearchEditTextListener() {
         SearchTextWatcher searchTextWatcher = new SearchTextWatcher(this);
@@ -228,7 +226,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .apply(RequestOptions.circleCropTransform())
                         .into(userAvatar);
             }
-            else userAvatar.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_account_circle_24dp_dark_orange));
+            else userAvatar.setImageDrawable(getResources()
+                              .getDrawable(R.drawable.ic_baseline_account_circle_24dp_dark_orange));
         } catch (NullPointerException exception) { exception.printStackTrace(); }
     }
 
@@ -265,13 +264,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     /**
-     * This method handles click interaction of "Your lunch" icon, by displaying the RestaurantDetailsFragment
-     * with user Restaurant selection, otherwise a Toast is displayed.
+     * This method handles click interaction of "Your lunch" icon, by displaying the
+     * RestaurantDetailsFragment with user Restaurant selection, otherwise a Toast is displayed.
      */
     private void onClickYourLunchOptionIcon() {
         if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG) == null) {
-            SharedPreferences sharedPrefSelection = getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
-            String savedRestaurantJSON = sharedPrefSelection.getString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
+            SharedPreferences sharedPrefSelection = getSharedPreferences(
+                                       AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
+            String savedRestaurantJSON = sharedPrefSelection.getString(
+                                                 AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
             if (!savedRestaurantJSON.equals("")) {
                 Gson gson = new Gson();
                 setRestaurantToDisplay(gson.fromJson(savedRestaurantJSON, Restaurant.class));
@@ -307,32 +308,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     item.setChecked(true);
                     switch (item.getItemId()) {
                         case R.id.map: // Map View Fragment
-                            displaySearchIcon = true;
-                            invalidateOptionsMenu();
+                            updateMenuIconDisplay(true);
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null)
                                 if (listViewFragment.isVisible())
                                     fragmentManager.beginTransaction().hide(listViewFragment).commit();
-
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) != null)
                                 if (workmatesFragment.isVisible())
                                     fragmentManager.beginTransaction().hide(workmatesFragment).commit();
                             break;
                         case R.id.list: // List View Fragment
-                            displaySearchIcon = true;
-                            invalidateOptionsMenu();
+                            updateMenuIconDisplay(true);
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) != null)
                                 if (workmatesFragment.isVisible())
                                     fragmentManager.beginTransaction().hide(workmatesFragment).commit();
-
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) == null)
                                 fragmentManager.beginTransaction()
-                                        .add(R.id.fragment_container_view, listViewFragment, ListViewFragment.TAG).commit();
+                                        .add(R.id.fragment_container_view, listViewFragment,
+                                                             ListViewFragment.TAG).commit();
                             else fragmentManager.beginTransaction().show(listViewFragment).commit();
                             break;
-
                         case R.id.workmates: // Workmates Fragment
-                            displaySearchIcon = false;
-                            invalidateOptionsMenu();
+                            updateMenuIconDisplay(false);
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null) {
                                 listViewFragment.restoreListRestaurants();
                                 mapViewFragment.restoreBackupMarkersOnMap();
@@ -343,7 +339,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             }
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) == null)
                                 fragmentManager.beginTransaction()
-                                        .add(R.id.fragment_container_view, workmatesFragment, WorkmatesFragment.TAG).commit();
+                                        .add(R.id.fragment_container_view, workmatesFragment,
+                                                             WorkmatesFragment.TAG).commit();
                             else fragmentManager.beginTransaction().show(workmatesFragment).commit();
                             break;
                     }
@@ -352,9 +349,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         );
     }
 
+    private void updateMenuIconDisplay(boolean status) {
+        displaySearchIcon = status;
+        invalidateOptionsMenu();
+    }
+
     public void displayRestaurantDetailsFragment() {
         fragmentManager.beginTransaction()
-                .add(R.id.fragment_container_view, RestaurantDetailsFragment.newInstance(), RestaurantDetailsFragment.TAG)
+                .add(R.id.fragment_container_view, RestaurantDetailsFragment.newInstance(),
+                                                             RestaurantDetailsFragment.TAG)
                 .addToBackStack(null).commit();
         updateNavigationAndBottomBarDisplay(View.GONE);
     }
@@ -368,18 +371,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //  Clear and hide search field if displayed
             updateSearchAutocompleteEditTextVisibility(View.GONE);
             // Restore list to display
-            if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null) listViewFragment.restoreListRestaurants();
+            if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null)
+                listViewFragment.restoreListRestaurants();
             // Restore markers on map
             mapViewFragment.restoreBackupMarkersOnMap();
         }
         else {
-            if (optionsFragment.isVisible()) { // OptionsFragment visible
+            // OptionsFragment visible
+            if (optionsFragment.isVisible()) {
                 updateNavigationAndBottomBarDisplay(View.VISIBLE);
-                mapViewFragment.updateRestaurantRenderer(mapViewFragment.getListRestaurants()); // Apply options updates
+                // Apply options updates
+                mapViewFragment.updateRestaurantRenderer(mapViewFragment.getListRestaurants());
                 fragmentManager.popBackStack();
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
-            else if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG) != null) { // RestaurantDetailsFragment visible
+            // RestaurantDetailsFragment visible
+            else if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG) != null) {
                 Fragment fragment = fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG);
                 if (fragment.isVisible()) {
                     ((RestaurantDetailsFragment) fragment).updateFirestoreWithLikeStatus();
@@ -413,10 +420,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * MainActivityCallback interface implementation :
      * @param query : query to use to perform an Autocomplete request
      */
+    @SuppressLint("MissingPermission")
     @Override
     public void provideSearchQuery(String query) {
-        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (AppInfo.checkIfLocationPermissionIsGranted(this)) {
             if (query.length() == 0) {
                 autocompleteActivation = false;
                 mapViewFragment.restoreBackupMarkersOnMap();
@@ -442,8 +449,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
-     * This method is used to update the "Network status" bar display. It first checks if the permission fragments
-     * (AccessSettingsAppFragment and LocationPermissionFragment) are no longer displayed.
+     * This method is used to update the "Network status" bar display. It first checks if the permission
+     * fragments (AccessSettingsAppFragment and LocationPermissionFragment) are no longer displayed.
      * @param status : status of the network
      */
     @Override
@@ -451,19 +458,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fragment fragment = fragmentManager.findFragmentByTag(MapViewFragment.TAG);
         if ((fragment instanceof MapViewFragment)) {
             if (status) { // Wifi network of Mobile Data network activated
-                ViewPropertyAnimator fadeOutAnim = binding.barConnectivityInfo.animate().alpha(0.0f).setDuration(200);
+                ViewPropertyAnimator fadeOutAnim = binding.barConnectivityInfo.animate().alpha(0.0f)
+                                                                                   .setDuration(200);
                 fadeOutAnim.withEndAction(() -> binding.barConnectivityInfo.setVisibility(View.GONE));
             } else { // No network activated
                 binding.barConnectivityInfo.setVisibility(View.VISIBLE);
                 ViewCompat.setElevation(binding.barConnectivityInfo, 10);
-                ViewPropertyAnimator fadeInAnim = binding.barConnectivityInfo.animate().alpha(1.0f).setDuration(200);
+                ViewPropertyAnimator fadeInAnim = binding.barConnectivityInfo.animate().alpha(1.0f)
+                                                                                   .setDuration(200);
                 fadeInAnim.start();
             }
         }
     }
 
     private void handleConnectivityBarBtnListener() {
-        binding.barConnectivityInfoBtnClose.setOnClickListener(v -> binding.barConnectivityInfo.setVisibility(View.GONE));
+        binding.barConnectivityInfoBtnClose.setOnClickListener(v -> binding.barConnectivityInfo
+                                                                         .setVisibility(View.GONE));
     }
 
     /**
@@ -472,13 +482,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * If not : The LocationPermissionFragment fragment is displayed to allow user to
      * authorize location permission.
      */
-    public void checkIfLocationPermissionIsGranted() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+    public void initializeFragmentDisplayAccordingToLocationPermission() {
+        if (!AppInfo.checkIfLocationPermissionIsGranted(this)) {
             updateNavigationAndBottomBarDisplay(View.GONE);
             binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             fragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container_view, LocationPermissionFragment.newInstance(), LocationPermissionFragment.TAG)
+                    .replace(R.id.fragment_container_view, LocationPermissionFragment.newInstance(),
+                                                                     LocationPermissionFragment.TAG)
                     .commit();
         } else {
             binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
@@ -494,7 +504,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * This method is used to configure and display the Autocomplete search bar.
      */
     public void updateSearchAutocompleteEditTextVisibility(int status) {
-        if (status == View.GONE) Objects.requireNonNull(binding.textInputEditAutocomplete.getText()).clear();
+        if (status == View.GONE) Objects.requireNonNull(binding.textInputEditAutocomplete.getText())
+                                                                                           .clear();
         binding.textInputLayoutAutocomplete.setVisibility(status);
     }
 
@@ -502,12 +513,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * This method is used by main activity to enable its child fragment MapViewFragment to
      * search places around current user location.
      */
+    @SuppressLint("MissingPermission")
     @Override
     public void getPlacesFroMDatabaseOrRetrofitInMapViewFragment() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (AppInfo.checkIfLocationPermissionIsGranted(this))
             mapViewFragment.getPlacesFromDatabaseOrRetrofitRequest();
-        }
     }
 
     public void updateNavigationAndBottomBarDisplay(int visibility) {
@@ -521,14 +531,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public Restaurant getRestaurantToDisplay() { return restaurantToDisplay; }
 
-    public DrawerLayout getDrawerLayout() { return binding.drawerLayout; }
-
     public PlacesViewModel getPlacesViewModel() { return this.placesViewModel; }
 
     public WorkmatesViewModel getWorkmatesViewModel() { return this.workmatesViewModel; }
 
     // Setter methods
-    public void setRestaurantToDisplay(Restaurant restaurantToDisplay) { this.restaurantToDisplay = restaurantToDisplay; }
+    public void setRestaurantToDisplay(Restaurant restaurantToDisplay) {
+        this.restaurantToDisplay = restaurantToDisplay;
+    }
 
     public boolean getAutocompleteActivation() { return autocompleteActivation; }
 }

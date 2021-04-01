@@ -75,7 +75,8 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentRestaurantDetailsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -102,9 +103,10 @@ public class RestaurantDetailsFragment extends Fragment {
      * Initializes document user id from firestore database.
      */
     public void initDocumentReferenceId() {
-        SharedPreferences sharedPrefFirestoreUserId = requireContext().getSharedPreferences(AppInfo.FILE_FIRESTORE_USER_ID,
-                Context.MODE_PRIVATE);
-        documentID = sharedPrefFirestoreUserId.getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, "");
+        SharedPreferences sharedPrefFirestoreUserId = requireContext()
+                .getSharedPreferences(AppInfo.FILE_FIRESTORE_USER_ID, Context.MODE_PRIVATE);
+        documentID = sharedPrefFirestoreUserId
+                                        .getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, "");
     }
 
     /**
@@ -112,11 +114,13 @@ public class RestaurantDetailsFragment extends Fragment {
      */
     public void initializeSharedPreferences() {
         // SharedPreferences to save user restaurant choice
-        SharedPreferences sharedPrefSelection = requireContext().getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
+        SharedPreferences sharedPrefSelection = requireContext()
+                 .getSharedPreferences(AppInfo.FILE_PREF_SELECTED_RESTAURANT, Context.MODE_PRIVATE);
         editor = sharedPrefSelection.edit();
 
         // Check if a selection is saved in SharedPreferences
-        String savedRestaurantJSON = sharedPrefSelection.getString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
+        String savedRestaurantJSON =
+                   sharedPrefSelection.getString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
 
         if (!savedRestaurantJSON.equals("")) {
             // If yes, deserialize the data
@@ -144,9 +148,9 @@ public class RestaurantDetailsFragment extends Fragment {
      * Initializes the appearance of the  status bar for this fragment.
      */
     private void initializeStatusBar() {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            requireActivity().getWindow().setStatusBarColor(getResources().getColor(R.color.transparent));
-        }
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            requireActivity().getWindow()
+                             .setStatusBarColor(getResources().getColor(R.color.transparent));
     }
 
     /**
@@ -165,7 +169,8 @@ public class RestaurantDetailsFragment extends Fragment {
      */
     private void initializeViewModels() {
         // ViewModels
-        PlacesViewModel placesViewModel = new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
+        PlacesViewModel placesViewModel =
+                                new ViewModelProvider(requireActivity()).get(PlacesViewModel.class);
         placesViewModel.getListRestaurants().observe(getViewLifecycleOwner(), list -> {
             // Info available
             initializeDetails();
@@ -176,9 +181,8 @@ public class RestaurantDetailsFragment extends Fragment {
         workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), listWorkmates -> {
             ArrayList<Workmate> listFiltered = new ArrayList<>();
             for (int i = 0; i < listWorkmates.size(); i++) {
-                if (listWorkmates.get(i).getRestaurantSelectedID().equals(restaurant.getPlaceId())) {
+                if (listWorkmates.get(i).getRestaurantSelectedID().equals(restaurant.getPlaceId()))
                     listFiltered.add(listWorkmates.get(i));
-                }
             }
              adapter.updateList(listFiltered);
         });
@@ -191,8 +195,9 @@ public class RestaurantDetailsFragment extends Fragment {
         if (restaurant.getPhotoReference() != null) {
             binding.noPhotoIcon.setVisibility(View.GONE);
             Glide.with(requireContext())
-                 .load("https://maps.googleapis.com/maps/api/place/photo?&maxwidth=400&maxheight=400&photo_reference="
-                         + restaurant.getPhotoReference() + "&key=" + BuildConfig.API_KEY)
+                 .load("https://maps.googleapis.com/maps/api/place/photo?" +
+                              "&maxwidth=400&maxheight=400&photo_reference="
+                              + restaurant.getPhotoReference() + "&key=" + BuildConfig.API_KEY)
                  .centerCrop()
                  .override(binding.noPhotoIcon.getWidth(), binding.noPhotoIcon.getHeight())
                  .into(binding.photoRestaurant);
@@ -203,8 +208,10 @@ public class RestaurantDetailsFragment extends Fragment {
      * Updates the FloatingActionButton display according to the "selected" boolean value.
      */
     private void updateFloatingActionButtonIconDisplay() {
-        if (selected) binding.fabSelect.setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.light_green)));
-        else binding.fabSelect.setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.light_grey_95)));
+        if (selected) binding.fabSelect.setSupportImageTintList(
+                              ColorStateList.valueOf(getResources().getColor(R.color.light_green)));
+        else binding.fabSelect.setSupportImageTintList(
+                            ColorStateList.valueOf(getResources().getColor(R.color.light_grey_95)));
     }
 
 
@@ -219,7 +226,8 @@ public class RestaurantDetailsFragment extends Fragment {
             SharedPreferences sharedPrefFirestoreUserId = requireContext().getSharedPreferences(
                     AppInfo.FILE_FIRESTORE_USER_ID,
                     Context.MODE_PRIVATE);
-            String firestoreDocumentId = sharedPrefFirestoreUserId.getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, null);
+            String firestoreDocumentId = sharedPrefFirestoreUserId
+                                      .getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, null);
 
             if (selected) {
                 // Update SharedPreferences
@@ -260,7 +268,9 @@ public class RestaurantDetailsFragment extends Fragment {
      */
     private void launchCallIntent() {
         if (restaurant.getPhoneNumber() != null) {
-            Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", restaurant.getPhoneNumber(), null));
+            Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel",
+                                                               restaurant.getPhoneNumber(),
+                                                                           null));
             startActivity(callIntent);
         }
         else Toast.makeText(getContext(), "No phone number available", Toast.LENGTH_SHORT).show();
@@ -285,10 +295,12 @@ public class RestaurantDetailsFragment extends Fragment {
     private void updateLikeButtonDisplay() {
         if (likeStatus)
             binding.buttonLike.setCompoundDrawablesWithIntrinsicBounds(null,
-                    getContext().getResources().getDrawable(R.drawable.ic_baseline_star_24dp_orange), null, null);
+                    requireContext().getResources().getDrawable(
+                                 R.drawable.ic_baseline_star_24dp_orange), null, null);
         else
             binding.buttonLike.setCompoundDrawablesWithIntrinsicBounds(null,
-                    getContext().getResources().getDrawable(R.drawable.ic_baseline_star_border_24dp_orange), null, null);
+                    requireContext().getResources().getDrawable(
+                          R.drawable.ic_baseline_star_border_24dp_orange), null, null);
     }
 
     /**
@@ -300,13 +312,17 @@ public class RestaurantDetailsFragment extends Fragment {
                 // Get list of restaurant liked by user
                 listLikedRestaurants = (List<String>) documentSnapshot.get("liked");
                 // Check if list contains the current restaurant
-                int j = 0;
-                while (j < listLikedRestaurants.size() && !likeStatus) {
-                    if (listLikedRestaurants.get(j).equals(restaurant.getPlaceId())) {
-                        likeStatus = true;
-                        alreadyInDatabase = true;
+                try {
+                    int j = 0;
+                    while (j < listLikedRestaurants.size() && !likeStatus) {
+                        if (listLikedRestaurants.get(j).equals(restaurant.getPlaceId())) {
+                            likeStatus = true;
+                            alreadyInDatabase = true;
+                        }
+                        else j++;
                     }
-                    else j++;
+                } catch (NullPointerException exception) {
+                    exception.printStackTrace();
                 }
                 // Update button status
                 updateLikeButtonDisplay();
@@ -320,9 +336,11 @@ public class RestaurantDetailsFragment extends Fragment {
      */
     public void updateFirestoreWithLikeStatus() {
         // Update list of liked restaurant for the current user
-        if (alreadyInDatabase && !likeStatus) // The restaurant was initially liked and is now disliked by user
+        if (alreadyInDatabase && !likeStatus) // The restaurant was initially liked
+                                              // and is now disliked by user
             listLikedRestaurants.remove(restaurant.getPlaceId());
-        if (!alreadyInDatabase && likeStatus) // The restaurant was initially not liked and is now liked by user.
+        if (!alreadyInDatabase && likeStatus) // The restaurant was initially not liked
+                                              // and is now liked by user.
             listLikedRestaurants.add(restaurant.getPlaceId());
         // Send list the BDD
         workmatesViewModel.updateCurrentUserListOfLikedRestaurant(documentID, listLikedRestaurants);

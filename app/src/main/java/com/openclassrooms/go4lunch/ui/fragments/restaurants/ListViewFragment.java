@@ -25,7 +25,8 @@ import java.util.List;
  * Fragment class used to display the list of restaurant in a RecyclerView, using a
  * @{@link ListViewAdapter} adapter
  */
-public class ListViewFragment extends Fragment implements ListViewAdapter.OnItemRestaurantClickListener {
+public class ListViewFragment extends Fragment implements
+                                                     ListViewAdapter.OnItemRestaurantClickListener {
 
     public final static String TAG = "TAG_LIST_VIEW_FRAGMENT";
     private FragmentListViewBinding binding;
@@ -69,7 +70,8 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
                 adapter.updateVisibilityProgressBarStatus(View.INVISIBLE);
         });
 
-        placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), autocompleteListRestaurantIds -> {
+        placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(),
+                autocompleteListRestaurantIds -> {
             if (((MainActivity) requireActivity()).getAutocompleteActivation()) {
                 List<Restaurant> currentList = adapter.getListRestaurantBackup();
                 List<Restaurant> newListRestaurantsAutocomplete = new ArrayList<>();
@@ -79,7 +81,8 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
 
                 for (int i = 0; i < autocompleteListRestaurantIds.size(); i++) {
                     while (index < currentList.size() && !found) {
-                        if (currentList.get(index).getPlaceId().equals(autocompleteListRestaurantIds.get(i))) {
+                        if (currentList.get(index).getPlaceId().equals(
+                                autocompleteListRestaurantIds.get(i))) {
                             found = true;
                             newListRestaurantsAutocomplete.add(currentList.get(index));
                         }
@@ -92,11 +95,13 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
         });
 
         // Workmates
-        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), listWorkmates -> adapter.updateListWorkmates(listWorkmates));
+        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(),
+                listWorkmates -> adapter.updateListWorkmates(listWorkmates));
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentListViewBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -143,11 +148,14 @@ public class ListViewFragment extends Fragment implements ListViewAdapter.OnItem
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 // If end of RecyclerView list
-                if (!((MainActivity) requireActivity()).getAutocompleteActivation()) { // Only if autocomplete is not activated
-                    if (numNextPageRequest < 1) { // Search Nearby API can only returns 2 others pages of locations
+                // Only if autocomplete is not activated
+                if (!((MainActivity) requireActivity()).getAutocompleteActivation()) {
+                    // Search Nearby API can only returns 2 others pages of locations
+                    if (numNextPageRequest < 1) {
                         if (!recyclerView.canScrollVertically(1)) {
                             // Get next places available to display
-                            ArrayList<Restaurant> listToUpdate = new ArrayList<>(adapter.getListRestaurant());
+                            ArrayList<Restaurant> listToUpdate =
+                                                       new ArrayList<>(adapter.getListRestaurant());
                             placesViewModel.getNextPlacesNearby(listToUpdate, numNextPageRequest);
                             numNextPageRequest++;
                             // Display circular progress bar

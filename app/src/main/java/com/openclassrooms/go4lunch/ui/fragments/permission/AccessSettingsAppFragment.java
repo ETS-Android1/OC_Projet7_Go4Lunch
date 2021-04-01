@@ -32,7 +32,8 @@ public class AccessSettingsAppFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAccessSettingsAppBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -48,7 +49,8 @@ public class AccessSettingsAppFragment extends Fragment {
      */
     private void handleSettingsAccessButtonListener() {
         binding.buttonPermissionLocation.setOnClickListener((View v) -> {
-                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    Intent intent =
+                          new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                     intent.setData(Uri.parse("package:com.openclassrooms.go4lunch"));
                     startActivity(intent);
                 }

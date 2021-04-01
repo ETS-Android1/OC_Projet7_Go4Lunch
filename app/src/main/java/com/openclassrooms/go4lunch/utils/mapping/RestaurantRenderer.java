@@ -29,7 +29,8 @@ public class RestaurantRenderer extends DefaultClusterRenderer<RestaurantMarkerI
     // Defines if cluster display must be activated or not
     private boolean clusterActivation;
 
-    public RestaurantRenderer(Context context, GoogleMap map, ClusterManager<RestaurantMarkerItem> clusterManager) {
+    public RestaurantRenderer(Context context, GoogleMap map,
+                              ClusterManager<RestaurantMarkerItem> clusterManager) {
         super(context, map, clusterManager);
         this.context = context;
         assetManager = context.getAssets();

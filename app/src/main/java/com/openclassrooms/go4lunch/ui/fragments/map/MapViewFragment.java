@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.location.Location;
 import android.location.LocationListener;
@@ -16,8 +15,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -87,12 +84,12 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
 
     // Listener of user position updates
     private final LocationListener locationListener = new LocationListener() {
+        @SuppressLint("MissingPermission")
         @Override
         public void onLocationChanged(@NonNull Location location) {
-            if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
+            if (AppInfo.checkIfLocationPermissionIsGranted(requireContext())) {
                 // Search new locations only if autocomplete is not activated
-                if (!((MainActivity) getActivity()).getAutocompleteActivation()) {
+                if (!((MainActivity) requireActivity()).getAutocompleteActivation()) {
                     searchPlacesFromCurrentLocation();
                     // Save new location
                     currentLatUserPosition = location.getLatitude();
@@ -145,21 +142,23 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         sharedPrefClusterOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
         // Check if app was launched after notification click
         try {
-            NotificationHandler.getActionFromNotification(getActivity());
+            NotificationHandler.getActionFromNotification(requireActivity());
         } catch (JsonSyntaxException exception) {
             exception.printStackTrace();
         }
 
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onResume() {
         super.onResume();
-        requireActivity().registerReceiver(gpsBroadcastReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));
+        requireActivity().registerReceiver(gpsBroadcastReceiver,
+                                        new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));
         updateFloatingButtonIconDisplay(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME, LOCATION_REFRESH_DISTANCE, locationListener);
+        if (AppInfo.checkIfLocationPermissionIsGranted(requireContext())) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_REFRESH_TIME,
+                                                        LOCATION_REFRESH_DISTANCE, locationListener);
         }
     }
 
@@ -168,10 +167,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         super.onPause();
         requireActivity().unregisterReceiver(gpsBroadcastReceiver);
         // Stop location listener when app goes on background
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (AppInfo.checkIfLocationPermissionIsGranted(requireContext()))
             locationManager.removeUpdates(locationListener);
-        }
     }
 
     /**
@@ -179,8 +176,10 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      */
     private void saveCurrentPosition() {
         SharedPreferences.Editor editor = sharedPrefLatLon.edit();
-        editor.putLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, Double.doubleToRawLongBits(currentLatUserPosition)).apply();
-        editor.putLong(AppInfo.PREF_OLD_LON_POSITION_KEY, Double.doubleToRawLongBits(currentLonUserPosition)).apply();
+        editor.putLong(AppInfo.PREF_OLD_LAT_POSITION_KEY,
+                       Double.doubleToRawLongBits(currentLatUserPosition)).apply();
+        editor.putLong(AppInfo.PREF_OLD_LON_POSITION_KEY,
+                       Double.doubleToRawLongBits(currentLonUserPosition)).apply();
     }
 
     /**
@@ -199,14 +198,16 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      *      - If GPS is disabled : Display dialog interface to user
      *      - If GPS is enabled : move + zoom in current user position
      */
+    @SuppressLint("MissingPermission")
     private void handleFloatingActionButtonListener() {
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (AppInfo.checkIfLocationPermissionIsGranted(requireContext())) {
             if (map != null) {
                 binding.fabLocation.setOnClickListener((View v) -> {
-                            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) { // GPS Activated
+                            // GPS Activated
+                            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
                                 centerCursorInCurrentLocation(true);
-                            } else { // GPS deactivated
+                            // GPS deactivates
+                            else {
                                 GPSActivationDialog dialog = new GPSActivationDialog(this);
                                 dialog.show(getParentFragmentManager(), GPSActivationDialog.TAG);
                             }
@@ -225,13 +226,16 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void centerCursorInCurrentLocation(boolean update) {
-        ((MainActivity) requireActivity()).getLocationClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+        ((MainActivity) requireActivity()).getLocationClient()
+                .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener((Location location) -> {
                     currentLonUserPosition = location.getLongitude();
                     currentLatUserPosition = location.getLatitude();
                             // Update Camera
                             CameraUpdate cameraUpdate = CameraUpdateFactory
-                                    .newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 18.0f);
+                                    .newLatLngZoom(new LatLng(location.getLatitude(),
+                                                              location.getLongitude()),
+                                                           18.0f);
                             if (update) map.animateCamera(cameraUpdate);
                             else map.moveCamera(cameraUpdate);
                             // Save location
@@ -246,8 +250,11 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      * stored in SharedPreferences file.
      */
     public void centerCursorInOldPosition() {
-        LatLng oldLatLng = new LatLng(Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, 0L)),
-                                      Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, 0L)));
+        LatLng oldLatLng = new LatLng(
+                Double.longBitsToDouble(sharedPrefLatLon.getLong(
+                                                    AppInfo.PREF_OLD_LAT_POSITION_KEY, 0L)),
+                Double.longBitsToDouble(sharedPrefLatLon.getLong(
+                                                   AppInfo.PREF_OLD_LON_POSITION_KEY, 0L)));
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                         new LatLng(oldLatLng.latitude, oldLatLng.longitude), 18.0f));
     }
@@ -255,10 +262,11 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     /**
      * Launches a places search to detect all restaurants around user location in a defined radius.
      */
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION) //TODO() : Check concatenation
     @Override
     public void searchPlacesFromCurrentLocation() {
-        ((MainActivity) requireActivity()).getLocationClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+        ((MainActivity) requireActivity()).getLocationClient()
+                .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener(location -> {
                     currentLatUserPosition = location.getLatitude();
                     currentLonUserPosition = location.getLongitude();
@@ -274,12 +282,16 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     @Override
     public void updateFloatingButtonIconDisplay(boolean status) {
         if (status) {
-            binding.fabLocation.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_gps_fixed_24dp_dark_grey));
-            binding.fabLocation.setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.dark_grey)));
+            binding.fabLocation.setImageDrawable(getResources()
+                                     .getDrawable(R.drawable.ic_baseline_gps_fixed_24dp_dark_grey));
+            binding.fabLocation.setSupportImageTintList(
+                                ColorStateList.valueOf(getResources().getColor(R.color.dark_grey)));
         }
         else {
-            binding.fabLocation.setImageDrawable(getResources().getDrawable(R.drawable.ic_baseline_gps_off_24dp_red));
-            binding.fabLocation.setSupportImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.red)));
+            binding.fabLocation.setImageDrawable(getResources()
+                                             .getDrawable(R.drawable.ic_baseline_gps_off_24dp_red));
+            binding.fabLocation.setSupportImageTintList(
+                                      ColorStateList.valueOf(getResources().getColor(R.color.red)));
         }
     }
 
@@ -301,20 +313,22 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             updateRestaurantRenderer(list);
         });
 
-        placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(), autocompleteListRestaurantIds -> {
-            if (((MainActivity) getActivity()).getAutocompleteActivation()) {
+        // Check if list of autocomplete results have been updated
+        placesViewModel.getListRestaurantsAutocomplete().observe(getViewLifecycleOwner(),
+                autocompleteListRestaurantIds -> {
+            if (((MainActivity) requireActivity()).getAutocompleteActivation()) {
                 List<Restaurant> autocompleteListRestaurant = new ArrayList<>();
                 boolean found = false;
                 int j = 0;
                 for (int i = 0; i < autocompleteListRestaurantIds.size(); i++) {
                     while (j < listRestaurants.size() && !found) {
-                        if (autocompleteListRestaurantIds.get(i).equals(listRestaurants.get(j).getPlaceId()))
+                        if (autocompleteListRestaurantIds.get(i)
+                                                       .equals(listRestaurants.get(j).getPlaceId()))
                             found = true;
                         else j++;
                     }
                     if (found) autocompleteListRestaurant.add(listRestaurants.get(j));
                 }
-
                 // Update map with marker, after updating RestaurantRenderer
                 updateRestaurantRenderer(autocompleteListRestaurant);
             }
@@ -329,7 +343,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                     found = false;
                     i = 0;
                     while (i < listWorkmates.size() && !found) {
-                        if (listWorkmates.get(i).getRestaurantSelectedID().equals(listRestaurants.get(j).getPlaceId()))
+                        if (listWorkmates.get(i).getRestaurantSelectedID()
+                                                       .equals(listRestaurants.get(j).getPlaceId()))
                             found = true;
                         else i++;
                         listRestaurants.get(j).setSelected(found);
@@ -343,7 +358,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
 
 
     /**
-     * Updates the map by displaying custom markers in clusters for all detected restaurants around user location.
+     * Updates the map by displaying custom markers in clusters for all detected restaurants around
+     * user location.
      */
     private void displayMarkersWithClustersInMap(List<Restaurant> list) {
         clusterManager.clearItems();
@@ -364,15 +380,16 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
      * @param list : list of restaurants
      */
     public void updateRestaurantRenderer(List<Restaurant> list) {
-        boolean clusterOption = sharedPrefClusterOption.getBoolean(AppInfo.PREF_CLUSTER_OPTION_KEY, false);
+        boolean clusterOption = sharedPrefClusterOption
+                                       .getBoolean(AppInfo.PREF_CLUSTER_OPTION_KEY, false);
         ((RestaurantRenderer) clusterManager.getRenderer()).setClusterActivation(clusterOption);
         displayMarkersWithClustersInMap(list);
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (AppInfo.checkIfLocationPermissionIsGranted(requireContext())) {
             // Initialize map
             initializeMapOptions(googleMap);
             // Handle floating action button icon update
@@ -385,7 +402,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                     sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, 0L) != 0L)
                     centerCursorInOldPosition();
                 centerCursorInCurrentLocation(false);
-                if (connectivityManager.getActiveNetworkInfo() != null) getPlacesFromDatabaseOrRetrofitRequest();
+                if (connectivityManager.getActiveNetworkInfo() != null)
+                    getPlacesFromDatabaseOrRetrofitRequest();
             }
             // Enable click interactions on cluster items window
             handleClusterClickInteractions();
@@ -402,8 +420,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
             ((MainActivity) requireActivity()).displayRestaurantDetailsFragment();
         });
         clusterManager.setOnClusterClickListener(cluster -> {
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(cluster.getPosition().latitude,
-                                                                                     cluster.getPosition().longitude),15.0f);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(cluster.getPosition().latitude, cluster.getPosition().longitude),15.0f);
             map.animateCamera(cameraUpdate);
             return true;
         });
@@ -429,7 +447,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     private void initializeClusterManager() {
         clusterManager = new ClusterManager<>(requireContext(), map);
         // Initialize Renderer for cluster
-        RestaurantRenderer restaurantRenderer = new RestaurantRenderer(getActivity(), map, clusterManager);
+        RestaurantRenderer restaurantRenderer = new RestaurantRenderer(getActivity(),
+                                                                       map, clusterManager);
         restaurantRenderer.setMinClusterSize(10);
         clusterManager.setRenderer(restaurantRenderer);
         // Set listener for marker clicks

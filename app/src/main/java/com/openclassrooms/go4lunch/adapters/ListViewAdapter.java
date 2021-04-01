@@ -26,6 +26,7 @@ import com.openclassrooms.go4lunch.databinding.ListViewFooterItemBinding;
 import com.openclassrooms.go4lunch.databinding.ListViewItemBinding;
 import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.model.Workmate;
+import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.CustomComparators;
 import com.openclassrooms.go4lunch.utils.RatingDisplayHandler;
 import java.util.ArrayList;
@@ -159,8 +160,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * @param holder : Holder containing the item view
      * @param position : Restaurant at the indice "position" in list
      */
+    @SuppressLint("MissingPermission")
     private void displayDistanceBetweenRestaurantAndUserLocation(@NonNull ViewHolderListView holder, int position) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (AppInfo.checkIfLocationPermissionIsGranted(context)) {
             locationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                     .addOnSuccessListener(location -> {
                         try {
