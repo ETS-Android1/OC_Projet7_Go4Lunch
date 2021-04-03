@@ -1,5 +1,6 @@
 package com.openclassrooms.go4lunch.dao;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -24,5 +25,9 @@ public interface RestaurantDao {
      * Deletes all data in restaurant_table.
      */
     @Query("DELETE FROM restaurant_table")
-    void deleteAllRestaurantsData();
+    int deleteAllRestaurantsData();
+
+    @VisibleForTesting
+    @Query("SELECT * FROM restaurant_table WHERE item_id = :id")
+    RestaurantData getRestaurantData(int id);
 }

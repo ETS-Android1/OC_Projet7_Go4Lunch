@@ -1,5 +1,6 @@
 package com.openclassrooms.go4lunch.dao;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -24,5 +25,9 @@ public interface HoursDao {
      * Deletes all data in hours_table.
      */
     @Query("DELETE FROM hours_table")
-    void deleteAllHoursData();
+    int deleteAllHoursData();
+
+    @VisibleForTesting
+    @Query("SELECT * FROM hours_table WHERE id = :id")
+    HoursData getHoursData(int id);
 }
