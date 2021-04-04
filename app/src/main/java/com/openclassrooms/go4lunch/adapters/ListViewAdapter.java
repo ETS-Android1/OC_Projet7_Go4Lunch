@@ -65,13 +65,15 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_ITEM) { // ViewHolderListView
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_item, parent, false);
-            ListViewItemBinding binding = ListViewItemBinding.inflate(LayoutInflater.from(context), parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_item,
+                                                                         parent, false);
+            ListViewItemBinding binding = ListViewItemBinding.inflate(LayoutInflater.from(context),
+                                                                      parent, false);
             return new ViewHolderListView(binding, onItemRestaurantClickListener);
         }
         else { // ViewHolderFooterListView
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_footer_item, parent, false);
-            ListViewFooterItemBinding binding = ListViewFooterItemBinding.inflate(LayoutInflater.from(context), parent, false);
+            ListViewFooterItemBinding binding = ListViewFooterItemBinding.inflate(
+                                          LayoutInflater.from(context), parent, false);
             return new ViewHolderFooterListView(binding);
         }
     }

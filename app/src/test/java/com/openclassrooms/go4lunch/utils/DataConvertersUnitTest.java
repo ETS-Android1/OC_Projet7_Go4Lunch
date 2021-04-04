@@ -3,6 +3,7 @@ package com.openclassrooms.go4lunch.utils;
 import com.openclassrooms.go4lunch.database.HoursData;
 import com.openclassrooms.go4lunch.database.HoursDataUnitTest;
 import com.openclassrooms.go4lunch.model.OpeningAndClosingHours;
+import com.openclassrooms.go4lunch.model.ScheduleType;
 import com.openclassrooms.go4lunch.service.places.response.details.ClosingHours;
 import com.openclassrooms.go4lunch.service.places.response.details.OpeningHours;
 import org.junit.Test;
@@ -45,37 +46,37 @@ public class DataConvertersUnitTest {
         // Check non-nullability
         assertNotNull(openingAndClosingHours);
         // Check size of each attribute (Closing hours arraylists and Opening hours arraylists, both containing String values)
-        assertEquals(1, openingAndClosingHours.getMondayOpeningHours().size());
-        assertEquals(1, openingAndClosingHours.getTuesdayOpeningHours().size());
-        assertEquals(1, openingAndClosingHours.getWednesdayOpeningHours().size());
-        assertEquals(1, openingAndClosingHours.getThursdayOpeningHours().size());
-        assertEquals(1, openingAndClosingHours.getFridayOpeningHours().size());
-        assertEquals(1, openingAndClosingHours.getSaturdayOpeningHours().size());
-        assertEquals(1, openingAndClosingHours.getSundayOpeningHours().size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.OPEN, 1).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.OPEN, 2).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.OPEN, 3).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.OPEN, 4).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.OPEN, 5).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.OPEN, 6).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.OPEN, 0).size());
 
-        assertEquals(1, openingAndClosingHours.getMondayClosingHours().size());
-        assertEquals(1, openingAndClosingHours.getTuesdayClosingHours().size());
-        assertEquals(1, openingAndClosingHours.getWednesdayClosingHours().size());
-        assertEquals(1, openingAndClosingHours.getThursdayClosingHours().size());
-        assertEquals(1, openingAndClosingHours.getFridayClosingHours().size());
-        assertEquals(1, openingAndClosingHours.getSaturdayClosingHours().size());
-        assertEquals(1, openingAndClosingHours.getSundayClosingHours().size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.CLOSE, 1).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.CLOSE, 2).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.CLOSE, 3).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.CLOSE, 4).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.CLOSE, 5).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.CLOSE, 6).size());
+        assertEquals(1, openingAndClosingHours.getHours(ScheduleType.CLOSE, 0).size());
 
         // Check String values for each arraylist
-        assertEquals("0900", openingAndClosingHours.getMondayOpeningHours().get(0));
-        assertEquals("0930", openingAndClosingHours.getTuesdayOpeningHours().get(0));
-        assertEquals("0930", openingAndClosingHours.getWednesdayOpeningHours().get(0));
-        assertEquals("0900", openingAndClosingHours.getThursdayOpeningHours().get(0));
-        assertEquals("0900", openingAndClosingHours.getFridayOpeningHours().get(0));
-        assertEquals("1000", openingAndClosingHours.getSaturdayOpeningHours().get(0));
-        assertEquals("0900", openingAndClosingHours.getSundayOpeningHours().get(0));
+        assertEquals("0900", openingAndClosingHours.getHours(ScheduleType.OPEN, 1).get(0));
+        assertEquals("0930", openingAndClosingHours.getHours(ScheduleType.OPEN, 2).get(0));
+        assertEquals("0930", openingAndClosingHours.getHours(ScheduleType.OPEN, 3).get(0));
+        assertEquals("0900", openingAndClosingHours.getHours(ScheduleType.OPEN, 4).get(0));
+        assertEquals("0900", openingAndClosingHours.getHours(ScheduleType.OPEN, 5).get(0));
+        assertEquals("1000", openingAndClosingHours.getHours(ScheduleType.OPEN, 6).get(0));
+        assertEquals("0900", openingAndClosingHours.getHours(ScheduleType.OPEN, 0).get(0));
 
-        assertEquals("2100", openingAndClosingHours.getMondayClosingHours().get(0));
-        assertEquals("2200", openingAndClosingHours.getTuesdayClosingHours().get(0));
-        assertEquals("2200", openingAndClosingHours.getWednesdayClosingHours().get(0));
-        assertEquals("2100", openingAndClosingHours.getThursdayClosingHours().get(0));
-        assertEquals("2100", openingAndClosingHours.getFridayClosingHours().get(0));
-        assertEquals("2300", openingAndClosingHours.getSaturdayClosingHours().get(0));
-        assertEquals("1300", openingAndClosingHours.getSundayClosingHours().get(0));
+        assertEquals("2100", openingAndClosingHours.getHours(ScheduleType.CLOSE, 1).get(0));
+        assertEquals("2200", openingAndClosingHours.getHours(ScheduleType.CLOSE, 2).get(0));
+        assertEquals("2200", openingAndClosingHours.getHours(ScheduleType.CLOSE, 3).get(0));
+        assertEquals("2100", openingAndClosingHours.getHours(ScheduleType.CLOSE, 4).get(0));
+        assertEquals("2100", openingAndClosingHours.getHours(ScheduleType.CLOSE, 5).get(0));
+        assertEquals("2300", openingAndClosingHours.getHours(ScheduleType.CLOSE, 6).get(0));
+        assertEquals("1300", openingAndClosingHours.getHours(ScheduleType.CLOSE, 0).get(0));
     }
 }
