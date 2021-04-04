@@ -1,9 +1,7 @@
 package com.openclassrooms.go4lunch.adapters;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import java.util.Calendar;
 import android.graphics.Typeface;
 import android.location.Location;
@@ -11,11 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -24,7 +20,9 @@ import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.R;
 import com.openclassrooms.go4lunch.databinding.ListViewFooterItemBinding;
 import com.openclassrooms.go4lunch.databinding.ListViewItemBinding;
+import com.openclassrooms.go4lunch.model.OpeningAndClosingHours;
 import com.openclassrooms.go4lunch.model.Restaurant;
+import com.openclassrooms.go4lunch.model.ScheduleType;
 import com.openclassrooms.go4lunch.model.Workmate;
 import com.openclassrooms.go4lunch.utils.AppInfo;
 import com.openclassrooms.go4lunch.utils.CustomComparators;
@@ -192,9 +190,8 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         int currentMinutes = calendar.get(Calendar.MINUTE);
 
         // Get Opening/Closing hours associated to the current day
-        ArrayList<String> closingHours = new ArrayList<>();
-        closingHours = getClosingAndOpeningHoursForADay(closingHours, currentDay, position, true);
-        ArrayList<String> openingHours = getClosingAndOpeningHoursForADay(closingHours, currentDay, position, false);
+        ArrayList<String> closingHours = getOpeningAndClosingHoursForADay(position, ScheduleType.CLOSE, currentDay);
+        ArrayList<String> openingHours = getOpeningAndClosingHoursForADay(position, ScheduleType.OPEN, currentDay);
 
         try {
             // Check number of opening and closing hours for a day
@@ -282,68 +279,17 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-
     /**
-     * Get the list of opening/closing hours for a Restaurant.
-     * @param hours : List or hours
-     * @param currentDay : Current day
-     * @param position : Position of the Restaurant in the list of Restaurant
-     * @param type : Type of list (true : Closing hours / false : Opening hours)
-     * @return : List of hours
+     * Retrieves OpeningAndClosingHours object for a Restaurant in the list.
+     * @param position : Position in the list of restaurants
+     * @param type : Type of hours to return (Closing or opening)
+     * @param currentDay : Day of the week
+     * @return : OpeningAndClosingHours
      */
-    private ArrayList<String> getClosingAndOpeningHoursForADay(ArrayList<String> hours, int currentDay,
-                                                               int position, boolean type) {
-        if (type) { // CLOSING HOURS
-            switch (currentDay) {
-                case 1 : // SUNDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getSundayClosingHours();
-                    break;
-                case 2: // MONDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getMondayClosingHours();
-                    break;
-                case 3: // TUESDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getTuesdayClosingHours();
-                    break;
-                case 4: // WEDNESDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getWednesdayClosingHours();
-                    break;
-                case 5: // THURSDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getThursdayClosingHours();
-                    break;
-                case 6: // FRIDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getFridayClosingHours();
-                    break;
-                case 7 : // SATURDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getSaturdayClosingHours();
-                    break;
-            }
-        }
-        else { // OPENING HOURS
-            switch (currentDay) {
-                case 1 : // SUNDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getSundayOpeningHours();
-                    break;
-                case 2: // MONDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getMondayOpeningHours();
-                    break;
-                case 3: // TUESDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getTuesdayOpeningHours();
-                    break;
-                case 4: // WEDNESDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getWednesdayOpeningHours();
-                    break;
-                case 5: // THURSDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getThursdayOpeningHours();
-                    break;
-                case 6: // FRIDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getFridayOpeningHours();
-                    break;
-                case 7 : // SATURDAY
-                    hours = listRestaurant.get(position).getOpeningAndClosingHours().getSaturdayOpeningHours();
-                    break;
-            }
-        }
-        return hours;
+    private ArrayList<String> getOpeningAndClosingHoursForADay(int position, ScheduleType type, int currentDay) {
+        OpeningAndClosingHours openingAndClosingHours = listRestaurant.get(position)
+                                                                      .getOpeningAndClosingHours();
+        return openingAndClosingHours.getHours(type, currentDay);
     }
 
     /**

@@ -24,7 +24,6 @@ public class PlacesViewModelUnitTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
     private PlacesViewModel placesViewModel;
 
-
     @Before
     public void setup(){
         placesViewModel = new PlacesViewModel();
