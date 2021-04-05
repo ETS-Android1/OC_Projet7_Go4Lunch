@@ -136,6 +136,14 @@ public class MainActivity extends AppCompatActivity implements
             params.setMargins(0, AppInfo.getStatusBarSize(this), 0, 0);
             binding.toolbar.setLayoutParams(params);
         }
+        getSupportActionBar().setTitle(getResources().getString(R.string.toolbar_restaurant));
+    }
+
+    private void updateToolbarTitle(boolean status) {
+        String title;
+        if (status) title = getResources().getString(R.string.toolbar_restaurant);
+        else title = getResources().getString(R.string.toolbar_workmates);
+        binding.toolbar.setTitle(title);
     }
 
     @Override
@@ -313,6 +321,7 @@ public class MainActivity extends AppCompatActivity implements
                     switch (item.getItemId()) {
                         case R.id.map: // Map View Fragment
                             updateMenuIconDisplay(true);
+                            updateToolbarTitle(true);
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null)
                                 if (listViewFragment.isVisible())
                                     fragmentManager.beginTransaction().hide(listViewFragment).commit();
@@ -322,6 +331,7 @@ public class MainActivity extends AppCompatActivity implements
                             break;
                         case R.id.list: // List View Fragment
                             updateMenuIconDisplay(true);
+                            updateToolbarTitle(true);
                             if (fragmentManager.findFragmentByTag(WorkmatesFragment.TAG) != null)
                                 if (workmatesFragment.isVisible())
                                     fragmentManager.beginTransaction().hide(workmatesFragment).commit();
@@ -333,6 +343,7 @@ public class MainActivity extends AppCompatActivity implements
                             break;
                         case R.id.workmates: // Workmates Fragment
                             updateMenuIconDisplay(false);
+                            updateToolbarTitle(false);
                             if (fragmentManager.findFragmentByTag(ListViewFragment.TAG) != null) {
                                 listViewFragment.restoreListRestaurants();
                                 mapViewFragment.restoreBackupMarkersOnMap();

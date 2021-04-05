@@ -12,6 +12,8 @@
     <string name="snack_bar_error_unknown">Authentification échouée - Erreur inconnue</string>
 
     <!-- MainActivity menu -->
+    <string name="toolbar_restaurant">J\'ai faim !</string>
+    <string name="toolbar_workmates">Collaborateurs disponibles</string>
     <string name="icon_search">Rechercher</string>
     <string name="snack_bar_logout">Se déconnecter</string>
     <string name="snack_bar_account_deleted">Compte supprimé</string>

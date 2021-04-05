@@ -12,6 +12,8 @@
     <string name="snack_bar_error_unknown">Authentication failed - Unknown error</string>
 
     <!-- MainActivity menu -->
+    <string name="toolbar_restaurant">I\'m hungry !</string>
+    <string name="toolbar_workmates">Available workmates</string>
     <string name="icon_search">Search</string>
     <string name="snack_bar_logout">Logout</string>
     <string name="snack_bar_account_deleted">Account deleted</string>
