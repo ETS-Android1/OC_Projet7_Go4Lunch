@@ -1,9 +1,13 @@
 package com.openclassrooms.go4lunch.utils;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.openclassrooms.go4lunch.utils.mapping.RestaurantMarkerItem;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -17,7 +21,7 @@ public class GeometricUtilUnitTest {
      * object with a precision of 0.01.
      */
     @Test
-    public void test(){
+    public void test_if_get_coordinate_method_return_correct_lat_lng_object() {
         double latitudeRef = 49.059875797433016;
         double longitudeRef = 2.3252438127133095;
 

@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
  * File providing tests to cover methods from @{@link CustomComparators} class file.
  */
 @RunWith(JUnit4.class)
-public class ComparatorsUnitTest {
+public class CustomComparatorsUnitTest {
 
     /**
      * TEST # 1 : Checks if the static class CustomComparators.WorkmateAZComparator

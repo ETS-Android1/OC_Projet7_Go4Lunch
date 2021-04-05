@@ -1,6 +1,7 @@
 package com.openclassrooms.go4lunch.ui.fragments.permission;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -53,6 +54,7 @@ public class LocationPermissionFragment extends Fragment {
     /**
      * Checks the number of permission requests which have already been displayed to user.
      */
+    @SuppressLint("CommitPrefEdits")
     private void initializeNbPermissionRequests() {
         SharedPreferences nbPermissionRequestSaved = getContext()
                 .getSharedPreferences(AppInfo.FILE_PREF_NB_PERMISSION_REQUESTS, Context.MODE_PRIVATE);

@@ -25,8 +25,8 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <!--<string name="facebook_application_id">723552471635167</string>
-    <string name="fb_login_protocol_scheme">fb723552471635167</string>-->
+    <string name="facebook_application_id">723552471635167</string>
+    <string name="fb_login_protocol_scheme">fb723552471635167</string>
 
     <!-- LogoutDialog -->
     <string name="title_logout_dialog">Se déconnecter</string>

@@ -107,6 +107,7 @@ public class RestaurantDetailsFragment extends Fragment {
     /**
      * Initializes SharedPreferences objects to access SharedPreferences file.
      */
+    @SuppressLint("CommitPrefEdits")
     public void initializeSharedPreferences() {
         // SharedPreferences to save user restaurant choice
         SharedPreferences sharedPrefSelection = requireContext()
@@ -301,6 +302,7 @@ public class RestaurantDetailsFragment extends Fragment {
     /**
      * Gets the list of liked restaurants by current user.
      */
+    @SuppressWarnings("unchecked")
     private void checkIfRestaurantWasLiked() {
         if (!documentID.equals("")) {
             workmatesViewModel.getDocumentReferenceCurrentUser(documentID).get().addOnSuccessListener(documentSnapshot -> {

@@ -1,14 +1,11 @@
 package com.openclassrooms.go4lunch.ui.fragments.restaurants;
 
-import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,18 +104,6 @@ public class ListViewFragment extends Fragment implements
         initializeViewModels();
         initializeRecyclerView();
         addObserversToViewModels();
-
-        // TODO() : Check usage
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        Display display;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            display = requireContext().getDisplay();
-            display.getRealMetrics(displayMetrics);
-        }
-        else {
-            display = requireActivity().getWindowManager().getDefaultDisplay();
-            display.getMetrics(displayMetrics);
-        }
     }
 
     /**
