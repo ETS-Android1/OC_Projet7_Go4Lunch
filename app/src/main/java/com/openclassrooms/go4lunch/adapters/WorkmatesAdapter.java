@@ -40,7 +40,8 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesAdapter.View
     @NonNull
     @Override
     public ViewHolderWorkmates onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        WorkmatesItemBinding binding = WorkmatesItemBinding.inflate(LayoutInflater.from(context), parent, false);
+        WorkmatesItemBinding binding = WorkmatesItemBinding
+                .inflate(LayoutInflater.from(context), parent, false);
         return new ViewHolderWorkmates(binding);
     }
 

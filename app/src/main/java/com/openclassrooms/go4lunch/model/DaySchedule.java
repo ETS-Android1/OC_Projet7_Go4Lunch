@@ -1,6 +1,7 @@
 package com.openclassrooms.go4lunch.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Model class containing the list of hours (closing and opening) for a day
@@ -33,7 +34,7 @@ public class DaySchedule {
      * @param type : Type of hours
      * @return : List of hours
      */
-    public ArrayList<String> get(ScheduleType type) {
+    public List<String> get(ScheduleType type) {
         if (type == ScheduleType.CLOSE) return closed;
         else return open;
     }

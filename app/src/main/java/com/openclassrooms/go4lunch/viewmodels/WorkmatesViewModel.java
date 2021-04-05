@@ -68,7 +68,9 @@ public class WorkmatesViewModel extends ViewModel {
      * @param documentCurrentUserId : Id of the document in firestore associated with the current user
      * @param listLikedRestaurants : list of liked restaurant by the current user
      */
-    public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId, List<String> listLikedRestaurants) {
-        workmatesRepository.updateCurrentUserListOfLikedRestaurant(documentCurrentUserId, listLikedRestaurants);
+    public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId,
+                                                       List<String> listLikedRestaurants) {
+        workmatesRepository.updateCurrentUserListOfLikedRestaurant(documentCurrentUserId,
+                                                                   listLikedRestaurants);
     }
 }

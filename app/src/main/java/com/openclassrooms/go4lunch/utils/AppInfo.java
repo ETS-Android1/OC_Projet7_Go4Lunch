@@ -4,9 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-
 import androidx.core.content.ContextCompat;
-
 import com.openclassrooms.go4lunch.BuildConfig;
 import static android.content.Context.MODE_PRIVATE;
 
@@ -55,7 +53,8 @@ public class AppInfo {
         int currentVersionCode = BuildConfig.VERSION_CODE;
 
         // Get saved version code
-        SharedPreferences prefsVersionCode = context.getSharedPreferences(FILE_PREF_FIRST_RUN, MODE_PRIVATE);
+        SharedPreferences prefsVersionCode = context
+                                           .getSharedPreferences(FILE_PREF_FIRST_RUN, MODE_PRIVATE);
         int savedVersionCode = prefsVersionCode.getInt(PREF_VERSION_CODE_KEY, -1);
 
         if (savedVersionCode == -1 || currentVersionCode > savedVersionCode) { // New install (first run) OR Update app

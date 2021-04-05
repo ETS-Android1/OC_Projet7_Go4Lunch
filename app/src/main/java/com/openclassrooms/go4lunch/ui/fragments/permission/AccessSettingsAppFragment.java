@@ -17,18 +17,13 @@ import com.openclassrooms.go4lunch.databinding.FragmentAccessSettingsAppBinding;
  */
 public class AccessSettingsAppFragment extends Fragment {
 
-    public final static String TAG = "TAG_ACCESS_SETTINGS_APP_FRAGMENT";
+    public static final String TAG = "TAG_ACCESS_SETTINGS_APP_FRAGMENT";
     private FragmentAccessSettingsAppBinding binding;
 
     public AccessSettingsAppFragment() { /* Empty constructor */ }
 
     public static AccessSettingsAppFragment newInstance() {
         return new AccessSettingsAppFragment();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override

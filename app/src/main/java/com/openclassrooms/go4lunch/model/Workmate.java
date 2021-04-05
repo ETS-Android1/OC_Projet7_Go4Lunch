@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Model class which defining information for a workmate, and containing all data retrieved from an associated
- * Document in the Firestore database.
+ * Model class which defining information for a workmate, and containing all
+ * data retrieved from an associated Document in the Firestore database.
  */
 public class Workmate {
 
@@ -23,9 +23,10 @@ public class Workmate {
     private final String restaurantName;
 
     // Contains list of "liked" restaurants by a workmate
-    private List<String> liked;
+    private final List<String> liked;
 
-    public Workmate(String name, String email, String restaurantSelectedID, String photoUrl, String restaurantName) {
+    public Workmate(String name, String email, String restaurantSelectedID,
+                    String photoUrl, String restaurantName) {
         this.name = name;
         this.email = email;
         this.photoUrl = photoUrl;

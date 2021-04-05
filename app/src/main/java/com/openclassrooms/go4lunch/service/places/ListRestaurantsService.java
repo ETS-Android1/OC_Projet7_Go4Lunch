@@ -7,6 +7,8 @@ import com.openclassrooms.go4lunch.service.places.request.PlaceService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Response;
@@ -59,7 +61,7 @@ public class ListRestaurantsService {
         if (response.isSuccessful()) {
             return response.body();
         }
-        throw new IOException(response.errorBody().toString());
+        throw new IOException(Objects.requireNonNull(response.errorBody()).toString());
     }
 
     /**
@@ -74,7 +76,7 @@ public class ListRestaurantsService {
         if (response.isSuccessful()) {
             return response.body();
         }
-        throw new IOException(response.errorBody().toString());
+        throw new IOException(Objects.requireNonNull(response.errorBody()).toString());
     }
 
     /**
@@ -87,7 +89,7 @@ public class ListRestaurantsService {
         if (response.isSuccessful()) {
             return response.body();
         }
-        else throw new IOException(response.errorBody().toString());
+        else throw new IOException(Objects.requireNonNull(response.errorBody()).toString());
     }
 
     private void clearListRestaurants() {

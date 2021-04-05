@@ -3,7 +3,6 @@ package com.openclassrooms.go4lunch.di;
 import android.content.Context;
 import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;

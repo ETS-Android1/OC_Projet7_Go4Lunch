@@ -18,8 +18,8 @@ import static org.junit.Assert.assertTrue;
 public class ComparatorsUnitTest {
 
     /**
-     * TEST # 1 : Checks if the static class CustomComparators.WorkmateAZComparator correctly compare the alphabetical
-     * order of two Workmates passed as parameters.
+     * TEST # 1 : Checks if the static class CustomComparators.WorkmateAZComparator
+     * correctly compare the alphabetical order of two Workmates passed as parameters.
      */
     @Test
     public void test_workmate_AZ_comparator() {
@@ -34,7 +34,8 @@ public class ComparatorsUnitTest {
         Mockito.when(workmateMock3.getName()).thenReturn("Alice");
 
         // Check if comparison between two Workmate objects works
-        CustomComparators.WorkmateAZComparator workmateAZComparator = new CustomComparators.WorkmateAZComparator();
+        CustomComparators.WorkmateAZComparator workmateAZComparator =
+                new CustomComparators.WorkmateAZComparator();
         assertTrue(workmateAZComparator.compare(workmateMock1, workmateMock2) < 0);
         assertTrue(workmateAZComparator.compare(workmateMock1, workmateMock3) > 0);
         assertEquals(0, workmateAZComparator.compare(workmateMock1, workmateMock1));
@@ -54,18 +55,23 @@ public class ComparatorsUnitTest {
     @Test
     public void test_time_diff_calculation() {
         // Start Time : 18h44 / End Time : 18h45 / Start Time - End Time = -1 min
-        assertEquals(CustomComparators.getTimeDiff(18, 44, 18, 45), -1);
+        assertEquals(CustomComparators.getTimeDiff(18, 44,
+                18, 45), -1);
 
         // Start Time : 00h00 / End Time : 12h00 / Start Time - End Time = -720 min
-        assertEquals(CustomComparators.getTimeDiff(0, 0, 12, 0), -720);
+        assertEquals(CustomComparators.getTimeDiff(0, 0,
+                12, 0), -720);
 
         // Start Time : 14h00 / End Time : 3h00 / Start Time - End Time = 660 min
-        assertEquals(CustomComparators.getTimeDiff(14, 0, 3, 0), 660);
+        assertEquals(CustomComparators.getTimeDiff(14, 0,
+                3, 0), 660);
 
         // Start Time : 11h11 / End Time : 10h22 / Start Time - End Time = 49 min
-        assertEquals(CustomComparators.getTimeDiff(11, 11, 10, 22), 49);
+        assertEquals(CustomComparators.getTimeDiff(11, 11,
+                10, 22), 49);
 
         // Start Time : 8h00 / End Time : 8h00 / Start Time - End Time = 0 min
-        assertEquals(CustomComparators.getTimeDiff(8, 0, 8, 0), 0);
+        assertEquals(CustomComparators.getTimeDiff(8, 0,
+                8, 0), 0);
     }
 }

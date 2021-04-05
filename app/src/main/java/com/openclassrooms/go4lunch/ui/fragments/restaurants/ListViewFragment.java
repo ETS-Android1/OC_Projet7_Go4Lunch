@@ -28,7 +28,7 @@ import java.util.List;
 public class ListViewFragment extends Fragment implements
                                                      ListViewAdapter.OnItemRestaurantClickListener {
 
-    public final static String TAG = "TAG_LIST_VIEW_FRAGMENT";
+    public static final String TAG = "TAG_LIST_VIEW_FRAGMENT";
     private FragmentListViewBinding binding;
     private ListViewAdapter adapter;
 
@@ -45,12 +45,6 @@ public class ListViewFragment extends Fragment implements
         return new ListViewFragment();
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-
     private void initializeViewModels() {
         placesViewModel = ((MainActivity) requireActivity()).getPlacesViewModel();
         workmatesViewModel = ((MainActivity) requireActivity()).getWorkmatesViewModel();
@@ -65,7 +59,7 @@ public class ListViewFragment extends Fragment implements
                 adapter.updateListRestaurants(newListRestaurants);
                 adapter.updateListRestaurantsBackup();
                 // Update background text
-                updateTextBackgroundDisplay(newListRestaurants.size() <= 0);
+                updateTextBackgroundDisplay(newListRestaurants.isEmpty());
                 // Hide circular progress bar when loading is over
                 adapter.updateVisibilityProgressBarStatus(View.INVISIBLE);
         });

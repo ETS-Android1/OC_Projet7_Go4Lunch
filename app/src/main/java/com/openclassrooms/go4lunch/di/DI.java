@@ -20,7 +20,8 @@ public class DI {
     }
 
     /**
-     * Provides an instance of an Executor object to use to execute Runnable tasks outside the main thread.
+     * Provides an instance of an Executor object to use to execute Runnable tasks outside
+     * the main thread.
      * @return : Executor object
      */
     public static Executor provideExecutor() {

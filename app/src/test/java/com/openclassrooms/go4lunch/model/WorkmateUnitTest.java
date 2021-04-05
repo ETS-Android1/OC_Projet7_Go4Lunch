@@ -27,7 +27,8 @@ public class WorkmateUnitTest {
                                            "ChIJW3_CtNh65kcRJDaPERLXgGY",
                                            "ChIJXYZoq9h65kcRuWrPmnFCQUI");
         // Initialize a Restaurant object
-        Workmate workmate = new Workmate(NAME, EMAIL, RESTAURANT_SELECTED_ID, PHOTO_URL, RESTAURANT_NAME);
+        Workmate workmate = new Workmate(NAME, EMAIL, RESTAURANT_SELECTED_ID,
+                                         PHOTO_URL, RESTAURANT_NAME);
 
         // Use setter method list of "liked" restaurant by workmate
         workmate.setLiked(LIKED);

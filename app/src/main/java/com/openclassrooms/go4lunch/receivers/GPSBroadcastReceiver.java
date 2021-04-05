@@ -21,9 +21,12 @@ public class GPSBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                                             context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        LocationManager locationManager = (LocationManager)
+                                             context.getSystemService(Context.LOCATION_SERVICE);
         boolean providerStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
         callback.updateFloatingButtonIconDisplay(providerStatus);
 
         if (connectivityManager.getActiveNetworkInfo() != null) {

@@ -13,7 +13,8 @@ import static org.junit.Assert.assertEquals;
 public class GeometricUtilUnitTest {
 
     /**
-     * TEST #1 : Checks if the static method getCoordinate() returns a new LatLng object with a precision of 0.01.
+     * TEST #1 : Checks if the static method getCoordinate() returns a new LatLng
+     * object with a precision of 0.01.
      */
     @Test
     public void test(){

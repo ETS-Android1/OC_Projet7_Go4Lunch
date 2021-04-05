@@ -24,7 +24,7 @@ import com.openclassrooms.go4lunch.utils.AppInfo;
  */
 public class LocationPermissionFragment extends Fragment {
 
-    public final static String TAG = "TAG_LOCATION_PERMISSION_FRAGMENT";
+    public static final String TAG = "TAG_LOCATION_PERMISSION_FRAGMENT";
     private static final int LOCATION_PERMISSION_CODE = 100;
     private SharedPreferences.Editor editor;
     private int nbRequests;
@@ -34,11 +34,6 @@ public class LocationPermissionFragment extends Fragment {
 
     public static LocationPermissionFragment newInstance() {
         return new LocationPermissionFragment();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override

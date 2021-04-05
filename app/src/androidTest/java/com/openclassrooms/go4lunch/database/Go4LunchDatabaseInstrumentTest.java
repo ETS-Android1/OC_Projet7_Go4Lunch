@@ -37,7 +37,8 @@ public class Go4LunchDatabaseInstrumentTest {
 
     @Before
     public void setup() {
-        this.database = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), Go4LunchDatabase.class).build();
+        this.database = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(),
+                                                                    Go4LunchDatabase.class).build();
         initializeRestaurantObjects();
     }
 

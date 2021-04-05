@@ -1,7 +1,7 @@
 package com.openclassrooms.go4lunch.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -11,7 +11,7 @@ import java.util.Map;
 public class OpeningAndClosingHours {
 
     // Contains all hours associated with a key value (representing a day of the week)
-    private Map<Integer, DaySchedule> schedules = new HashMap<>();
+    private final Map<Integer, DaySchedule> schedules = new HashMap<>();
 
     /**
      * Gets hours for a specified day.
@@ -33,7 +33,7 @@ public class OpeningAndClosingHours {
      * @param day : day of the week
      * @return : closing or opening hours for a day
      */
-    public ArrayList<String> getHours(ScheduleType type, int day) {
+    public List<String> getHours(ScheduleType type, int day) {
         return getDayOrInit(day).get(type);
     }
 

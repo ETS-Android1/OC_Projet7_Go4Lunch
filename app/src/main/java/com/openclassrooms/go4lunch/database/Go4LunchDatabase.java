@@ -29,7 +29,8 @@ public abstract class Go4LunchDatabase extends RoomDatabase {
     public static synchronized Go4LunchDatabase getInstance(Context context) {
         if (instance == null) {
             // Create instance
-            instance = Room.databaseBuilder(context, Go4LunchDatabase.class, AppInfo.SQLITE_DATABASE_NAME)
+            instance = Room.databaseBuilder(context, Go4LunchDatabase.class,
+                                            AppInfo.SQLITE_DATABASE_NAME)
                     .fallbackToDestructiveMigration()
                     .build();
         }

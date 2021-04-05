@@ -12,7 +12,8 @@ public class AuthenticationService {
     /**
      * Logs out user
      * @param context : Context
-     * @param callback : @{@link MainActivityCallback} callback interface to send back authentication result
+     * @param callback : @{@link MainActivityCallback} callback interface to send back
+     *                   authentication result
      */
     public static void logoutUser(Context context, MainActivityCallback callback) {
         AuthUI.getInstance().signOut(context)
@@ -23,13 +24,12 @@ public class AuthenticationService {
     /**
      * Delete user from Firebase list of users
      * @param context : Context
-     * @param callback : @{@link MainActivityCallback} callback interface to send back authentication result
+     * @param callback : @{@link MainActivityCallback} callback interface to send back
+     *                   authentication result
      */
     public static void deleteUser(Context context, MainActivityCallback callback) {
         AuthUI.getInstance().delete(context)
                 .addOnSuccessListener(aVoid -> callback.updateUIAfterRequestCompleted(false))
                 .addOnFailureListener(exception -> callback.exitApplicationAfterError());
     }
-
-
 }

@@ -2,7 +2,6 @@ package com.openclassrooms.go4lunch.service.workmates;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,7 +33,8 @@ public class ListWorkmatesService {
         FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = dbFirestore.collection(AppInfo.ROOT_COLLECTION_ID);
 
-        SharedPreferences sharedPrefUserId = context.getSharedPreferences(AppInfo.FILE_FIRESTORE_USER_ID, Context.MODE_PRIVATE);
+        SharedPreferences sharedPrefUserId = context.getSharedPreferences(
+                                               AppInfo.FILE_FIRESTORE_USER_ID, Context.MODE_PRIVATE);
         String userId = sharedPrefUserId.getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, null);
 
         // Retrieve all employees information
@@ -82,7 +82,8 @@ public class ListWorkmatesService {
      * @param restaurantId : New value for the field "restaurantId"
      * @param documentCurrentUserId : Id of the document in collection
      */
-    public void updateDocumentReferenceCurrentUser(String restaurantName, String restaurantId, String documentCurrentUserId) {
+    public void updateDocumentReferenceCurrentUser(String restaurantName,
+                                                   String restaurantId, String documentCurrentUserId) {
         DocumentReference documentReference = getDocumentReferenceCurrentUser(documentCurrentUserId);
         documentReference.update("restaurantName", restaurantName);
         documentReference.update("restaurantSelectedID", restaurantId);
@@ -93,7 +94,8 @@ public class ListWorkmatesService {
      * @param documentCurrentUserId : New value for the field "liked"
      * @param listLikedRestaurants : Id of the document in collection
      */
-    public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId, List<String> listLikedRestaurants) {
+    public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId,
+                                                       List<String> listLikedRestaurants) {
         getDocumentReferenceCurrentUser(documentCurrentUserId).update("liked", listLikedRestaurants);
     }
 }

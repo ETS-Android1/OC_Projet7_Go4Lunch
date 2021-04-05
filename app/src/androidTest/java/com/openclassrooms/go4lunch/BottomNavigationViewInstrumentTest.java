@@ -38,9 +38,12 @@ public class BottomNavigationViewInstrumentTest {
      */
     @Test
     public void test_check_bottom_navigation_view_items_title() {
-       onView(withId(R.id.map)).check(matches(BottomNavigationViewMatchers.withTitle(context.getString(R.string.icon_map_view))));
-       onView(withId(R.id.list)).check(matches(BottomNavigationViewMatchers.withTitle(context.getString(R.string.icon_list_view))));
-       onView(withId(R.id.workmates)).check(matches(BottomNavigationViewMatchers.withTitle(context.getString(R.string.icon_workmates))));
+       onView(withId(R.id.map)).check(matches(BottomNavigationViewMatchers
+                               .withTitle(context.getString(R.string.icon_map_view))));
+       onView(withId(R.id.list)).check(matches(BottomNavigationViewMatchers
+                                .withTitle(context.getString(R.string.icon_list_view))));
+       onView(withId(R.id.workmates)).check(matches(BottomNavigationViewMatchers
+                                     .withTitle(context.getString(R.string.icon_workmates))));
     }
 
     /**
@@ -48,9 +51,12 @@ public class BottomNavigationViewInstrumentTest {
      */
     @Test
     public void test_check_bottom_navigation_view_item_selection() {
-        onView(withId(R.id.map)).check(matches(BottomNavigationViewMatchers.withItemChecked(true)));
-        onView(withId(R.id.list)).check(matches(BottomNavigationViewMatchers.withItemChecked(false)));
-        onView(withId(R.id.workmates)).check(matches(BottomNavigationViewMatchers.withItemChecked(false)));
+        onView(withId(R.id.map)).check(matches(BottomNavigationViewMatchers
+                                .withItemChecked(true)));
+        onView(withId(R.id.list)).check(matches(BottomNavigationViewMatchers
+                                 .withItemChecked(false)));
+        onView(withId(R.id.workmates)).check(matches(BottomNavigationViewMatchers
+                                      .withItemChecked(false)));
     }
 
     /**
@@ -61,21 +67,30 @@ public class BottomNavigationViewInstrumentTest {
     public void test_check_items_status_after_click() {
         // Click on second item
         onView(withId(R.id.map)).perform(click());
-        onView(withId(R.id.map)).check(matches(BottomNavigationViewMatchers.withItemChecked(true)));
-        onView(withId(R.id.list)).check(matches(BottomNavigationViewMatchers.withItemChecked(false)));
-        onView(withId(R.id.workmates)).check(matches(BottomNavigationViewMatchers.withItemChecked(false)));
+        onView(withId(R.id.map)).check(matches(BottomNavigationViewMatchers
+                                .withItemChecked(true)));
+        onView(withId(R.id.list)).check(matches(BottomNavigationViewMatchers
+                                 .withItemChecked(false)));
+        onView(withId(R.id.workmates)).check(matches(BottomNavigationViewMatchers
+                                      .withItemChecked(false)));
 
         // Click on third item
         onView(withId(R.id.list)).perform(click());
-        onView(withId(R.id.map)).check(matches(BottomNavigationViewMatchers.withItemChecked(false)));
-        onView(withId(R.id.list)).check(matches(BottomNavigationViewMatchers.withItemChecked(true)));
-        onView(withId(R.id.workmates)).check(matches(BottomNavigationViewMatchers.withItemChecked(false)));
+        onView(withId(R.id.map)).check(matches(BottomNavigationViewMatchers
+                                .withItemChecked(false)));
+        onView(withId(R.id.list)).check(matches(BottomNavigationViewMatchers
+                                 .withItemChecked(true)));
+        onView(withId(R.id.workmates)).check(matches(BottomNavigationViewMatchers
+                                      .withItemChecked(false)));
 
         // Click on first
         onView(withId(R.id.workmates)).perform(click());
-        onView(withId(R.id.map)).check(matches(BottomNavigationViewMatchers.withItemChecked(false)));
-        onView(withId(R.id.list)).check(matches(BottomNavigationViewMatchers.withItemChecked(false)));
-        onView(withId(R.id.workmates)).check(matches(BottomNavigationViewMatchers.withItemChecked(true)));
+        onView(withId(R.id.map)).check(matches(BottomNavigationViewMatchers
+                                .withItemChecked(false)));
+        onView(withId(R.id.list)).check(matches(BottomNavigationViewMatchers
+                                 .withItemChecked(false)));
+        onView(withId(R.id.workmates)).check(matches(BottomNavigationViewMatchers
+                                      .withItemChecked(true)));
     }
 
     /**

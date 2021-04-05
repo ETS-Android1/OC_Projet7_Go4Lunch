@@ -2,9 +2,7 @@ package com.openclassrooms.go4lunch.viewmodels;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import androidx.annotation.RequiresPermission;
-import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.openclassrooms.go4lunch.database.RestaurantAndHoursData;
@@ -125,7 +123,8 @@ public class PlacesViewModel extends ViewModel {
     public void performAutocompleteRequest(String query, Context context) {
         executor.execute(() -> {
             if (AppInfo.checkIfLocationPermissionIsGranted(context)) {
-                placesRepository.performAutocompleteRequest(query, listRestaurantsIdAutocomplete::postValue);
+                placesRepository.performAutocompleteRequest(query,
+                                                          listRestaurantsIdAutocomplete::postValue);
             }
         });
     }
@@ -216,7 +215,8 @@ public class PlacesViewModel extends ViewModel {
                     restaurant.setPhoneNumber(restaurantData.getPhoneNumber());
 
             List<HoursData> hoursData = restaurantAndHoursData.get(i).hoursData;
-            restaurant.setOpeningAndClosingHours(DataConverters.converterHoursDataToOpeningAndClosingHours(hoursData));
+            restaurant.setOpeningAndClosingHours(
+                              DataConverters.converterHoursDataToOpeningAndClosingHours(hoursData));
             oldListRestaurants.add(restaurant);
         }
         listRestaurants.postValue(oldListRestaurants);

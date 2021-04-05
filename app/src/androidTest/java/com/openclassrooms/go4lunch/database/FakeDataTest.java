@@ -1,6 +1,5 @@
 package com.openclassrooms.go4lunch.database;
 
-import com.openclassrooms.go4lunch.model.Restaurant;
 import com.openclassrooms.go4lunch.service.places.response.details.ClosingHours;
 import com.openclassrooms.go4lunch.service.places.response.details.OpeningHours;
 

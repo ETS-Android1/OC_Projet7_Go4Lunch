@@ -68,8 +68,10 @@ public class PlacesRepository {
 
         // Initialize parameters for SharedPreferences
         sharedPrefNextPageToken = new SharedPreferences[2];
-        sharedPrefNextPageToken[0] = context.getSharedPreferences(AppInfo.FILE_PREF_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
-        sharedPrefNextPageToken[1] = context.getSharedPreferences(AppInfo.FILE_PREF_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
+        sharedPrefNextPageToken[0] = context.getSharedPreferences(AppInfo.FILE_PREF_NEXT_PAGE_TOKEN,
+                                                                              Context.MODE_PRIVATE);
+        sharedPrefNextPageToken[1] = context.getSharedPreferences(AppInfo.FILE_PREF_NEXT_PAGE_TOKEN,
+                                                                              Context.MODE_PRIVATE);
     }
 
     // Methods to access ListRestaurantsService
@@ -78,9 +80,11 @@ public class PlacesRepository {
      * @param location : Info location of the user
      * @param type : Type of places to search
      * @param callback : Callback interface
-     * @throws IOException : Exception thrown by findPlacesNearby() method of the @{@link ListRestaurantsService } service class
+     * @throws IOException : Exception thrown by findPlacesNearby() method of the @{@link ListRestaurantsService }
+     *                       service class
      */
-    public void findPlacesNearby(String location, String type, ServicePlacesCallback callback) throws IOException {
+    public void findPlacesNearby(String location, String type, ServicePlacesCallback callback)
+            throws IOException {
         PlaceResponse response = listRestaurantsServices.findPlacesNearby(location, type);
         for (int i = 0; i < response.results.size(); i++) {
             // Initialize new restaurant object
@@ -92,7 +96,8 @@ public class PlacesRepository {
             // Save next page token
             if (response.next_page_token != null) {
                 editor = sharedPrefNextPageToken[0].edit();
-                editor.putString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY, response.next_page_token).apply();
+                editor.putString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY,
+                                response.next_page_token).apply();
             }
         }
         callback.onPlacesAvailable(listRestaurantsServices.getListRestaurants());
@@ -105,10 +110,12 @@ public class PlacesRepository {
      * @param numNextPageToken : Token to request next places to load
      * @throws IOException : Exception
      */
-    public void getNextPlacesNearby(ServicePlacesCallback callback, List<Restaurant> listRestaurants, int numNextPageToken) throws IOException {
-        String nextPage_Token;
-        nextPage_Token = sharedPrefNextPageToken[numNextPageToken].getString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY, null);
-        PlaceResponse response = listRestaurantsServices.getNextPlacesNearby(nextPage_Token);
+    public void getNextPlacesNearby(ServicePlacesCallback callback, List<Restaurant> listRestaurants,
+                                    int numNextPageToken) throws IOException {
+        String nextPageToken;
+        nextPageToken = sharedPrefNextPageToken[numNextPageToken].getString(
+                                              AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY, null);
+        PlaceResponse response = listRestaurantsServices.getNextPlacesNearby(nextPageToken);
 
         for (int i = 0; i < response.results.size(); i++) {
             // Initialize new restaurant object
@@ -122,11 +129,15 @@ public class PlacesRepository {
                 switch (numNextPageToken) {
                     case 0:
                         editor = sharedPrefNextPageToken[0].edit();
-                        editor.putString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY, response.next_page_token).apply();
+                        editor.putString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY,
+                                         response.next_page_token).apply();
                         break;
                     case 1:
                         editor = sharedPrefNextPageToken[1].edit();
-                        editor.putString(AppInfo.PREF_SECOND_NEXT_PAGE_TOKEN_KEY, response.next_page_token).apply();
+                        editor.putString(AppInfo.PREF_SECOND_NEXT_PAGE_TOKEN_KEY,
+                                         response.next_page_token).apply();
+                        break;
+                    default :
                         break;
                 }
             }
@@ -138,28 +149,35 @@ public class PlacesRepository {
      * Updates the list of restaurants with their details.
      * @param listRestaurant : List of restaurants
      * @param callback : Callback interface
-     * @throws IOException : Exception thrown by getPlacesDetails() method of the @{@link ListRestaurantsService } service class
+     * @throws IOException : Exception thrown by getPlacesDetails() method of the @{@link ListRestaurantsService }
+     *                       service class
      */
-    public void getPlacesDetails(List<Restaurant> listRestaurant, ServiceDetailsCallback callback) throws IOException{
+    public void getPlacesDetails(List<Restaurant> listRestaurant,
+                                 ServiceDetailsCallback callback) throws IOException{
         // Contains each restaurant periods (closing and opening hours of a week) found
         List<HoursData> listHoursData = new ArrayList<>();
         List<List<HoursData>> listOfListHoursData = new ArrayList<>();
 
         for (int i = 0; i < listRestaurant.size(); i++) {
-            DetailsResponse response = listRestaurantsServices.getPlacesDetails(listRestaurant.get(i).getPlaceId());
-            if (response.result.website != null) listRestaurant.get(i).setWebsiteUri(Uri.parse(response.result.website).toString());
-            if (response.result.formatted_phone_number != null) listRestaurant.get(i).setPhoneNumber(response.result.formatted_phone_number);
+            DetailsResponse response = listRestaurantsServices.getPlacesDetails(
+                                                                listRestaurant.get(i).getPlaceId());
+            if (response.result.website != null)
+                 listRestaurant.get(i).setWebsiteUri(Uri.parse(response.result.website).toString());
+            if (response.result.formatted_phone_number != null)
+                 listRestaurant.get(i).setPhoneNumber(response.result.formatted_phone_number);
 
             if (response.result.opening_hours != null) {
                 if (response.result.opening_hours.periods != null) {
                     for (int j = 0; j < response.result.opening_hours.periods.size(); j++) {
-                        HoursData hoursData = new HoursData(response.result.opening_hours.periods.get(j).close,
-                                                            response.result.opening_hours.periods.get(j).open,
-                                                            listRestaurant.get(i).getPlaceId());
+                        HoursData hoursData = new HoursData(
+                                response.result.opening_hours.periods.get(j).close,
+                                response.result.opening_hours.periods.get(j).open,
+                                listRestaurant.get(i).getPlaceId());
                         listHoursData.add(hoursData);
                     }
                     // Update Restaurant with associated Closing/Opening hours
-                    listRestaurant.get(i).setOpeningAndClosingHours(DataConverters.converterHoursDataToOpeningAndClosingHours(listHoursData));
+                    listRestaurant.get(i).setOpeningAndClosingHours(
+                          DataConverters.converterHoursDataToOpeningAndClosingHours(listHoursData));
                     // Update list of data (Closing/Opening hours) to send to database
                     ArrayList<HoursData> copy = new ArrayList<>(listHoursData);
                     listOfListHoursData.add(copy);
@@ -186,7 +204,7 @@ public class PlacesRepository {
 
         // Add photo data
         if (results.photos != null) {
-            if (results.photos.size() > 0) {
+            if (!results.photos.isEmpty()) {
                 restaurant.setPhotoReference(results.photos.get(0).photo_reference);
                 restaurant.setPhotoHeight(results.photos.get(0).height);
                 restaurant.setPhotoWidth(results.photos.get(0).width);
@@ -196,9 +214,9 @@ public class PlacesRepository {
     }
 
     // Methods to access AutocompleteService
-
     /**
-     * Accesses the performAutocompleteRequest() method of the @{@link ListRestaurantsService } service class.
+     * Accesses the performAutocompleteRequest() method of the @{@link ListRestaurantsService }
+     * service class.
      * @param query : Autocomplete query
      * @param callback : ServiceAutocompleteCallback callback interface to send back results
      */
@@ -256,8 +274,10 @@ public class PlacesRepository {
      * to determine if a new search request is necessary or if data can be reloading from database.
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    public void getPlacesFromDatabaseOrRetrofitRequest(MainActivity activity, SharedPreferences sharedPrefLatLon, MapViewFragmentCallback callback) {
-        activity.getLocationClient().getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
+    public void getPlacesFromDatabaseOrRetrofitRequest(MainActivity activity,
+                       SharedPreferences sharedPrefLatLon, MapViewFragmentCallback callback) {
+        activity.getLocationClient()
+                .getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener(location -> {
                     double currentLatUserPosition;
                     double currentLonUserPosition;
@@ -273,11 +293,16 @@ public class PlacesRepository {
                     }
                     else {
                         // Get previous location
-                        savedLatUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LAT_POSITION_KEY, Double.doubleToRawLongBits(currentLatUserPosition)));
-                        savedLonUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong(AppInfo.PREF_OLD_LON_POSITION_KEY, Double.doubleToRawLongBits(currentLonUserPosition)));
+                        savedLatUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong(
+                                AppInfo.PREF_OLD_LAT_POSITION_KEY,
+                                Double.doubleToRawLongBits(currentLatUserPosition)));
+                        savedLonUserPosition = Double.longBitsToDouble(sharedPrefLatLon.getLong(
+                                AppInfo.PREF_OLD_LON_POSITION_KEY,
+                                Double.doubleToRawLongBits(currentLonUserPosition)));
                         // Check distance
                         float[] result = new float[1];
-                        Location.distanceBetween(currentLatUserPosition, currentLonUserPosition, savedLatUserPosition, savedLonUserPosition, result);
+                        Location.distanceBetween(currentLatUserPosition, currentLonUserPosition,
+                                                savedLatUserPosition, savedLonUserPosition, result);
                         // Get locations
                         if (result[0] < 800) { // distance < 800m : reload locations from database
                             callback.restoreListFromDatabase();

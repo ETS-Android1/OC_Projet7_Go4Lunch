@@ -15,7 +15,7 @@ public interface PlaceService {
     Call<PlaceResponse> searchPlaces(@Query("location") String location, @Query("type") String type);
 
     @GET("details/json?fields=formatted_phone_number,opening_hours,website&key=" + BuildConfig.API_KEY)
-    Call<DetailsResponse> getPlaceDetails(@Query("place_id") String place_id);
+    Call<DetailsResponse> getPlaceDetails(@Query("place_id") String placeId);
 
     @GET("nearbysearch/json?key=" + BuildConfig.API_KEY)
     Call<PlaceResponse> getNextPlacesAvailable(@Query("pagetoken") String nextPlaceToken);

@@ -48,9 +48,10 @@ import java.util.List;
  * Fragment class used to allow user to interact with a Google Map, search for a restaurant
  * and enable/disable GPS functionality.
  */
-public class MapViewFragment extends Fragment implements MapViewFragmentCallback, OnMapReadyCallback {
+public class MapViewFragment extends Fragment implements MapViewFragmentCallback,
+        OnMapReadyCallback {
 
-    public final static String TAG = "TAG_MAP_VIEW_FRAGMENT";
+    public static final String TAG = "TAG_MAP_VIEW_FRAGMENT";
     private FragmentMapViewBinding binding;
 
     // To catch GPS status changed event
@@ -64,8 +65,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     private ConnectivityManager connectivityManager;
 
     // Location refresh parameters for GPS provider
-    private final static long LOCATION_REFRESH_TIME = 15000;
-    private final static float LOCATION_REFRESH_DISTANCE = 10;
+    private static final long LOCATION_REFRESH_TIME = 15000;
+    private static final float LOCATION_REFRESH_DISTANCE = 10;
 
     // To handle markers cluster display on map
     private ClusterManager<RestaurantMarkerItem> clusterManager;
@@ -116,11 +117,6 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentMapViewBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -132,14 +128,19 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
         placesViewModel = ((MainActivity) requireActivity()).getPlacesViewModel();
         workmatesViewModel = ((MainActivity) requireActivity()).getWorkmatesViewModel();
         // Initialization
-        locationManager = (LocationManager) requireActivity().getSystemService(Context.LOCATION_SERVICE);
-        connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        locationManager = (LocationManager) requireActivity()
+                                                        .getSystemService(Context.LOCATION_SERVICE);
+        connectivityManager = (ConnectivityManager) requireContext()
+                                                    .getSystemService(Context.CONNECTIVITY_SERVICE);
         gpsBroadcastReceiver = new GPSBroadcastReceiver(this);
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
+                                                                 .findFragmentById(R.id.google_map);
         if (mapFragment != null) { mapFragment.getMapAsync(this); }
         initializeViewModelsObservers();
-        sharedPrefLatLon = requireContext().getSharedPreferences(AppInfo.FILE_PREF_USER_POSITION, Context.MODE_PRIVATE);
-        sharedPrefClusterOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS, Context.MODE_PRIVATE);
+        sharedPrefLatLon = requireContext().getSharedPreferences(AppInfo.FILE_PREF_USER_POSITION,
+                                                                              Context.MODE_PRIVATE);
+        sharedPrefClusterOption = requireContext().getSharedPreferences(AppInfo.FILE_OPTIONS,
+                                                                              Context.MODE_PRIVATE);
         // Check if app was launched after notification click
         try {
             NotificationHandler.getActionFromNotification(requireActivity());
@@ -262,7 +263,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     /**
      * Launches a places search to detect all restaurants around user location in a defined radius.
      */
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION) //TODO() : Check concatenation
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     @Override
     public void searchPlacesFromCurrentLocation() {
         ((MainActivity) requireActivity()).getLocationClient()
@@ -270,7 +271,8 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
                 .addOnSuccessListener(location -> {
                     currentLatUserPosition = location.getLatitude();
                     currentLonUserPosition = location.getLongitude();
-                    placesViewModel.findPlacesNearby(location.getLatitude() +"," + location.getLongitude(),"restaurant");
+                    placesViewModel.findPlacesNearby(location.getLatitude() +"," +
+                                                         location.getLongitude(),"restaurant");
                 });
     }
 
@@ -336,7 +338,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
 
         // Check if workmates have done any updates in their restaurant selection
         workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), listWorkmates -> {
-            if (listRestaurants.size() > 0) {
+            if (!listRestaurants.isEmpty()) {
                 boolean found;
                 int i;
                 for (int j = 0; j < listRestaurants.size(); j++) {
@@ -475,7 +477,7 @@ public class MapViewFragment extends Fragment implements MapViewFragmentCallback
     }
 
     // Getter
-    public ArrayList<Restaurant> getListRestaurants() {
+    public List<Restaurant> getListRestaurants() {
         return listRestaurants;
     }
 }

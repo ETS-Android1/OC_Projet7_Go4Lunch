@@ -16,7 +16,7 @@ import com.openclassrooms.go4lunch.ui.activities.MainActivityCallback;
  */
 public class LogoutDialog extends DialogFragment {
 
-    public final static String TAG = "TAG_LOGOUT_DIALOG";
+    public static final String TAG = "TAG_LOGOUT_DIALOG";
     private MainActivityCallback listener;
 
     public LogoutDialog() {/* Empty constructor */}

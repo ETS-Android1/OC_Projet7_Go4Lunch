@@ -22,16 +22,17 @@ public class NetworkBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                                             context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         callback.updateNetworkInfoBarDisplay(networkInfo != null);
 
         if (!isInitialStickyBroadcast()) { // This broadcast must only detect connectivity status changes
-            LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            LocationManager locationManager = (LocationManager)
+                                             context.getSystemService(Context.LOCATION_SERVICE);
             if (networkInfo != null) {
-                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
                     callback.getPlacesFroMDatabaseOrRetrofitInMapViewFragment();
-                }
             }
         }
     }

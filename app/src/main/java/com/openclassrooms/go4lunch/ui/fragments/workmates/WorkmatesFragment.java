@@ -20,7 +20,7 @@ import com.openclassrooms.go4lunch.viewmodels.WorkmatesViewModel;
  */
 public class WorkmatesFragment extends Fragment {
 
-    public final static String TAG = "TAG_WORKMATES_FRAGMENT";
+    public static final String TAG = "TAG_WORKMATES_FRAGMENT";
     private FragmentWorkmatesBinding binding;
 
     // View Model containing a MutableLiveData
@@ -62,10 +62,8 @@ public class WorkmatesFragment extends Fragment {
      * adapter list when an update is detected.
      */
     private void addObserverToViewModel() {
-        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), list -> {
-            // Send to adapter
-               adapter.updateList(list);
-        });
+        // Send to adapter
+        workmatesViewModel.getListWorkmates().observe(getViewLifecycleOwner(), adapter::updateList);
     }
 
     /**

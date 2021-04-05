@@ -89,7 +89,7 @@ public class RatingDisplayHandler {
             star1.setImageDrawable(context.getResources().getDrawable(
                                                    R.drawable.ic_baseline_star_border_24dp_yellow));
         }
-        else if (rating >= 2.5 & rating < 3) { // 2.5 STARS
+        else if (rating >= 2.5 && rating < 3) { // 2.5 STARS
             star5.setImageDrawable(context.getResources().getDrawable(
                                                           R.drawable.ic_baseline_star_24dp_yellow));
             star4.setImageDrawable(context.getResources().getDrawable(
@@ -101,7 +101,7 @@ public class RatingDisplayHandler {
             star1.setImageDrawable(context.getResources().getDrawable(
                                                    R.drawable.ic_baseline_star_border_24dp_yellow));
         }
-        else if (rating >= 3 & rating < 3.5) { // 3 STARS
+        else if (rating >= 3 && rating < 3.5) { // 3 STARS
             star5.setImageDrawable(context.getResources().getDrawable(
                                                           R.drawable.ic_baseline_star_24dp_yellow));
             star4.setImageDrawable(context.getResources().getDrawable(

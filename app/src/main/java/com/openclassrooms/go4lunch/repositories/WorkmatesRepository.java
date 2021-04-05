@@ -18,7 +18,8 @@ public class WorkmatesRepository {
     }
 
     /**
-     * Accesses the getEmployeesInfoFromFirestoreDatabase() method of the @{@link ListWorkmatesService} service class.
+     * Accesses the getEmployeesInfoFromFirestoreDatabase() method of the @{@link ListWorkmatesService}
+     * service class.
      * @param callback : @{@link ServiceWorkmatesCallback} callback interface
      */
     public void getEmployeesInfoFromFirestoreDatabase(ServiceWorkmatesCallback callback) {
@@ -26,7 +27,8 @@ public class WorkmatesRepository {
     }
 
     /**
-     * Accesses the getDocumentReferenceCurrentUser() method of the @{@link ListWorkmatesService} service class.
+     * Accesses the getDocumentReferenceCurrentUser() method of the @{@link ListWorkmatesService}
+     * service class.
      * @param documentCurrentUserId : Id Document in Firestore of the current user
      */
     public DocumentReference getDocumentReferenceCurrentUser(String documentCurrentUserId) {
@@ -34,7 +36,8 @@ public class WorkmatesRepository {
     }
 
     /**
-     * Accesses the updateDocumentReferenceCurrentUser() method of the @{@link ListWorkmatesService} service class.
+     * Accesses the updateDocumentReferenceCurrentUser() method of the @{@link ListWorkmatesService}
+     * service class.
      * @param restaurantName : Name of the restaurant
      * @param restaurantId : Id of the restaurant
      * @param documentCurrentUserId : Id Document in Firestore of the current user
@@ -48,7 +51,8 @@ public class WorkmatesRepository {
     }
 
     /**
-     * Accesses the updateCurrentUserListOfLikedRestaurant() method of the @{@link ListWorkmatesService} service class.
+     * Accesses the updateCurrentUserListOfLikedRestaurant() method of the @{@link ListWorkmatesService}
+     * service class.
      * @param documentCurrentUserId : Id Document in Firestore of the current user
      * @param listLikedRestaurants : list of "liked" restaurant
      */

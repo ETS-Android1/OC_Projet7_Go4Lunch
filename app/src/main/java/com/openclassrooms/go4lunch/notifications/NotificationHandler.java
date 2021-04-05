@@ -24,7 +24,7 @@ public class NotificationHandler {
 
     private final Context context;
     private static NotificationManager manager;
-    private final String CHANNELID = "CHANNELID";
+    private static final String CHANNELID = "CHANNELID";
 
     public NotificationHandler(Context context) {
         this.context = context;

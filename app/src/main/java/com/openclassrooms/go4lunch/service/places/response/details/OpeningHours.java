@@ -11,8 +11,8 @@ import androidx.room.ColumnInfo;
  *          - "time"
  */
 public class OpeningHours {
-    @ColumnInfo(name = "day_open") public int day;
-    @ColumnInfo(name = "time_open") public String time;
+    @ColumnInfo(name = "day_open") public final int day;
+    @ColumnInfo(name = "time_open") public final String time;
 
     /**
      * Used for testing only. See DataConvertersUnitTest.java file.

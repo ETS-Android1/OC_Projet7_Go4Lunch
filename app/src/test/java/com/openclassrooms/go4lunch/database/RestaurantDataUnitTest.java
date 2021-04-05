@@ -24,15 +24,18 @@ public class RestaurantDataUnitTest {
         double RATING = 3.4;
         String NUMBER = "01 46 03 93 70";
         String WEBSITE_URI = "https://www.franprix.fr/magasins/5575";
-        String PHOTO_REFERENCE = "ATtYBwIJO4zRghygCxwMS7VGe2o-U9VPD_tOktAYaf6LJ3Ay1YQHaFHFmfTAiF9mSzHLk7PKJyf6Ky-kRvgCmTDwj"
-                                 + "_9aURPdmLLZrK-DAjr1zieyxLKaf1A-lboLIBcY4SornCkG2yPshwrwlFmxzpcvxjv7FoC58N4W-aqaufY6ir8s9tEv";
+        String PHOTO_REFERENCE = "ATtYBwIJO4zRghygCxwMS7VGe2o-U9VPD_tOktAYaf6LJ3Ay1" +
+                                 "YQHaFHFmfTAiF9mSzHLk7PKJyf6Ky-kRvgCmTDwj"
+                                 + "_9aURPdmLLZrK-DAjr1zieyxLKaf1A-lboLIBcY4SornCk" +
+                                   "G2yPshwrwlFmxzpcvxjv7FoC58N4W-aqaufY6ir8s9tEv";
         int PHOTO_HEIGHT = 4000;
         int PHOTO_WIDTH = 4000;
 
         // Initialize a RestaurantData object
-        RestaurantData restaurantData = new RestaurantData(PLACE_ID, NAME, ADDRESS, LATITUDE, LONGITUDE,
-                                                           RATING, NUMBER, WEBSITE_URI, PHOTO_REFERENCE,
-                                                           PHOTO_HEIGHT, PHOTO_WIDTH);
+        RestaurantData restaurantData = new RestaurantData(
+                PLACE_ID, NAME, ADDRESS, LATITUDE, LONGITUDE,
+                RATING, NUMBER, WEBSITE_URI, PHOTO_REFERENCE,
+                PHOTO_HEIGHT, PHOTO_WIDTH);
 
         // Check if values in RestaurantData object fields are correct
         assertEquals(PLACE_ID, restaurantData.getPlaceId());

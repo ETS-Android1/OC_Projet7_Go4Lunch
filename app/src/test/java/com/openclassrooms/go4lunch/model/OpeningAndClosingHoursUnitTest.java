@@ -12,7 +12,8 @@ import static org.junit.Assert.assertEquals;
 public class OpeningAndClosingHoursUnitTest {
 
     /**
-     * TEST #1 : Checks if a @{@link OpeningAndClosingHours} object is correctly instantiated and updated.
+     * TEST #1 : Checks if a @{@link OpeningAndClosingHours} object is correctly
+     * instantiated and updated.
      */
     @Test
     public void test_opening_and_hours_object_creation() {

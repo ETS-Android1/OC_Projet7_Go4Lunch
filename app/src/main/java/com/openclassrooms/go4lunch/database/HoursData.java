@@ -18,9 +18,9 @@ public class HoursData {
 
     @ColumnInfo(name = "restaurant_id") private final String restaurantId;
 
-    @Embedded public ClosingHours closingHours;
+    @Embedded public final ClosingHours closingHours;
 
-    @Embedded public OpeningHours openingHours;
+    @Embedded public final OpeningHours openingHours;
 
     public HoursData(ClosingHours closingHours, OpeningHours openingHours, String restaurantId) {
         this.closingHours = closingHours;

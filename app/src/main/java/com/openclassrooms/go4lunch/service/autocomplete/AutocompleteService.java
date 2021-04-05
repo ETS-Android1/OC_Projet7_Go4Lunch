@@ -46,8 +46,10 @@ public class AutocompleteService {
 
                     // Define location restrictions
                     RectangularBounds bounds = RectangularBounds.newInstance(
-                            GeometricUtils.getCoordinate(currentLat, currentLon, -500L, -500L),  // Southwest point
-                            GeometricUtils.getCoordinate(currentLat, currentLon, 500L, 500L) // Northeast point
+                            GeometricUtils.getCoordinate(currentLat, currentLon,
+                                                          -500L, -500L),  // Southwest point
+                            GeometricUtils.getCoordinate(currentLat, currentLon,
+                                                              500L, 500L) // Northeast point
                     );
 
                     // Build Autocomplete request
@@ -64,7 +66,8 @@ public class AutocompleteService {
                     List<String> autocompleteRestaurantIdList = new ArrayList<>();
 
                     // Get results
-                    placesClient.findAutocompletePredictions(request).addOnSuccessListener(response -> {
+                    placesClient.findAutocompletePredictions(request)
+                                .addOnSuccessListener(response -> {
                         // Extract Restaurants Id from response
                         for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
                             List<Place.Type> types = prediction.getPlaceTypes();

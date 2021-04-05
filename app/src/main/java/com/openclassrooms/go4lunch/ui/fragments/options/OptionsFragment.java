@@ -26,7 +26,7 @@ import java.util.Calendar;
  */
 public class OptionsFragment extends Fragment implements OptionsFragmentCallback {
 
-    public final static String TAG = "TAG_OPTIONS_FRAGMENT";
+    public static final String TAG = "TAG_OPTIONS_FRAGMENT";
     private FragmentOptionsBinding binding;
 
     // SharedPreferences
@@ -42,11 +42,6 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
 
     public static OptionsFragment newInstance() {
         return new OptionsFragment();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -197,6 +192,7 @@ public class OptionsFragment extends Fragment implements OptionsFragmentCallback
     @Override
     public void confirmDeleteUser() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) AuthenticationService.deleteUser(getContext(), ((MainActivityCallback) getActivity()));
+        if (user != null)
+            AuthenticationService.deleteUser(getContext(), ((MainActivityCallback) getActivity()));
     }
 }

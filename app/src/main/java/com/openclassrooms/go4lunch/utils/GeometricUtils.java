@@ -7,11 +7,11 @@ import com.google.android.gms.maps.model.LatLng;
  */
 public class GeometricUtils {
 
-    public static double EARTH_RADIUS = 6371000.0;
+    public static final double EARTH_RADIUS = 6371000.0;
 
     /**
      * Provides new coordinates for a translation of "dx" meters and "dy" meters
-     * @param latitudeRef : Old latitue
+     * @param latitudeRef : Old latitude
      * @param longitudeRef : Old longitude
      * @param dx : Translation value
      * @param dy : Translation value

@@ -14,7 +14,7 @@ import com.openclassrooms.go4lunch.ui.fragments.options.OptionsFragmentCallback;
  */
 public class DeleteAccountDialog extends DialogFragment {
 
-    public final static String TAG = "TAG_DELETE_ACCOUNT_DIALOG";
+    public static final String TAG = "TAG_DELETE_ACCOUNT_DIALOG";
     private OptionsFragmentCallback callback;
 
     public DeleteAccountDialog() { /* Empty constructor */ }

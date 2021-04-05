@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class RestaurantDetailsFragment extends Fragment {
 
-    public final static String TAG = "TAG_RESTAURANT_DETAILS_FRAGMENT";
+    public static final String TAG = "TAG_RESTAURANT_DETAILS_FRAGMENT";
     private FragmentRestaurantDetailsBinding binding;
     private Restaurant restaurant;
 
@@ -67,11 +67,6 @@ public class RestaurantDetailsFragment extends Fragment {
 
     public static RestaurantDetailsFragment newInstance() {
         return new RestaurantDetailsFragment();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -313,13 +308,15 @@ public class RestaurantDetailsFragment extends Fragment {
                 listLikedRestaurants = (List<String>) documentSnapshot.get("liked");
                 // Check if list contains the current restaurant
                 try {
-                    int j = 0;
-                    while (j < listLikedRestaurants.size() && !likeStatus) {
-                        if (listLikedRestaurants.get(j).equals(restaurant.getPlaceId())) {
-                            likeStatus = true;
-                            alreadyInDatabase = true;
+                    if (listLikedRestaurants != null ) {
+                        int j = 0;
+                        while (j < listLikedRestaurants.size() && !likeStatus) {
+                            if (listLikedRestaurants.get(j).equals(restaurant.getPlaceId())) {
+                                likeStatus = true;
+                                alreadyInDatabase = true;
+                            }
+                            else j++;
                         }
-                        else j++;
                     }
                 } catch (NullPointerException exception) {
                     exception.printStackTrace();

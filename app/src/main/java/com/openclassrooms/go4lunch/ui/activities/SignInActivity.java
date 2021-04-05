@@ -111,7 +111,8 @@ public class SignInActivity extends AppCompatActivity {
                                   R.string.snack_bar_auth_cancelled,
                                   Snackbar.LENGTH_SHORT).show();
                 }
-                else if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+                else if (Objects.requireNonNull(response.getError()).getErrorCode()
+                        == ErrorCodes.NO_NETWORK) {
                     Snackbar.make(binding.signInActivityLayout,
                                   R.string.snack_bar_error_no_network,
                                   Snackbar.LENGTH_SHORT).show();

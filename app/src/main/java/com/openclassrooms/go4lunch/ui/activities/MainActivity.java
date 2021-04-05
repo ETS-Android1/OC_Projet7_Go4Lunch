@@ -217,17 +217,19 @@ public class MainActivity extends AppCompatActivity implements
         TextView userName = header.findViewById(R.id.user_name);
         TextView userEmail = header.findViewById(R.id.user_email);
         ImageView userAvatar = header.findViewById(R.id.user_avatar);
-        try {
-            userName.setText(user.getDisplayName());
-            userEmail.setText(user.getEmail());
-            if (user.getPhotoUrl() != null ) {
-                Glide.with(this).load(user.getPhotoUrl())
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(userAvatar);
-            }
-            else userAvatar.setImageDrawable(getResources()
-                              .getDrawable(R.drawable.ic_baseline_account_circle_24dp_dark_orange));
-        } catch (NullPointerException exception) { exception.printStackTrace(); }
+        if (user != null) {
+            try {
+                userName.setText(user.getDisplayName());
+                userEmail.setText(user.getEmail());
+                if (user.getPhotoUrl() != null ) {
+                    Glide.with(this).load(user.getPhotoUrl())
+                            .apply(RequestOptions.circleCropTransform())
+                            .into(userAvatar);
+                }
+                else userAvatar.setImageDrawable(getResources()
+                        .getDrawable(R.drawable.ic_baseline_account_circle_24dp_dark_orange));
+            } catch (NullPointerException exception) { exception.printStackTrace(); }
+        }
     }
 
     @Override
@@ -256,6 +258,8 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.logout_options:
                 LogoutDialog dialog = new LogoutDialog(this);
                 dialog.show(fragmentManager, LogoutDialog.TAG);
+                break;
+            default:
                 break;
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);
@@ -342,6 +346,8 @@ public class MainActivity extends AppCompatActivity implements
                                         .add(R.id.fragment_container_view, workmatesFragment,
                                                              WorkmatesFragment.TAG).commit();
                             else fragmentManager.beginTransaction().show(workmatesFragment).commit();
+                            break;
+                        default:
                             break;
                     }
                     return false;

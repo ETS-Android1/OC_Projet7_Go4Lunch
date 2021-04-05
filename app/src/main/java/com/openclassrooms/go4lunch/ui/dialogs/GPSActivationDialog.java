@@ -16,7 +16,7 @@ import com.openclassrooms.go4lunch.ui.fragments.map.MapViewFragmentCallback;
  */
 public class GPSActivationDialog extends DialogFragment {
 
-    public final static String TAG = "TAG_GPS_ACTIVATION_DIALOG";
+    public static final String TAG = "TAG_GPS_ACTIVATION_DIALOG";
     private MapViewFragmentCallback callback;
 
     public GPSActivationDialog() { /* Empty constructor */ }

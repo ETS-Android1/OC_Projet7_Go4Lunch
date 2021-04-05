@@ -25,12 +25,12 @@ public class WorkmatesViewModelUnitTest {
     private WorkmatesViewModel workmatesViewModel;
 
     private List<Workmate> listWormates;
-    String NAME = "Nicolas MOGES";
-    String EMAIL = "nicolasmoges@gmail.com";
-    String RESTAURANT_SELECTED_ID = "ChIJXYZoq9h65kcRuWrPmnFCQUI";
-    String PHOTO_URL = "https://graph.facebook.com/10215112752571861/picture";
-    String RESTAURANT_SELECTED_NAME = "GEMINI Boulogne";
-    List<String> LIKED_RESTAURANTS = Arrays.asList("ChIJGz20sdh65kcRCfY0bMPzkVo",
+    final String NAME = "Nicolas MOGES";
+    final String EMAIL = "nicolasmoges@gmail.com";
+    final String RESTAURANT_SELECTED_ID = "ChIJXYZoq9h65kcRuWrPmnFCQUI";
+    final String PHOTO_URL = "https://graph.facebook.com/10215112752571861/picture";
+    final String RESTAURANT_SELECTED_NAME = "GEMINI Boulogne";
+    final List<String> LIKED_RESTAURANTS = Arrays.asList("ChIJGz20sdh65kcRCfY0bMPzkVo",
                                                    "ChIJA_5Kq9h65kcRvIzH3sGqB5Q",
                                                    "ChIJXYZoq9h65kcRuWrPmnFCQUI");
 

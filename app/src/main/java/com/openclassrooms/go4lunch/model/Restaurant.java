@@ -37,7 +37,8 @@ public class Restaurant {
 
     private boolean selected;
 
-    public Restaurant(@NonNull String placeId, @NonNull String name, @NonNull String address, double latitude, double longitude, double rating) {
+    public Restaurant(@NonNull String placeId, @NonNull String name, @NonNull String address,
+                      double latitude, double longitude, double rating) {
         this.placeId = placeId;
         this.name = name;
         this.address = address;

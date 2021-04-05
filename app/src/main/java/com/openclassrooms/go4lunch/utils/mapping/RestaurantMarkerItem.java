@@ -15,7 +15,8 @@ public class RestaurantMarkerItem implements ClusterItem {
     private final boolean type; // Defines type of marker (selected restaurant or non-selected)
     private final int indice; // Indice of the corresponding Restaurant object in the list
 
-    public RestaurantMarkerItem(LatLng position, String title, String snippet, boolean type, int indice) {
+    public RestaurantMarkerItem(LatLng position, String title, String snippet,
+                                boolean type, int indice) {
         this.position = position;
         this.title = title;
         this.snippet = snippet;

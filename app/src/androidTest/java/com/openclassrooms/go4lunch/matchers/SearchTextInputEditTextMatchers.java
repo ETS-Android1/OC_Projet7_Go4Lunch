@@ -7,8 +7,8 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 /**
- * Class containing static Matcher method for TextInputEditText Search View from MainActivity (used for
- * autocomplete functionality)
+ * Class containing static Matcher method for TextInputEditText Search View
+ * from MainActivity (used for autocomplete functionality)
  * (See @{@link com.openclassrooms.go4lunch.SearchTextInputEditTextTest} file).
  */
 public class SearchTextInputEditTextMatchers {
