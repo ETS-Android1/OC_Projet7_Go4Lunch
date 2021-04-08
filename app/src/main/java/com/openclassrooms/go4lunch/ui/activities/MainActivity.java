@@ -69,30 +69,23 @@ public class MainActivity extends AppCompatActivity implements
 
     private ActivityMainBinding binding;
     private boolean initialize = false;
-
     // Receiver
-    private NetworkBroadcastReceiver networkBroadcastReceiver; // To catch Network status changed event
-
+    private NetworkBroadcastReceiver networkBroadcastReceiver;
     // Fragments
     private ListViewFragment listViewFragment;
     private WorkmatesFragment workmatesFragment;
     private MapViewFragment mapViewFragment;
     private OptionsFragment optionsFragment;
     private FragmentManager fragmentManager;
-
     // Indice of the corresponding Restaurant object in the list
     private Restaurant restaurantToDisplay;
-
     // Place API client
     private PlacesClient placesClient;
-
     // Location client
     private FusedLocationProviderClient locationClient; // To get current user position
-
     // ViewModels
     private PlacesViewModel placesViewModel;
     private WorkmatesViewModel workmatesViewModel;
-
     // Autocomplete status parameter
     private boolean autocompleteActivation = false;
     private boolean displaySearchIcon = true;
@@ -117,10 +110,8 @@ public class MainActivity extends AppCompatActivity implements
         placesClient = Places.createClient(this);
         // To access user location
         locationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        // Initialize child fragments
-        initializeFragments();
-        // Initialize view models
-        initializeViewModels();
+        initializeFragments();  // Initialize child fragments
+        initializeViewModels(); // Initialize view models
     }
 
     private void initializeToolbar() {
@@ -136,7 +127,8 @@ public class MainActivity extends AppCompatActivity implements
             params.setMargins(0, AppInfo.getStatusBarSize(this), 0, 0);
             binding.toolbar.setLayoutParams(params);
         }
-        getSupportActionBar().setTitle(getResources().getString(R.string.toolbar_restaurant));
+        Objects.requireNonNull(getSupportActionBar())
+                .setTitle(getResources().getString(R.string.toolbar_restaurant));
     }
 
     private void updateToolbarTitle(boolean status) {
@@ -191,7 +183,6 @@ public class MainActivity extends AppCompatActivity implements
         FirebaseFirestore dbFirestore = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = dbFirestore.collection(AppInfo.ROOT_COLLECTION_ID);
         collectionRef.addSnapshotListener((value, error) ->
-                // Update MutableLiveData when database is modified
                 workmatesViewModel.getEmployeesInfoFromFirestoreDatabase());
     }
 
@@ -293,7 +284,8 @@ public class MainActivity extends AppCompatActivity implements
                 updateNavigationAndBottomBarDisplay(View.GONE);
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             }
-            else Toast.makeText(this, getResources().getString(R.string.toast_your_lunch), Toast.LENGTH_SHORT).show();
+            else Toast.makeText(this, getResources().getString(R.string.toast_your_lunch),
+                                Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -303,8 +295,7 @@ public class MainActivity extends AppCompatActivity implements
                 fragmentManager.popBackStack();
             fragmentManager.beginTransaction()
                     .add(R.id.fragment_container_view, optionsFragment, OptionsFragment.TAG)
-                    .addToBackStack(null)
-                    .commit();
+                    .addToBackStack(null).commit();
             updateNavigationAndBottomBarDisplay(View.GONE);
             binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         }
@@ -412,8 +403,7 @@ public class MainActivity extends AppCompatActivity implements
                     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 }
             }
-            else {
-                // Close app
+            else { // Close app
                 Go4LunchDatabase.getInstance(getApplicationContext()).close();
                 finishAffinity();
             }
@@ -426,9 +416,7 @@ public class MainActivity extends AppCompatActivity implements
      * Navigation View menu
      */
     @Override
-    public void logoutUser() {
-        AuthenticationService.logoutUser(this, this);
-    }
+    public void logoutUser() { AuthenticationService.logoutUser(this, this); }
 
     @Override
     public void exitApplicationAfterError() { finish(); }
@@ -452,15 +440,23 @@ public class MainActivity extends AppCompatActivity implements
                 placesViewModel.performAutocompleteRequest(query, getApplicationContext());
             }
         }
-        else Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_gps_disabled), Toast.LENGTH_SHORT).show();
+        else Toast.makeText(getApplicationContext(), getResources().getString(R.string.toast_gps_disabled),
+                            Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void updateUIAfterRequestCompleted(boolean operation) {
         if (operation) // Logout
             Snackbar.make(binding.drawerLayout, R.string.snack_bar_logout, Snackbar.LENGTH_SHORT).show();
-        else // Delete account
+        else { // Delete account
+            // Delete in Firestore
+            SharedPreferences sharedPrefUserId = getSharedPreferences(AppInfo.FILE_FIRESTORE_USER_ID,
+                    Context.MODE_PRIVATE);
+            workmatesViewModel.deleteDocument(sharedPrefUserId.getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY,
+                    null));
             Snackbar.make(binding.drawerLayout, R.string.snack_bar_account_deleted, Snackbar.LENGTH_SHORT).show();
+        }
+
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
@@ -505,14 +501,12 @@ public class MainActivity extends AppCompatActivity implements
             binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             fragmentManager.beginTransaction()
                     .replace(R.id.fragment_container_view, LocationPermissionFragment.newInstance(),
-                                                                     LocationPermissionFragment.TAG)
-                    .commit();
+                     LocationPermissionFragment.TAG).commit();
         } else {
             binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             updateNavigationAndBottomBarDisplay(View.VISIBLE);
-            fragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container_view, mapViewFragment, MapViewFragment.TAG)
-                    .commit();
+            fragmentManager.beginTransaction().replace(R.id.fragment_container_view, mapViewFragment,
+                    MapViewFragment.TAG).commit();
             initialize = true;
         }
     }

@@ -59,4 +59,12 @@ public class WorkmatesRepository {
     public void updateCurrentUserListOfLikedRestaurant(String documentCurrentUserId, List<String> listLikedRestaurants) {
         listWorkmatesService.updateCurrentUserListOfLikedRestaurant(documentCurrentUserId, listLikedRestaurants);
     }
+
+    /**
+     * Accesses the deleteDocument() method of the @{@link ListWorkmatesService} service class.
+     * @param documentCurrentUserId : Id of the document to delete
+     */
+    public void deleteDocument(String documentCurrentUserId) {
+        listWorkmatesService.deleteDocument(documentCurrentUserId);
+    }
 }

@@ -73,4 +73,13 @@ public class WorkmatesViewModel extends ViewModel {
         workmatesRepository.updateCurrentUserListOfLikedRestaurant(documentCurrentUserId,
                                                                    listLikedRestaurants);
     }
+
+    /**
+     Accesses the deleteDocument() method from @{@link WorkmatesRepository}
+     * repository class.
+     * @param documentCurrentUserId : id of the document to delete
+     */
+    public void deleteDocument(String documentCurrentUserId) {
+        workmatesRepository.deleteDocument(documentCurrentUserId);
+    }
 }

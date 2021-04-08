@@ -98,4 +98,12 @@ public class ListWorkmatesService {
                                                        List<String> listLikedRestaurants) {
         getDocumentReferenceCurrentUser(documentCurrentUserId).update("liked", listLikedRestaurants);
     }
+
+    /**
+     * Delete Document from database.
+     * @param documentCurrentUserId : id of the document to delete
+     */
+    public void deleteDocument(String documentCurrentUserId) {
+        getDocumentReferenceCurrentUser(documentCurrentUserId).delete();
+    }
 }

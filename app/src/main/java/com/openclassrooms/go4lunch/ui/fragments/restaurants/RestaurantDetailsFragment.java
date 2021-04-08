@@ -225,23 +225,27 @@ public class RestaurantDetailsFragment extends Fragment {
             String firestoreDocumentId = sharedPrefFirestoreUserId
                                       .getString(AppInfo.PREF_FIRESTORE_USER_ID_KEY, null);
 
-            if (selected) {
-                // Update SharedPreferences
-                String restaurantJSONtoSave = new Gson().toJson(restaurant);
-                editor.putString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, restaurantJSONtoSave);
-                // Update Firestore database
-                workmatesViewModel.updateDocumentReferenceCurrentUser(restaurant.getName(),
-                                                                      restaurant.getPlaceId(),
-                                                                      firestoreDocumentId);
-            }
-            else {
-                editor.putString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
-                workmatesViewModel.updateDocumentReferenceCurrentUser("",
-                                                                    "",
-                                                                     firestoreDocumentId);
-            }
+            updateFirestoreWithSelectedRestaurant(firestoreDocumentId);
             editor.apply();
         });
+    }
+
+    private void updateFirestoreWithSelectedRestaurant(String firestoreDocumentId) {
+        if (selected) {
+            // Update SharedPreferences
+            String restaurantJSONtoSave = new Gson().toJson(restaurant);
+            editor.putString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, restaurantJSONtoSave);
+            // Update Firestore database
+            workmatesViewModel.updateDocumentReferenceCurrentUser(restaurant.getName(),
+                    restaurant.getPlaceId(),
+                    firestoreDocumentId);
+        }
+        else {
+            editor.putString(AppInfo.PREF_SELECTED_RESTAURANT_KEY, "");
+            workmatesViewModel.updateDocumentReferenceCurrentUser("",
+                    "",
+                    firestoreDocumentId);
+        }
     }
 
     /**
@@ -269,7 +273,8 @@ public class RestaurantDetailsFragment extends Fragment {
                                                                            null));
             startActivity(callIntent);
         }
-        else Toast.makeText(getContext(), "No phone number available", Toast.LENGTH_SHORT).show();
+        else Toast.makeText(getContext(), getResources().getString(R.string.no_phone_available),
+                Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -281,7 +286,8 @@ public class RestaurantDetailsFragment extends Fragment {
             Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(restaurant.getWebsiteUri()));
             startActivity(webIntent);
         }
-        else Toast.makeText(getContext(), "No website url available", Toast.LENGTH_SHORT).show();
+        else Toast.makeText(getContext(), getResources().getString(R.string.no_website_available),
+                Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -305,7 +311,8 @@ public class RestaurantDetailsFragment extends Fragment {
     @SuppressWarnings("unchecked")
     private void checkIfRestaurantWasLiked() {
         if (!documentID.equals("")) {
-            workmatesViewModel.getDocumentReferenceCurrentUser(documentID).get().addOnSuccessListener(documentSnapshot -> {
+            workmatesViewModel.getDocumentReferenceCurrentUser(documentID).get()
+                    .addOnSuccessListener(documentSnapshot -> {
                 // Get list of restaurant liked by user
                 listLikedRestaurants = (List<String>) documentSnapshot.get("liked");
                 // Check if list contains the current restaurant

@@ -78,7 +78,7 @@ public class PlaceServiceUnitTest {
     }
 
     /**
-     * TEST # 1 : Checks a GET request sent using PlaceService interface, to retrieve a list of
+     * TEST # 3 : Checks a GET request sent using PlaceService interface, to retrieve a list of
      * others available places, is done successfully.
      */
     @Test

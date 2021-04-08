@@ -5,8 +5,8 @@ import androidx.room.Relation;
 import java.util.List;
 
 /**
- * Class defining a One-to-one relationship between a row of the @{@link Go4LunchDatabase}
- * restaurant_table table and a row of the hours_table table.
+ * Class defining a One-to-many relationship between a row of the @{@link Go4LunchDatabase}
+ * restaurant_table table and several rows of the hours_table table.
  */
 public class RestaurantAndHoursData {
 

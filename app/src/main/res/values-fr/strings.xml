@@ -139,4 +139,8 @@
 
     <!-- workmates_item.xml -->
     <string name="content_description_workmate_icon">Photo collègue</string>
+
+    <!-- RestaurantDetailsFragment -->
+    <string name="no_phone_available">Aucun numéro disponible</string>
+    <string name="no_website_available">Aucune URL disponible</string>
 </resources>
