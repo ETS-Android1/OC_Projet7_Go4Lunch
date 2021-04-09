@@ -1,19 +1,15 @@
 package com.openclassrooms.go4lunch.service.places;
 
+import com.openclassrooms.go4lunch.di.DI;
 import com.openclassrooms.go4lunch.model.Restaurant;
+import com.openclassrooms.go4lunch.service.places.request.PlaceService;
 import com.openclassrooms.go4lunch.service.places.response.details.DetailsResponse;
 import com.openclassrooms.go4lunch.service.places.response.places.PlaceResponse;
-import com.openclassrooms.go4lunch.service.places.request.PlaceService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Service class used to access and update the list of restaurants, with location requests results.
@@ -29,22 +25,8 @@ public class ListRestaurantsService {
         // Initialize list of restaurants
         listRestaurants = new ArrayList<>();
 
-        // Define HTTP traffic interceptor
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        // Define HTTP client
-        OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(interceptor).build();
-
-        // Initialize retrofit instance
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://maps.googleapis.com/maps/api/place/")
-                .client(httpClient) // Client HTTP
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
         // Create service
-        service = retrofit.create(PlaceService.class);
+        service = DI.provideRetrofit().create(PlaceService.class);
     }
 
     /**

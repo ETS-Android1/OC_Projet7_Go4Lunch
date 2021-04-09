@@ -10,4 +10,8 @@ package com.openclassrooms.go4lunch.service.places.response.details;
 public class Period {
     public ClosingHours close;
     public OpeningHours open;
+
+    public ClosingHours getClose() { return close; }
+
+    public OpeningHours getOpen() { return open; }
 }

@@ -11,4 +11,10 @@ public class ResultDetails {
     public String formatted_phone_number;
     public HoursInfo opening_hours;
     public String website;
+
+    public String getFormattedPhoneNumber() { return formatted_phone_number; }
+
+    public HoursInfo getOpeningHours() { return opening_hours; }
+
+    public String getWebsite() { return website; }
 }

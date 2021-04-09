@@ -10,4 +10,6 @@ import java.util.List;
  */
 public class HoursInfo {
     public List<Period> periods;
+
+    public List<Period> getPeriods() { return periods; }
 }

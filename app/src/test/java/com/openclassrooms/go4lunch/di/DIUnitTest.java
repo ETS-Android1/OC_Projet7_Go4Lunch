@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 import java.util.concurrent.Executor;
+import retrofit2.Retrofit;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -26,11 +27,21 @@ public class DIUnitTest {
     }
 
     /**
-     * TEST #2 : Checks if the DI class provides an Executor object.
+     * TEST #2 : Checks if the DI class provides an Executor object instance.
      */
     @Test
     public void test_di_executor_provider() {
         Executor executor = DI.provideExecutor();
         assertNotNull(executor);
     }
+
+    /**
+     * TEST #3 : Checks if the DI class provides a Retrofit instance.
+     */
+    @Test
+    public void test_di_retrofit_provider() {
+        Retrofit retrofit = DI.provideRetrofit();
+        assertNotNull(retrofit);
+    }
+
 }

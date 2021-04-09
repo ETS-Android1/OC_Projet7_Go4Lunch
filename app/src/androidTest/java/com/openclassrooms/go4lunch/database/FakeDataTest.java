@@ -64,8 +64,8 @@ public class FakeDataTest {
     public final static double RESTAURANT_2_LATITUDE = 48.84330809999999;
     public final static double RESTAURANT_2_LONGITUDE = 2.2315919;
     public final static double RESTAURANT_2_RATING = 3.9;
-    public final static String RESTAURANT_2_NUMBER = "0141109112";
-    public final static String RESTAURANT_2_WEBSITE_URI = "https//ithai.fr/fr";
+    public final static String RESTAURANT_2_NUMBER = "01 41 10 91 12";
+    public final static String RESTAURANT_2_WEBSITE_URI = "http://ithai.fr/";
     public final static String RESTAURANT_2_PHOTO_REFERENCE =
                                                         "ATtYBwIfVw6sZ_bOeFhcYNffkjG7hPjbGi58Bkyt0" +
                                                         "vFlyppfSt9cyg5wIb7AdcojcHzwjgJb5e0eKy-wk8" +
@@ -83,8 +83,8 @@ public class FakeDataTest {
     public final static double RESTAURANT_3_LATITUDE = 48.8434249;
     public final static double RESTAURANT_3_LONGITUDE = 2.2317602;
     public final static double RESTAURANT_3_RATING = 4;
-    public final static String RESTAURANT_3_NUMBER = "0146056719";
-    public final static String RESTAURANT_3_WEBSITE_URI = "http://www.restaurantgemini.fr";
+    public final static String RESTAURANT_3_NUMBER = "01 46 05 67 19";
+    public final static String RESTAURANT_3_WEBSITE_URI = "http://www.geminifamily.fr/";
     public final static String RESTAURANT_3_PHOTO_REFERENCE =
                                                          "ATtYBwKZH_U3P3IYattCloi4PdBnOiW0zhuvhN9" +
                                                          "-Ykmdd1kdT8ohj_gLJqYVbP3oWu4i-uw1Lvo5R_" +
@@ -93,4 +93,5 @@ public class FakeDataTest {
                                                          "wZKpnxnIH9BuarxS9CRQVt-u";
     public final static int RESTAURANT_3_PHOTO_HEIGHT = 1280;
     public final static int RESTAURANT_3_PHOTO_WIDTH = 1920;
+
 }

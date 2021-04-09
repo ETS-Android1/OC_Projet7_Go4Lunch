@@ -13,4 +13,10 @@ public class PlaceResponse {
     public List<ResultPlaces> results;
     public String next_page_token;
     public String status;
+
+    public List<ResultPlaces> getResults() { return results; }
+
+    public String getNextPageToken() { return next_page_token; }
+
+    public String getStatus() { return status; }
 }

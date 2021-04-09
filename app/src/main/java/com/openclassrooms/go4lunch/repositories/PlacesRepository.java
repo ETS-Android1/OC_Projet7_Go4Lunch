@@ -97,7 +97,8 @@ public class PlacesRepository {
             if (response.next_page_token != null) {
                 editor = sharedPrefNextPageToken[0].edit();
                 editor.putString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY,
-                                response.next_page_token).apply();
+                                response.next_page_token)
+                            .apply();
             }
         }
         callback.onPlacesAvailable(listRestaurantsServices.getListRestaurants());
@@ -117,25 +118,25 @@ public class PlacesRepository {
                                               AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY, null);
         PlaceResponse response = listRestaurantsServices.getNextPlacesNearby(nextPageToken);
 
-        for (int i = 0; i < response.results.size(); i++) {
+        for (int i = 0; i < response.getResults().size(); i++) {
             // Initialize new restaurant object
-            Restaurant restaurant = initializeRestaurantObject(response.results.get(i));
+            Restaurant restaurant = initializeRestaurantObject(response.getResults().get(i));
 
             // Add restaurant to the list
             listRestaurants.add(restaurant);
 
             // Save next page token
-            if (response.next_page_token != null) {
+            if (response.getNextPageToken() != null) {
                 switch (numNextPageToken) {
                     case 0:
                         editor = sharedPrefNextPageToken[0].edit();
                         editor.putString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY,
-                                         response.next_page_token).apply();
+                                         response.getNextPageToken()).apply();
                         break;
                     case 1:
                         editor = sharedPrefNextPageToken[1].edit();
                         editor.putString(AppInfo.PREF_SECOND_NEXT_PAGE_TOKEN_KEY,
-                                         response.next_page_token).apply();
+                                         response.getNextPageToken()).apply();
                         break;
                     default :
                         break;
@@ -153,7 +154,7 @@ public class PlacesRepository {
      *                       service class
      */
     public void getPlacesDetails(List<Restaurant> listRestaurant,
-                                 ServiceDetailsCallback callback) throws IOException{
+                                 ServiceDetailsCallback callback) throws IOException {
         // Contains each restaurant periods (closing and opening hours of a week) found
         List<HoursData> listHoursData = new ArrayList<>();
         List<List<HoursData>> listOfListHoursData = new ArrayList<>();
@@ -161,17 +162,17 @@ public class PlacesRepository {
         for (int i = 0; i < listRestaurant.size(); i++) {
             DetailsResponse response = listRestaurantsServices.getPlacesDetails(
                                                                 listRestaurant.get(i).getPlaceId());
-            if (response.result.website != null)
-                 listRestaurant.get(i).setWebsiteUri(Uri.parse(response.result.website).toString());
-            if (response.result.formatted_phone_number != null)
-                 listRestaurant.get(i).setPhoneNumber(response.result.formatted_phone_number);
+            if (response.getResult().getWebsite() != null)
+                 listRestaurant.get(i).setWebsiteUri(Uri.parse(response.getResult().getWebsite()).toString());
+            if (response.getResult().getFormattedPhoneNumber() != null)
+                 listRestaurant.get(i).setPhoneNumber(response.getResult().getFormattedPhoneNumber());
 
-            if (response.result.opening_hours != null) {
-                if (response.result.opening_hours.periods != null) {
-                    for (int j = 0; j < response.result.opening_hours.periods.size(); j++) {
+            if (response.getResult().getOpeningHours() != null) {
+                if (response.getResult().getOpeningHours().getPeriods() != null) {
+                    for (int j = 0; j < response.getResult().getOpeningHours().getPeriods().size(); j++) {
                         HoursData hoursData = new HoursData(
-                                response.result.opening_hours.periods.get(j).close,
-                                response.result.opening_hours.periods.get(j).open,
+                                response.getResult().getOpeningHours().getPeriods().get(j).getClose(),
+                                response.getResult().getOpeningHours().getPeriods().get(j).getOpen(),
                                 listRestaurant.get(i).getPlaceId());
                         listHoursData.add(hoursData);
                     }
@@ -193,21 +194,21 @@ public class PlacesRepository {
      * @param results : Results from GET response
      * @return : Restaurant object
      */
-    private Restaurant initializeRestaurantObject(ResultPlaces results) {
+    public Restaurant initializeRestaurantObject(ResultPlaces results) {
         Restaurant restaurant = new Restaurant(
-                results.place_id,
-                results.name,
-                results.vicinity,
-                results.geometry.location.lat,
-                results.geometry.location.lng,
-                results.rating);
+                results.getPlace_id(),
+                results.getName(),
+                results.getVicinity(),
+                results.getGeometry().getLocation().getLat(),
+                results.getGeometry().getLocation().getLng(),
+                results.getRating());
 
         // Add photo data
-        if (results.photos != null) {
-            if (!results.photos.isEmpty()) {
-                restaurant.setPhotoReference(results.photos.get(0).photo_reference);
-                restaurant.setPhotoHeight(results.photos.get(0).height);
-                restaurant.setPhotoWidth(results.photos.get(0).width);
+        if (results.getPhotos() != null) {
+            if (!results.getPhotos().isEmpty()) {
+                restaurant.setPhotoReference(results.getPhotos().get(0).getPhoto_reference());
+                restaurant.setPhotoHeight(results.getPhotos().get(0).getHeight());
+                restaurant.setPhotoWidth(results.getPhotos().get(0).getWidth());
             }
         }
         return restaurant;

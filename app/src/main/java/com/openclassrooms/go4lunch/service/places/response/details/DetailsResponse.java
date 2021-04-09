@@ -9,4 +9,8 @@ package com.openclassrooms.go4lunch.service.places.response.details;
 public class DetailsResponse {
     public ResultDetails result;
     public String status;
+
+    public ResultDetails getResult() { return result; }
+
+    public String getStatus() { return status; }
 }
