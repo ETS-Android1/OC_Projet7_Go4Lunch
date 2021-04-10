@@ -35,6 +35,5 @@ public class RestaurantMarkerItemUnitTest {
         assertEquals(SNIPPET, restaurantMarkerItem.getSnippet());
         assertEquals(TYPE, restaurantMarkerItem.getType());
         assertEquals(INDICE, restaurantMarkerItem.getIndice());
-
     }
 }

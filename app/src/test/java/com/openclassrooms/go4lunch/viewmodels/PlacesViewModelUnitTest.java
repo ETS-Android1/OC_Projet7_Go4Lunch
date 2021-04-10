@@ -82,23 +82,20 @@ public class PlacesViewModelUnitTest {
         List<String> listRestaurantIds = Arrays.asList(ID_1, ID_2, ID_3);
 
         // Create observer
-        Observer<List<String>> observer = new Observer<List<String>>() {
-            @Override
-            public void onChanged(List<String> newListRestaurantIds) {
-                assertNotNull(newListRestaurantIds);
-                assertEquals(3, newListRestaurantIds.size());
-                for (int i = 0; i < newListRestaurantIds.size(); i++) {
-                    switch (i) {
-                        case 0:
-                            assertEquals(ID_1, newListRestaurantIds.get(0));
-                            break;
-                        case 1:
-                            assertEquals(ID_2, newListRestaurantIds.get(1));
-                            break;
-                        case 2:
-                            assertEquals(ID_3, newListRestaurantIds.get(2));
-                            break;
-                    }
+        Observer<List<String>> observer = newListRestaurantIds -> {
+            assertNotNull(newListRestaurantIds);
+            assertEquals(3, newListRestaurantIds.size());
+            for (int i = 0; i < newListRestaurantIds.size(); i++) {
+                switch (i) {
+                    case 0:
+                        assertEquals(ID_1, newListRestaurantIds.get(0));
+                        break;
+                    case 1:
+                        assertEquals(ID_2, newListRestaurantIds.get(1));
+                        break;
+                    case 2:
+                        assertEquals(ID_3, newListRestaurantIds.get(2));
+                        break;
                 }
             }
         };

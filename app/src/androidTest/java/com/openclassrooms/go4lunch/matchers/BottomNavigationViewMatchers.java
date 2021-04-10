@@ -3,12 +3,14 @@ package com.openclassrooms.go4lunch.matchers;
 import android.view.View;
 import androidx.test.espresso.matcher.BoundedMatcher;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.openclassrooms.go4lunch.navigation.BottomNavigationViewInstrumentTest;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 /**
  * Class containing static Matcher method for BottomNavigationView testing
- * (See @{@link com.openclassrooms.go4lunch.BottomNavigationViewInstrumentTest} file).
+ * (See @{@link BottomNavigationViewInstrumentTest} file).
  */
 public class BottomNavigationViewMatchers {
 

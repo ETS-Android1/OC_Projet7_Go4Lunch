@@ -24,11 +24,14 @@ public class ResultPlaces {
     public List<Photo> photos;
 
     @VisibleForTesting
-    public ResultPlaces(String name, String place_id, String vicinity, double rating) {
+    public ResultPlaces(String name, String place_id, String vicinity, double rating,
+                        Geometry geometry, List<Photo> photos) {
         this.name = name;
         this.place_id = place_id;
         this.vicinity = vicinity;
         this.rating = rating;
+        this.geometry = geometry;
+        this.photos = photos;
     }
 
     // Getters

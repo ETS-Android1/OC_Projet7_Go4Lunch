@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.app.NotificationCompat;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -23,8 +24,8 @@ import com.openclassrooms.go4lunch.utils.AppInfo;
 public class NotificationHandler {
 
     private final Context context;
-    private static NotificationManager manager;
-    private static final String CHANNELID = "CHANNELID";
+    private final NotificationManager manager;
+    private static final String CHANNEL_ID = "CHANNEL_ID";
 
     public NotificationHandler(Context context) {
         this.context = context;
@@ -50,7 +51,7 @@ public class NotificationHandler {
             String text = restaurant.getAddress();
 
             // Build notification
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNELID)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_launcher_background)
                     .setContentTitle(title)
                     .setContentText(text)
@@ -76,9 +77,9 @@ public class NotificationHandler {
     /**
      * Creates a channel to associate with the current notification.
      */
-    private void createChannel() {
+    public void createChannel() {
         if (Build.VERSION.SDK_INT >= 26) {
-            NotificationChannel channel = new NotificationChannel(CHANNELID,
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
                                                            "channel",
                                     NotificationManager.IMPORTANCE_DEFAULT);
             channel.setDescription("Description");
@@ -99,5 +100,10 @@ public class NotificationHandler {
             ((MainActivity) activity).setRestaurantToDisplay(restaurantToDisplay);
             ((MainActivity) activity).displayRestaurantDetailsFragment();
         }
+    }
+
+    @VisibleForTesting
+    public NotificationManager getManager() {
+        return this.manager;
     }
 }

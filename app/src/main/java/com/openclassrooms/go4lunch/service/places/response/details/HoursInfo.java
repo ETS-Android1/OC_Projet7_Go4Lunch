@@ -1,5 +1,7 @@
 package com.openclassrooms.go4lunch.service.places.response.details;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.util.List;
 
 /**
@@ -9,7 +11,13 @@ import java.util.List;
  *          - "periods"
  */
 public class HoursInfo {
+
     public List<Period> periods;
+
+    @VisibleForTesting
+    public HoursInfo(List<Period> periods) {
+        this.periods = periods;
+    }
 
     public List<Period> getPeriods() { return periods; }
 }

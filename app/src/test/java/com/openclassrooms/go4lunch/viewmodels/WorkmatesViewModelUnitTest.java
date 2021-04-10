@@ -69,6 +69,7 @@ public class WorkmatesViewModelUnitTest {
                              newListWorkmates.get(0).getRestaurantSelectedID());
                 assertEquals(RESTAURANT_SELECTED_NAME, newListWorkmates.get(0).getRestaurantName());
                 assertEquals(PHOTO_URL, newListWorkmates.get(0).getPhotoUrl());
+
                 for (int i = 0; i < newListWorkmates.get(0).getLiked().size(); i++) {
                     switch (i) {
                         case 0:

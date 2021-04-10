@@ -3,7 +3,7 @@ package com.openclassrooms.go4lunch.matchers;
 import android.view.View;
 import androidx.test.espresso.matcher.BoundedMatcher;
 import com.google.android.material.internal.NavigationMenuItemView;
-import com.openclassrooms.go4lunch.NavigationViewInstrumentTest;
+import com.openclassrooms.go4lunch.navigation.NavigationViewInstrumentTest;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 

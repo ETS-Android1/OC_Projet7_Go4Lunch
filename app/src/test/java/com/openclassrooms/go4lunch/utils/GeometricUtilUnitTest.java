@@ -1,13 +1,9 @@
 package com.openclassrooms.go4lunch.utils;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.openclassrooms.go4lunch.utils.mapping.RestaurantMarkerItem;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
-
 import static org.junit.Assert.assertEquals;
 
 /**

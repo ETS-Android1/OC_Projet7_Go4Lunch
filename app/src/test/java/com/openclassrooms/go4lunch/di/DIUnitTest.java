@@ -43,5 +43,4 @@ public class DIUnitTest {
         Retrofit retrofit = DI.provideRetrofit();
         assertNotNull(retrofit);
     }
-
 }

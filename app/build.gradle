@@ -25,6 +25,7 @@ android {
     buildTypes {
         debug {
             buildConfigField "String", "API_KEY", API_KEY
+            testCoverageEnabled true
         }
         release {
             minifyEnabled false
@@ -38,6 +39,7 @@ android {
 }
 
 apply plugin: 'com.google.gms.google-services'
+apply plugin: "jacoco"
 
 dependencies {
 
