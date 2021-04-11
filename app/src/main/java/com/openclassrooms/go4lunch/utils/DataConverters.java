@@ -3,7 +3,6 @@ package com.openclassrooms.go4lunch.utils;
 import com.openclassrooms.go4lunch.database.HoursData;
 import com.openclassrooms.go4lunch.model.OpeningAndClosingHours;
 import com.openclassrooms.go4lunch.model.ScheduleType;
-
 import java.util.List;
 
 /**

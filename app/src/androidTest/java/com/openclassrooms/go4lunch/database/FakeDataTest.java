@@ -3,6 +3,9 @@ package com.openclassrooms.go4lunch.database;
 import com.openclassrooms.go4lunch.service.places.response.details.ClosingHours;
 import com.openclassrooms.go4lunch.service.places.response.details.OpeningHours;
 
+/**
+ * Class containing fake data for tests.
+ */
 public class FakeDataTest {
 
     // FAKE DATA RESTAURANT 1

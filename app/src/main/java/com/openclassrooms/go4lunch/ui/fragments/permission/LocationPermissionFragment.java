@@ -81,7 +81,8 @@ public class LocationPermissionFragment extends Fragment {
                         // If "Do not ask again" checkbox has been checked
                         if (!shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                             requireActivity().getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.fragment_container_view, AccessSettingsAppFragment.newInstance(),
+                                    .replace(R.id.fragment_container_view,
+                                            AccessSettingsAppFragment.newInstance(),
                                             AccessSettingsAppFragment.TAG)
                                     .commit();
                         }

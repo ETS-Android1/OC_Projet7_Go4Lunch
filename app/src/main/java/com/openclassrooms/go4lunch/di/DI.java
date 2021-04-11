@@ -1,12 +1,10 @@
 package com.openclassrooms.go4lunch.di;
 
 import android.content.Context;
-
 import com.openclassrooms.go4lunch.BuildConfig;
 import com.openclassrooms.go4lunch.database.Go4LunchDatabase;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -40,7 +38,7 @@ public class DI {
 
 
     /**
-     *
+     * Provides an instance of Retrofit.
      * @return : Retrofit instance
      */
     public static Retrofit provideRetrofit() {

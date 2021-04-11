@@ -66,12 +66,12 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_ITEM) { // ViewHolderListView
             ListViewItemBinding binding = ListViewItemBinding.inflate(LayoutInflater.from(context),
-                                                                      parent, false);
+                    parent, false);
             return new ViewHolderListView(binding, onItemRestaurantClickListener);
         }
         else { // ViewHolderFooterListView
             ListViewFooterItemBinding binding = ListViewFooterItemBinding.inflate(
-                                          LayoutInflater.from(context), parent, false);
+                    LayoutInflater.from(context), parent, false);
             return new ViewHolderFooterListView(binding);
         }
     }
@@ -86,16 +86,16 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             // Address
             ((ViewHolderListView) holder).binding.address.setText(listRestaurant.get(position)
-                                                                                .getAddress());
+                    .getAddress());
 
             // Distance between restaurant location and user location
             displayDistanceBetweenRestaurantAndUserLocation(((ViewHolderListView) holder), position);
 
             // Rating
             RatingDisplayHandler.displayRating(((ViewHolderListView) holder).rating.get(0),
-            ((ViewHolderListView) holder).rating.get(1), ((ViewHolderListView) holder).rating.get(2),
-            ((ViewHolderListView) holder).rating.get(3), ((ViewHolderListView) holder).rating.get(4),
-                                                  listRestaurant.get(position).getRating(), context);
+                    ((ViewHolderListView) holder).rating.get(1), ((ViewHolderListView) holder).rating.get(2),
+                    ((ViewHolderListView) holder).rating.get(3), ((ViewHolderListView) holder).rating.get(4),
+                    listRestaurant.get(position).getRating(), context);
 
             // Closing hours
             if (listRestaurant.get(position).getOpeningAndClosingHours() != null)
@@ -110,7 +110,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         // Handle footer item display
         if (holder instanceof ViewHolderFooterListView)
             ((ViewHolderFooterListView) holder).binding.progressBarListView
-                                                       .setVisibility(progressBarVisibilityStatus);
+                    .setVisibility(progressBarVisibilityStatus);
     }
 
 
@@ -132,9 +132,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * Updates the backup list of Restaurants, containing the list of all detected restaurants
      * around user location.
      */
-    public void updateListRestaurantsBackup() {
-        listRestaurantBackup.addAll(listRestaurant);
-    }
+    public void updateListRestaurantsBackup() { listRestaurantBackup.addAll(listRestaurant); }
 
     /**
      * Restores the list of all restaurants in backup to reinitialize display after autocompletion
@@ -167,7 +165,7 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                                                  int position) {
         if (AppInfo.checkIfLocationPermissionIsGranted(context)) {
             locationClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY,
-                                                                null)
+                    null)
                     .addOnSuccessListener(location -> {
                         try {
                             double userLatitude = location.getLatitude();
@@ -176,9 +174,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             double restaurantLongitude = listRestaurant.get(position).getLongitude();
                             float[] result = new float[1];
                             Location.distanceBetween(userLatitude, userLongitude, restaurantLatitude,
-                                                                        restaurantLongitude, result);
+                                    restaurantLongitude, result);
                             String distance = context.getResources()
-                                                     .getString(R.string.distance, (int) result[0]);
+                                    .getString(R.string.distance, (int) result[0]);
                             holder.binding.distance.setText(distance);
                         } catch (IndexOutOfBoundsException exception) { exception.printStackTrace(); }
                     }).addOnFailureListener(Throwable::printStackTrace);
@@ -193,15 +191,15 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private void displayClosingHours(@NonNull ViewHolderListView holder, int position) {
         boolean colorText = false;
         Calendar calendar = Calendar.getInstance();
-        int currentDay = calendar.get(Calendar.DAY_OF_WEEK);
+        int currentDay = calendar.get(Calendar.DAY_OF_WEEK)-1;
         int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
         int currentMinutes = calendar.get(Calendar.MINUTE);
 
         // Get Opening/Closing hours associated to the current day
         List<String> closingHours = getOpeningAndClosingHoursForADay(position,
-                                                                    ScheduleType.CLOSE, currentDay);
+                ScheduleType.CLOSE, currentDay);
         List<String> openingHours = getOpeningAndClosingHoursForADay(position,
-                                                                     ScheduleType.OPEN, currentDay);
+                ScheduleType.OPEN, currentDay);
 
         try {
             // Check number of opening and closing hours for a day
@@ -225,8 +223,8 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         if (CustomComparators.getTimeDiff(currentHour, currentMinutes,
                                 openingHour, openingMinutes) > 0) { // OPEN UNTIL
                             String text = context.getResources().getString(R.string.open_until,
-                                                                 closingHours.get(0).substring(0,2),
-                                                                 closingHours.get(0).substring(2,4));
+                                    closingHours.get(0).substring(0,2),
+                                    closingHours.get(0).substring(2,4));
                             holder.binding.hour.setText(text);
                         }
                         else { // CLOSED (NOT OPENED YET)
@@ -255,11 +253,11 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         CustomComparators.getTimeDiff(currentHour, currentMinutes,
                                 firstClosingHour, firstClosingMinutes) < 0) {
                     if (CustomComparators.getTimeDiff(currentHour, currentMinutes,
-                                firstClosingHour, firstClosingMinutes) > -60) { // CLOSING SOON
+                            firstClosingHour, firstClosingMinutes) > -60) { // CLOSING SOON
                         holder.binding.hour.setText(context.getResources().getString(R.string.closing_soon));
                         colorText = true;
                     }
-                    else { // OPEN UNTIL
+                    else { // else
                         String text = context.getResources().getString(R.string.open_until,
                                 closingHours.get(0).substring(0,2),
                                 closingHours.get(0).substring(2,4));
@@ -267,22 +265,22 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
                 }
                 else if (CustomComparators.getTimeDiff(currentHour, currentMinutes,
-                                firstClosingHour, firstClosingMinutes) >= 0 &&
+                        firstClosingHour, firstClosingMinutes) >= 0 &&
                         CustomComparators.getTimeDiff(currentHour, currentMinutes,
                                 secondOpeningHour, secondOpeningMinutes) < 0) {  // CLOSED (NOT OPENING YET)
                     holder.binding.hour.setText(context.getResources().getString(R.string.closed));
                 }
                 else if (CustomComparators.getTimeDiff(currentHour, currentMinutes,
-                                secondOpeningHour, secondOpeningMinutes) >= 0 &&
+                        secondOpeningHour, secondOpeningMinutes) >= 0 &&
                         CustomComparators.getTimeDiff(currentHour, currentMinutes,
                                 secondClosingHour, secondClosingMinutes) < 0) {
                     if (CustomComparators.getTimeDiff(currentHour, currentMinutes,
-                                secondClosingHour, secondClosingHour) > -60) { // CLOSING SOON
+                            secondClosingHour, secondClosingHour) > -60) { // CLOSING SOON
                         holder.binding.hour.setText(context.getResources().getString(R.string.closing_soon));
                         colorText = true;
                     }
                     else { // OPEN UNTIL
-                         String text = context.getResources().getString(R.string.open_until,
+                        String text = context.getResources().getString(R.string.open_until,
                                 closingHours.get(1).substring(0,2),
                                 closingHours.get(1).substring(2,4));
                         holder.binding.hour.setText(text);
@@ -294,9 +292,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
             // Update color text for "closing soon" hours
             if (colorText) displayStyleTextViewForHoursDisplay(holder.binding.hour,
-                                                                 R.color.red, Typeface.BOLD_ITALIC);
+                    R.color.red, Typeface.BOLD_ITALIC);
             else displayStyleTextViewForHoursDisplay(holder.binding.hour,
-                                                                 R.color.grey_50, Typeface.ITALIC);
+                    R.color.grey_50, Typeface.ITALIC);
         }
         catch (IndexOutOfBoundsException exception) {
             exception.printStackTrace();
@@ -311,9 +309,9 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
      * @return : OpeningAndClosingHours
      */
     private List<String> getOpeningAndClosingHoursForADay(int position,
-                                                               ScheduleType type, int currentDay) {
+                                                          ScheduleType type, int currentDay) {
         OpeningAndClosingHours openingAndClosingHours = listRestaurant.get(position)
-                                                                      .getOpeningAndClosingHours();
+                .getOpeningAndClosingHours();
         return openingAndClosingHours.getHours(type, currentDay);
     }
 
@@ -339,11 +337,11 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (listRestaurant.get(position).getPhotoReference() != null) {
             Glide.with(context)
                     .load("https://maps.googleapis.com/maps/api/place/photo?&maxwidth=400&" +
-                     "maxheight=400&photo_reference=" +
-                     listRestaurant.get(position).getPhotoReference() + "&key=" + BuildConfig.API_KEY)
+                            "maxheight=400&photo_reference=" +
+                            listRestaurant.get(position).getPhotoReference() + "&key=" + BuildConfig.API_KEY)
                     .centerCrop()
                     .override(holder.binding.photoRestaurant.getWidth(),
-                              holder.binding.photoRestaurant.getHeight())
+                            holder.binding.photoRestaurant.getHeight())
                     .into(holder.binding.photoRestaurant);
         }
         else {
@@ -386,10 +384,10 @@ public class ListViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             this.binding = binding;
             binding.rootLayoutItem.setOnClickListener(this);
             rating = Arrays.asList(binding.noteStar1,
-                                   binding.noteStar2,
-                                   binding.noteStar3,
-                                   binding.noteStar4,
-                                   binding.noteStar5);
+                    binding.noteStar2,
+                    binding.noteStar3,
+                    binding.noteStar4,
+                    binding.noteStar5);
 
         }
 

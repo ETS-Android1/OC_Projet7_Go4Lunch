@@ -289,6 +289,9 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * This methods displays OptionsFragment fragment after a click on "Option" item.
+     */
     private void onClickOptionsIcon() {
         if (fragmentManager.findFragmentByTag(OptionsFragment.TAG) == null) {
             if (fragmentManager.findFragmentByTag(RestaurantDetailsFragment.TAG) != null)
@@ -362,6 +365,9 @@ public class MainActivity extends AppCompatActivity implements
         invalidateOptionsMenu();
     }
 
+    /**
+     * Displays the RestaurantDetailsFragment for a selected Restaurant.
+     */
     public void displayRestaurantDetailsFragment() {
         fragmentManager.beginTransaction()
                 .add(R.id.fragment_container_view, RestaurantDetailsFragment.newInstance(),
@@ -456,7 +462,6 @@ public class MainActivity extends AppCompatActivity implements
                     null));
             Snackbar.make(binding.drawerLayout, R.string.snack_bar_account_deleted, Snackbar.LENGTH_SHORT).show();
         }
-
         finish();
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }

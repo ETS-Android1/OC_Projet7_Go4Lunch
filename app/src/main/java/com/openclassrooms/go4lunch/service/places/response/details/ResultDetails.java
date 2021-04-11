@@ -11,7 +11,7 @@ import androidx.annotation.VisibleForTesting;
  **/
 public class ResultDetails {
     public String formatted_phone_number;
-    public HoursInfo opening_hours; // TODO : CORRECTION NAME
+    public HoursInfo opening_hours;
     public String website;
 
     @VisibleForTesting

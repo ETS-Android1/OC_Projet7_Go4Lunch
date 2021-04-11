@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
  * File providing tests to check @{@link NotificationHandler} class implementation
  */
 @RunWith(AndroidJUnit4.class)
-public class NotificationHandlerInstrumentTest { // OK
+public class NotificationHandlerInstrumentTest {
 
     private Context context;
 

@@ -130,7 +130,7 @@ public class ListViewFragment extends Fragment implements
                 // Only if autocomplete is not activated
                 if (!((MainActivity) requireActivity()).getAutocompleteActivation()) {
                     // Search Nearby API can only returns 2 others pages of locations
-                    if (numNextPageRequest < 1) {
+                    if (numNextPageRequest < 2) {
                         if (!recyclerView.canScrollVertically(1)) {
                             // Get next places available to display
                             ArrayList<Restaurant> listToUpdate =
