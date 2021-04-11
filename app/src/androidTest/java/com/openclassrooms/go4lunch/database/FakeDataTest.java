@@ -97,4 +97,15 @@ public class FakeDataTest {
     public final static int RESTAURANT_3_PHOTO_HEIGHT = 1280;
     public final static int RESTAURANT_3_PHOTO_WIDTH = 1920;
 
+    public final static String NEXT_PLACE_TOKEN_VALUE = "ATtYBwLckkgd8U5zkmM8qV4KJsf4Rt4GVsFZxSrT1k" +
+                                                        "J2EsqNM6dsh7wGaNB9qa_ZkQVVaiwfIC3epNxs1R2M" +
+                                                        "oMHDO96iO0r1Vag6JbXrrGaAfqEWp61Odm9zFNaQaV" +
+                                                        "2vxuxEiP3c_tSWFr9ATnZ7h4Y_o_DByFeEPPP-vv6k" +
+                                                        "ZOtX8WKJgx7P9ZZK2ymP-Z-4RAcj1r8EJrIx6682rg" +
+                                                        "cNFXKUHvKdmYIp2mg5PKTic57oxh-t4edTxNjOOwv3" +
+                                                        "r04Z37wPmUFYbAQq5rULcxRRaRjyIB54UiRoMR1IBn" +
+                                                        "lAs3QPaSdDCMA_FnsOdqrTRCm6FfOu0OmbRm_h-c-o" +
+                                                        "5oUQui2jI7dsQ8oRylRrLqvM-yvx0zXPS3u6nnw63q" +
+                                                        "iCrEXNb0jnDpP0Pan-dn7T_-bQP9vfmhXNT0ny7UNS" +
+                                                        "wuK1dvlrpjMEMqP_jNG5xTLqlXRp1r8";
 }

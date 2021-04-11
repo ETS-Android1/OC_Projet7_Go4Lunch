@@ -20,7 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -62,26 +62,28 @@ public class PlacesRepositoryInstrumentTest {
     }
 
     private void initializeListRestaurants() {
-        listRestaurants = Arrays.asList(
-                new Restaurant(FakeDataTest.RESTAURANT_1_PLACE_ID,
-                        FakeDataTest.RESTAURANT_1_NAME,
-                        FakeDataTest.RESTAURANT_1_ADDRESS,
-                        FakeDataTest.RESTAURANT_1_LATITUDE,
-                        FakeDataTest.RESTAURANT_1_LONGITUDE,
-                        FakeDataTest.RESTAURANT_1_RATING),
-                new Restaurant(FakeDataTest.RESTAURANT_2_PLACE_ID,
-                        FakeDataTest.RESTAURANT_2_NAME,
-                        FakeDataTest.RESTAURANT_2_ADDRESS,
-                        FakeDataTest.RESTAURANT_2_LATITUDE,
-                        FakeDataTest.RESTAURANT_2_LONGITUDE,
-                        FakeDataTest.RESTAURANT_2_RATING),
-                new Restaurant(FakeDataTest.RESTAURANT_3_PLACE_ID,
-                        FakeDataTest.RESTAURANT_3_NAME,
-                        FakeDataTest.RESTAURANT_3_ADDRESS,
-                        FakeDataTest.RESTAURANT_3_LATITUDE,
-                        FakeDataTest.RESTAURANT_3_LONGITUDE,
-                        FakeDataTest.RESTAURANT_3_RATING)
-        );
+        Restaurant restaurant1 = new Restaurant(FakeDataTest.RESTAURANT_1_PLACE_ID,
+                FakeDataTest.RESTAURANT_1_NAME,
+                FakeDataTest.RESTAURANT_1_ADDRESS,
+                FakeDataTest.RESTAURANT_1_LATITUDE,
+                FakeDataTest.RESTAURANT_1_LONGITUDE,
+                FakeDataTest.RESTAURANT_1_RATING);
+        Restaurant restaurant2 = new Restaurant(FakeDataTest.RESTAURANT_2_PLACE_ID,
+                FakeDataTest.RESTAURANT_2_NAME,
+                FakeDataTest.RESTAURANT_2_ADDRESS,
+                FakeDataTest.RESTAURANT_2_LATITUDE,
+                FakeDataTest.RESTAURANT_2_LONGITUDE,
+                FakeDataTest.RESTAURANT_2_RATING);
+        Restaurant restaurant3 = new Restaurant(FakeDataTest.RESTAURANT_3_PLACE_ID,
+                FakeDataTest.RESTAURANT_3_NAME,
+                FakeDataTest.RESTAURANT_3_ADDRESS,
+                FakeDataTest.RESTAURANT_3_LATITUDE,
+                FakeDataTest.RESTAURANT_3_LONGITUDE,
+                FakeDataTest.RESTAURANT_3_RATING);
+        listRestaurants = new ArrayList<>();
+        listRestaurants.add(restaurant1);
+        listRestaurants.add(restaurant2);
+        listRestaurants.add(restaurant3);
     }
 
     /**
@@ -137,4 +139,23 @@ public class PlacesRepositoryInstrumentTest {
         placesRepository.getPlacesDetails(listRestaurants, callback);
     }
 
+    /**
+     * TEST #3 : test getNextPlacesNearby() method.
+     * Checks if a list of restaurants is correctly updated with details after a Details request
+     * @throws IOException : exception
+     */
+    @Test
+    public void test_if_method_get_newt_places_nearby_correctly_works() throws IOException {
+        // Service to handle callback results
+        ServicePlacesCallback callback = listRestaurant -> assertFalse(listRestaurant.isEmpty());
+
+        // Initialize SharedPreferences file to contain correct next_page_token value
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                                           AppInfo.FILE_PREF_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
+        sharedPreferences.edit().putString(AppInfo.PREF_FIRST_NEXT_PAGE_TOKEN_KEY,
+                                           FakeDataTest.NEXT_PLACE_TOKEN_VALUE).apply();
+
+        // Request first page of data
+        placesRepository.getNextPlacesNearby(callback, listRestaurants, 0);
+    }
 }
