@@ -93,7 +93,7 @@ public class PlacesRepositoryInstrumentTest {
      * @throws IOException : exception
      */
     @Test
-    public void test_if_method_find_places_nearby_correctly_work() throws IOException {
+    public void test_if_method_find_places_nearby_correctly_works() throws IOException {
         SharedPreferences sharedPreferences =
                 context.getSharedPreferences(AppInfo.FILE_PREF_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
 
@@ -147,8 +147,12 @@ public class PlacesRepositoryInstrumentTest {
     @Test
     public void test_if_method_get_newt_places_nearby_correctly_works() throws IOException {
         // Service to handle callback results
-        ServicePlacesCallback callback = listRestaurant -> assertFalse(listRestaurant.isEmpty());
-
+        ServicePlacesCallback callback = new ServicePlacesCallback() {
+            @Override
+            public void onPlacesAvailable(List<Restaurant> newListRestaurant) {
+                assertFalse(newListRestaurant.isEmpty());
+            }
+        };
         // Initialize SharedPreferences file to contain correct next_page_token value
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                                            AppInfo.FILE_PREF_NEXT_PAGE_TOKEN, Context.MODE_PRIVATE);
